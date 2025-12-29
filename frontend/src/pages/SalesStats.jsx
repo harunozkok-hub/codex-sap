@@ -1,26 +1,21 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined'
+import { Box, HStack, Text } from '@chakra-ui/react'
+import { FiBarChart2 } from 'react-icons/fi'
 
 function SalesStats() {
   return (
-    <Card elevation={0} sx={{ border: '1px solid #e8edf5' }}>
-      <CardContent>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <ShowChartOutlinedIcon color="primary" />
-          <div>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Sales Stats
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Monitor sales performance, KPIs, and growth trends.
-            </Typography>
-          </div>
-        </Stack>
-      </CardContent>
-    </Card>
+    <Box bg="white" borderWidth="1px" borderColor="gray.100" borderRadius="lg" p={4} boxShadow="sm">
+      <HStack spacing={3} align="center">
+        <FiBarChart2 size={24} color="#2b6cb0" />
+        <Box>
+          <Text fontWeight="bold" fontSize="lg">
+            Sales Stats
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            Monitor sales performance, KPIs, and growth trends.
+          </Text>
+        </Box>
+      </HStack>
+    </Box>
   )
 }
 

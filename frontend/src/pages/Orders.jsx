@@ -1,26 +1,21 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
+import { Box, HStack, Text } from '@chakra-ui/react'
+import { FiShoppingCart } from 'react-icons/fi'
 
 function Orders() {
   return (
-    <Card elevation={0} sx={{ border: '1px solid #e8edf5' }}>
-      <CardContent>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <ShoppingCartOutlinedIcon color="primary" />
-          <div>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Orders
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Track order fulfillment, status updates, and customer details.
-            </Typography>
-          </div>
-        </Stack>
-      </CardContent>
-    </Card>
+    <Box bg="white" borderWidth="1px" borderColor="gray.100" borderRadius="lg" p={4} boxShadow="sm">
+      <HStack spacing={3} align="center">
+        <FiShoppingCart size={24} color="#2b6cb0" />
+        <Box>
+          <Text fontWeight="bold" fontSize="lg">
+            Orders
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            Track order fulfillment, status updates, and customer details.
+          </Text>
+        </Box>
+      </HStack>
+    </Box>
   )
 }
 

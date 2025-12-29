@@ -1,66 +1,67 @@
 import { useMemo, useState } from 'react'
-import Avatar from '@mui/material/Avatar'
-import Box from '@mui/material/Box'
-import Collapse from '@mui/material/Collapse'
-import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-import List from '@mui/material/List'
-import ListItemButton from '@mui/material/ListItemButton'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
-import ExpandLess from '@mui/icons-material/ExpandLess'
-import ExpandMore from '@mui/icons-material/ExpandMore'
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
-import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
-import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined'
-import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined'
-import ShowChartOutlinedIcon from '@mui/icons-material/ShowChartOutlined'
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
-import { Link as RouterLink, useLocation } from 'react-router-dom'
+import {
+  Box,
+  Collapse,
+  Flex,
+  Icon,
+  IconButton,
+  Link,
+  Stack,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
+import { NavLink, useLocation } from 'react-router-dom'
+import {
+  FiBarChart2,
+  FiBox,
+  FiChevronDown,
+  FiChevronUp,
+  FiDollarSign,
+  FiHome,
+  FiShoppingCart,
+  FiTruck,
+} from 'react-icons/fi'
 
 const menuItems = [
   {
     id: 'home',
     label: 'Home',
-    icon: <HomeOutlinedIcon />,
+    icon: FiHome,
     children: [{ label: 'Dashboard', path: '/' }],
   },
   {
     id: 'products',
     label: 'Products',
-    icon: <Inventory2OutlinedIcon />,
+    icon: FiBox,
     children: [{ label: 'View Products', path: '/products' }],
   },
   {
     id: 'orders',
     label: 'Orders',
-    icon: <ShoppingCartOutlinedIcon />,
+    icon: FiShoppingCart,
     children: [{ label: 'Manage Orders', path: '/orders' }],
   },
   {
     id: 'logistics',
     label: 'Logistics',
-    icon: <LocalShippingOutlinedIcon />,
+    icon: FiTruck,
     children: [{ label: 'Logistics Overview', path: '/logistics' }],
   },
   {
     id: 'finance',
     label: 'Finance',
-    icon: <MonetizationOnOutlinedIcon />,
+    icon: FiDollarSign,
     children: [{ label: 'Finance Summary', path: '/finance' }],
   },
   {
     id: 'sales',
     label: 'Sales Stats',
-    icon: <ShowChartOutlinedIcon />,
+    icon: FiBarChart2,
     children: [{ label: 'Sales Performance', path: '/sales-stats' }],
   },
 ]
 
-function Sidebar() {
+function Sidebar({ onNavigate }) {
   const location = useLocation()
   const initialOpenState = useMemo(
     () =>
@@ -76,75 +77,69 @@ function Sidebar() {
     setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
+  const handleNavigate = () => {
+    if (onNavigate) {
+      onNavigate()
+    }
+  }
+
   return (
-    <Box sx={{ px: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ py: 2 }}>
-        <Avatar sx={{ bgcolor: 'secondary.main', width: 40, height: 40 }}>A</Avatar>
-        <Box>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            Admin
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
-            Operations
-          </Typography>
-        </Box>
+    <Box bg="blue.800" color="white" h="100%" px={4} py={5}>
+      <Stack spacing={1} mb={6}>
+        <Text fontWeight="bold" fontSize="lg">
+          Admin
+        </Text>
+        <Text fontSize="sm" color="blue.100">
+          Operations
+        </Text>
       </Stack>
 
-      <Divider sx={{ borderColor: 'rgba(255,255,255,0.2)' }} />
-
-      <List sx={{ color: '#ffffff', pt: 1, flexGrow: 1 }}>
+      <VStack align="stretch" spacing={2}>
         {menuItems.map((item) => (
           <Box key={item.id}>
-            <ListItemButton
+            <Flex
+              align="center"
+              justify="space-between"
+              px={3}
+              py={2}
+              borderRadius="md"
+              _hover={{ bg: 'whiteAlpha.200' }}
               onClick={() => handleToggle(item.id)}
-              sx={{
-                borderRadius: 1.5,
-                '&:hover': { backgroundColor: 'rgba(255,255,255,0.08)' },
-              }}
+              cursor="pointer"
             >
-              <ListItemIcon sx={{ color: 'inherit', minWidth: 36 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-              {openSections[item.id] ? <ExpandLess /> : <ExpandMore />}
-            </ListItemButton>
-            <Collapse in={openSections[item.id]} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
+              <Flex align="center" gap={3}>
+                <Icon as={item.icon} boxSize={5} />
+                <Text fontWeight="medium">{item.label}</Text>
+              </Flex>
+              <Icon as={openSections[item.id] ? FiChevronUp : FiChevronDown} boxSize={4} />
+            </Flex>
+            <Collapse in={openSections[item.id]} animateOpacity>
+              <VStack align="stretch" spacing={1} mt={1}>
                 {item.children.map((child) => {
                   const selected = location.pathname === child.path
                   return (
-                    <ListItemButton
+                    <Link
+                      as={NavLink}
                       key={child.label}
-                      component={RouterLink}
                       to={child.path}
-                      selected={selected}
-                      sx={{
-                        pl: 5,
-                        borderRadius: 1.5,
-                        my: 0.25,
-                        '&.Mui-selected': {
-                          backgroundColor: 'rgba(255,255,255,0.16)',
-                        },
-                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' },
-                      }}
+                      onClick={handleNavigate}
+                      px={11}
+                      py={2}
+                      borderRadius="md"
+                      fontSize="sm"
+                      fontWeight={selected ? 'bold' : 'normal'}
+                      bg={selected ? 'whiteAlpha.200' : 'transparent'}
+                      _hover={{ textDecoration: 'none', bg: 'whiteAlpha.200' }}
                     >
-                      <ListItemIcon sx={{ color: 'inherit', minWidth: 32 }}>
-                        <IconButton
-                          edge="start"
-                          size="small"
-                          disableRipple
-                          sx={{ color: 'inherit', p: 0.5 }}
-                        >
-                          <AssignmentOutlinedIcon fontSize="small" />
-                        </IconButton>
-                      </ListItemIcon>
-                      <ListItemText primary={child.label} />
-                    </ListItemButton>
+                      {child.label}
+                    </Link>
                   )
                 })}
-              </List>
+              </VStack>
             </Collapse>
           </Box>
         ))}
-      </List>
+      </VStack>
     </Box>
   )
 }

@@ -1,26 +1,21 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined'
+import { Box, HStack, Text } from '@chakra-ui/react'
+import { FiBox } from 'react-icons/fi'
 
 function Products() {
   return (
-    <Card elevation={0} sx={{ border: '1px solid #e8edf5' }}>
-      <CardContent>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Inventory2OutlinedIcon color="primary" />
-          <div>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Products
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Manage your catalog, pricing, and availability.
-            </Typography>
-          </div>
-        </Stack>
-      </CardContent>
-    </Card>
+    <Box bg="white" borderWidth="1px" borderColor="gray.100" borderRadius="lg" p={4} boxShadow="sm">
+      <HStack spacing={3} align="center">
+        <FiBox size={24} color="#2b6cb0" />
+        <Box>
+          <Text fontWeight="bold" fontSize="lg">
+            Products
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            Manage your catalog, pricing, and availability.
+          </Text>
+        </Box>
+      </HStack>
+    </Box>
   )
 }
 

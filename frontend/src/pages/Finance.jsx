@@ -1,26 +1,21 @@
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import MonetizationOnOutlinedIcon from '@mui/icons-material/MonetizationOnOutlined'
+import { Box, HStack, Text } from '@chakra-ui/react'
+import { FiDollarSign } from 'react-icons/fi'
 
 function Finance() {
   return (
-    <Card elevation={0} sx={{ border: '1px solid #e8edf5' }}>
-      <CardContent>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <MonetizationOnOutlinedIcon color="primary" />
-          <div>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Finance
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Review revenue, expenses, and financial health metrics.
-            </Typography>
-          </div>
-        </Stack>
-      </CardContent>
-    </Card>
+    <Box bg="white" borderWidth="1px" borderColor="gray.100" borderRadius="lg" p={4} boxShadow="sm">
+      <HStack spacing={3} align="center">
+        <FiDollarSign size={24} color="#2b6cb0" />
+        <Box>
+          <Text fontWeight="bold" fontSize="lg">
+            Finance
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            Review revenue, expenses, and financial health metrics.
+          </Text>
+        </Box>
+      </HStack>
+    </Box>
   )
 }
 

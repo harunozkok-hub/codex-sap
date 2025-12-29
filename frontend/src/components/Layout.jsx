@@ -1,85 +1,87 @@
 import { useMemo } from 'react'
-import AppBar from '@mui/material/AppBar'
-import Box from '@mui/material/Box'
-import CssBaseline from '@mui/material/CssBaseline'
-import Toolbar from '@mui/material/Toolbar'
-import Typography from '@mui/material/Typography'
+import {
+  Box,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  Flex,
+  HStack,
+  IconButton,
+  Text,
+  useDisclosure,
+  useMediaQuery,
+} from '@chakra-ui/react'
+import { FiMenu } from 'react-icons/fi'
 import { Outlet } from 'react-router-dom'
-import Drawer from '@mui/material/Drawer'
-import { createTheme, ThemeProvider } from '@mui/material/styles'
 import Sidebar from './Sidebar'
 
 const drawerWidth = 260
 
 function Layout() {
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          background: {
-            default: '#f5f7fb',
-          },
-          primary: {
-            main: '#123a6e',
-          },
-          secondary: {
-            main: '#0f5d96',
-          },
-        },
-        shape: { borderRadius: 12 },
-        components: {
-          MuiCard: {
-            styleOverrides: {
-              root: {
-                borderRadius: 12,
-              },
-            },
-          },
-        },
-      }),
-    [],
-  )
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [isDesktop] = useMediaQuery('(min-width: 1024px)')
+
+  const sidebarContent = useMemo(() => <Sidebar onNavigate={onClose} />, [onClose])
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: 'background.default' }}>
-        <AppBar
-          position="fixed"
-          color="primary"
-          sx={{ zIndex: (muiTheme) => muiTheme.zIndex.drawer + 1, boxShadow: 'none' }}
+    <Flex bg="gray.50" minH="100vh">
+      {isDesktop ? (
+        <Box
+          w={drawerWidth}
+          bg="white"
+          borderRightWidth="1px"
+          borderColor="gray.100"
+          position="sticky"
+          top={0}
+          h="100vh"
         >
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
-              Admin Dashboard
-            </Typography>
-          </Toolbar>
-        </AppBar>
-
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              borderRight: 'none',
-              backgroundColor: '#0f4d8f',
-              color: '#ffffff',
-            },
-          }}
-        >
-          <Toolbar />
           <Sidebar />
+        </Box>
+      ) : (
+        <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="xs">
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
+            <DrawerBody p={0}>{sidebarContent}</DrawerBody>
+          </DrawerContent>
         </Drawer>
+      )}
 
-        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 4 } }}>
-          <Toolbar />
+      <Box flex="1" minW={0}>
+        <HStack
+          as="header"
+          spacing={3}
+          px={4}
+          py={3}
+          borderBottomWidth="1px"
+          borderColor="gray.100"
+          bg="white"
+          position="sticky"
+          top={0}
+          zIndex={1}
+        >
+          {!isDesktop ? (
+            <IconButton
+              aria-label="Open menu"
+              icon={<FiMenu />}
+              variant="ghost"
+              onClick={onOpen}
+            />
+          ) : null}
+          <Text fontWeight="bold" fontSize="lg" color="gray.800">
+            Admin Dashboard
+          </Text>
+        </HStack>
+
+        <Box as="main" px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }}>
           <Outlet />
         </Box>
       </Box>
-    </ThemeProvider>
+    </Flex>
   )
 }
 
