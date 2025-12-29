@@ -2,11 +2,6 @@ import { useMemo } from 'react'
 import {
   Box,
   Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
   Flex,
   HStack,
   IconButton,
@@ -40,42 +35,65 @@ function Layout() {
         >
           <Sidebar />
         </Box>
-      ) : (
-        <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="xs">
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader borderBottomWidth="1px">Menu</DrawerHeader>
-            <DrawerBody p={0}>{sidebarContent}</DrawerBody>
-          </DrawerContent>
-        </Drawer>
-      )}
+      ) : null}
 
       <Box flex="1" minW={0}>
-        <HStack
-          as="header"
-          spacing={3}
-          px={4}
-          py={3}
-          borderBottomWidth="1px"
-          borderColor="gray.100"
-          bg="white"
-          position="sticky"
-          top={0}
-          zIndex={1}
-        >
-          {!isDesktop ? (
-            <IconButton
-              aria-label="Open menu"
-              icon={<FiMenu />}
-              variant="ghost"
-              onClick={onOpen}
-            />
-          ) : null}
-          <Text fontWeight="bold" fontSize="lg" color="gray.800">
-            Admin Dashboard
-          </Text>
-        </HStack>
+        {isDesktop ? (
+          <HStack
+            as="header"
+            spacing={3}
+            px={4}
+            py={3}
+            borderBottomWidth="1px"
+            borderColor="gray.100"
+            bg="white"
+            position="sticky"
+            top={0}
+            zIndex={1}
+          >
+            <Text fontWeight="bold" fontSize="lg" color="gray.800">
+              Admin Dashboard
+            </Text>
+          </HStack>
+        ) : (
+          <Drawer.Root
+            open={isOpen}
+            onOpenChange={(open) => {
+              if (open) onOpen()
+              else onClose()
+            }}
+            placement="start"
+          >
+            <HStack
+              as="header"
+              spacing={3}
+              px={4}
+              py={3}
+              borderBottomWidth="1px"
+              borderColor="gray.100"
+              bg="white"
+              position="sticky"
+              top={0}
+              zIndex={1}
+            >
+              <Drawer.Trigger asChild>
+                <IconButton aria-label="Open menu" icon={<FiMenu />} variant="ghost" />
+              </Drawer.Trigger>
+              <Text fontWeight="bold" fontSize="lg" color="gray.800">
+                Admin Dashboard
+              </Text>
+            </HStack>
+
+            <Drawer.Backdrop />
+            <Drawer.Positioner>
+              <Drawer.Content>
+                <Drawer.CloseTrigger />
+                <Drawer.Header borderBottomWidth="1px">Menu</Drawer.Header>
+                <Drawer.Body p={0}>{sidebarContent}</Drawer.Body>
+              </Drawer.Content>
+            </Drawer.Positioner>
+          </Drawer.Root>
+        )}
 
         <Box as="main" px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }}>
           <Outlet />

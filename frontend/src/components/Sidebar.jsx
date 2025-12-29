@@ -1,15 +1,5 @@
 import { useMemo, useState } from 'react'
-import {
-  Box,
-  Collapse,
-  Flex,
-  Icon,
-  IconButton,
-  Link,
-  Stack,
-  Text,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Flex, Icon, Link, Stack, Text, VStack } from '@chakra-ui/react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   FiBarChart2,
@@ -113,7 +103,7 @@ function Sidebar({ onNavigate }) {
               </Flex>
               <Icon as={openSections[item.id] ? FiChevronUp : FiChevronDown} boxSize={4} />
             </Flex>
-            <Collapse in={openSections[item.id]} animateOpacity>
+            {openSections[item.id] ? (
               <VStack align="stretch" spacing={1} mt={1}>
                 {item.children.map((child) => {
                   const selected = location.pathname === child.path
@@ -136,7 +126,7 @@ function Sidebar({ onNavigate }) {
                   )
                 })}
               </VStack>
-            </Collapse>
+            ) : null}
           </Box>
         ))}
       </VStack>
