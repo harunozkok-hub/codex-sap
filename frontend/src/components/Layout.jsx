@@ -4,19 +4,20 @@ import {
   Flex,
   HStack,
   IconButton,
+  Portal,
   Text,
   useDisclosure,
   useMediaQuery,
-} from '@chakra-ui/react'
-import { FiMenu } from 'react-icons/fi'
-import { Outlet } from 'react-router-dom'
-import Sidebar from './Sidebar'
+} from "@chakra-ui/react"
+import { FiMenu, FiX } from "react-icons/fi"
+import { Outlet } from "react-router-dom"
+import Sidebar from "./Sidebar"
 
 const drawerWidth = 260
 
 function Layout() {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [isDesktop] = useMediaQuery('(min-width: 1024px)')
+  const [isDesktop] = useMediaQuery("(min-width: 1024px)")
 
   return (
     <Flex bg="gray.50" minH="100vh">
@@ -35,7 +36,11 @@ function Layout() {
       ) : null}
 
       <Box flex="1" minW={0}>
-        <Drawer.Root open={!isDesktop && isOpen} onOpenChange={(open) => (open ? onOpen() : onClose())} placement="start">
+        <Drawer.Root
+          open={!isDesktop && isOpen}
+          onOpenChange={(open) => (open ? onOpen() : onClose())}
+          placement="start"
+        >
           <HStack
             as="header"
             spacing={3}
@@ -50,7 +55,15 @@ function Layout() {
           >
             {!isDesktop ? (
               <Drawer.Trigger asChild>
-                <IconButton aria-label="Open menu" icon={<FiMenu />} variant="ghost" onClick={onOpen} />
+                <IconButton
+                  aria-label="Open menu"
+                  variant="surface"
+                  color="blue.700"
+                  mx={3}
+                  onClick={onOpen}
+                >
+                  <FiMenu />
+                </IconButton>
               </Drawer.Trigger>
             ) : null}
             <Text fontWeight="bold" fontSize="lg" color="gray.800">
@@ -59,18 +72,28 @@ function Layout() {
           </HStack>
 
           {!isDesktop ? (
-            <>
+            <Portal>
               <Drawer.Backdrop />
               <Drawer.Positioner>
                 <Drawer.Content>
-                  <Drawer.CloseTrigger />
+                  <Drawer.CloseTrigger asChild>
+                    <IconButton
+                      aria-label="Open menu"
+                      variant="surface"
+                      color="blue.700"
+                      mx={3}
+                      onClick={onOpen}
+                    >
+                      <FiX />
+                    </IconButton>
+                  </Drawer.CloseTrigger>
                   <Drawer.Header borderBottomWidth="1px">Menu</Drawer.Header>
                   <Drawer.Body p={0}>
                     <Sidebar onNavigate={onClose} />
                   </Drawer.Body>
                 </Drawer.Content>
               </Drawer.Positioner>
-            </>
+            </Portal>
           ) : null}
         </Drawer.Root>
 

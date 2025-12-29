@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import { Box, Flex, Icon, Link, Stack, Text, VStack } from '@chakra-ui/react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useMemo, useState } from "react"
+import { Box, Flex, Icon, Link, Stack, Text, VStack } from "@chakra-ui/react"
+import { NavLink, useLocation } from "react-router-dom"
 import {
   FiBarChart2,
   FiBox,
@@ -10,44 +10,44 @@ import {
   FiHome,
   FiShoppingCart,
   FiTruck,
-} from 'react-icons/fi'
+} from "react-icons/fi"
 
 const menuItems = [
   {
-    id: 'home',
-    label: 'Home',
+    id: "home",
+    label: "Home",
     icon: FiHome,
-    children: [{ label: 'Dashboard', path: '/' }],
+    children: [{ label: "Dashboard", path: "/" }],
   },
   {
-    id: 'products',
-    label: 'Products',
+    id: "products",
+    label: "Products",
     icon: FiBox,
-    children: [{ label: 'View Products', path: '/products' }],
+    children: [{ label: "View Products", path: "/products" }],
   },
   {
-    id: 'orders',
-    label: 'Orders',
+    id: "orders",
+    label: "Orders",
     icon: FiShoppingCart,
-    children: [{ label: 'Manage Orders', path: '/orders' }],
+    children: [{ label: "Manage Orders", path: "/orders" }],
   },
   {
-    id: 'logistics',
-    label: 'Logistics',
+    id: "logistics",
+    label: "Logistics",
     icon: FiTruck,
-    children: [{ label: 'Logistics Overview', path: '/logistics' }],
+    children: [{ label: "Logistics Overview", path: "/logistics" }],
   },
   {
-    id: 'finance',
-    label: 'Finance',
+    id: "finance",
+    label: "Finance",
     icon: FiDollarSign,
-    children: [{ label: 'Finance Summary', path: '/finance' }],
+    children: [{ label: "Finance Summary", path: "/finance" }],
   },
   {
-    id: 'sales',
-    label: 'Sales Stats',
+    id: "sales",
+    label: "Sales Stats",
     icon: FiBarChart2,
-    children: [{ label: 'Sales Performance', path: '/sales-stats' }],
+    children: [{ label: "Sales Performance", path: "/sales-stats" }],
   },
 ]
 
@@ -56,10 +56,10 @@ function Sidebar({ onNavigate }) {
   const initialOpenState = useMemo(
     () =>
       menuItems.reduce((acc, item) => {
-        acc[item.id] = true
+        acc[item.id] = false
         return acc
       }, {}),
-    [],
+    []
   )
   const [openSections, setOpenSections] = useState(initialOpenState)
 
@@ -74,7 +74,7 @@ function Sidebar({ onNavigate }) {
   }
 
   return (
-    <Box bg="blue.800" color="white" h="100%" px={4} py={5}>
+    <Box bg="blue.700" color="white" h="100%" px={4} py={5}>
       <Stack spacing={1} mb={6}>
         <Text fontWeight="bold" fontSize="lg">
           Admin
@@ -93,7 +93,7 @@ function Sidebar({ onNavigate }) {
               px={3}
               py={2}
               borderRadius="md"
-              _hover={{ bg: 'whiteAlpha.200' }}
+              _hover={{ bg: "whiteAlpha.200" }}
               onClick={() => handleToggle(item.id)}
               cursor="pointer"
             >
@@ -101,7 +101,10 @@ function Sidebar({ onNavigate }) {
                 <Icon as={item.icon} boxSize={5} />
                 <Text fontWeight="medium">{item.label}</Text>
               </Flex>
-              <Icon as={openSections[item.id] ? FiChevronUp : FiChevronDown} boxSize={4} />
+              <Icon
+                as={openSections[item.id] ? FiChevronUp : FiChevronDown}
+                boxSize={4}
+              />
             </Flex>
             {openSections[item.id] ? (
               <VStack align="stretch" spacing={1} mt={1}>
@@ -116,10 +119,11 @@ function Sidebar({ onNavigate }) {
                       px={11}
                       py={2}
                       borderRadius="md"
+                      color="white"
                       fontSize="sm"
-                      fontWeight={selected ? 'bold' : 'normal'}
-                      bg={selected ? 'whiteAlpha.200' : 'transparent'}
-                      _hover={{ textDecoration: 'none', bg: 'whiteAlpha.200' }}
+                      fontWeight={selected ? "bold" : "normal"}
+                      bg={selected ? "whiteAlpha.300" : "transparent"}
+                      _hover={{ textDecoration: "none", bg: "whiteAlpha.200" }}
                     >
                       {child.label}
                     </Link>
