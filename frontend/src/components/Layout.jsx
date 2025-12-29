@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import {
   Box,
   Drawer,
@@ -19,8 +18,6 @@ function Layout() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [isDesktop] = useMediaQuery('(min-width: 1024px)')
 
-  const sidebarContent = useMemo(() => <Sidebar onNavigate={onClose} />, [onClose])
-
   return (
     <Flex bg="gray.50" minH="100vh">
       {isDesktop ? (
@@ -38,7 +35,7 @@ function Layout() {
       ) : null}
 
       <Box flex="1" minW={0}>
-        {isDesktop ? (
+        <Drawer.Root open={!isDesktop && isOpen} onOpenChange={(open) => (open ? onOpen() : onClose())} placement="start">
           <HStack
             as="header"
             spacing={3}
@@ -51,49 +48,31 @@ function Layout() {
             top={0}
             zIndex={1}
           >
+            {!isDesktop ? (
+              <Drawer.Trigger asChild>
+                <IconButton aria-label="Open menu" icon={<FiMenu />} variant="ghost" onClick={onOpen} />
+              </Drawer.Trigger>
+            ) : null}
             <Text fontWeight="bold" fontSize="lg" color="gray.800">
               Admin Dashboard
             </Text>
           </HStack>
-        ) : (
-          <Drawer.Root
-            open={isOpen}
-            onOpenChange={(open) => {
-              if (open) onOpen()
-              else onClose()
-            }}
-            placement="start"
-          >
-            <HStack
-              as="header"
-              spacing={3}
-              px={4}
-              py={3}
-              borderBottomWidth="1px"
-              borderColor="gray.100"
-              bg="white"
-              position="sticky"
-              top={0}
-              zIndex={1}
-            >
-              <Drawer.Trigger asChild>
-                <IconButton aria-label="Open menu" icon={<FiMenu />} variant="ghost" />
-              </Drawer.Trigger>
-              <Text fontWeight="bold" fontSize="lg" color="gray.800">
-                Admin Dashboard
-              </Text>
-            </HStack>
 
-            <Drawer.Backdrop />
-            <Drawer.Positioner>
-              <Drawer.Content>
-                <Drawer.CloseTrigger />
-                <Drawer.Header borderBottomWidth="1px">Menu</Drawer.Header>
-                <Drawer.Body p={0}>{sidebarContent}</Drawer.Body>
-              </Drawer.Content>
-            </Drawer.Positioner>
-          </Drawer.Root>
-        )}
+          {!isDesktop ? (
+            <>
+              <Drawer.Backdrop />
+              <Drawer.Positioner>
+                <Drawer.Content>
+                  <Drawer.CloseTrigger />
+                  <Drawer.Header borderBottomWidth="1px">Menu</Drawer.Header>
+                  <Drawer.Body p={0}>
+                    <Sidebar onNavigate={onClose} />
+                  </Drawer.Body>
+                </Drawer.Content>
+              </Drawer.Positioner>
+            </>
+          ) : null}
+        </Drawer.Root>
 
         <Box as="main" px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }}>
           <Outlet />
