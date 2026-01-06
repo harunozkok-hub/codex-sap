@@ -10,7 +10,7 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react"
 import { FiMenu, FiX } from "react-icons/fi"
-import { Outlet } from "react-router-dom"
+import { Outlet } from "react-router"
 import Sidebar from "./Sidebar"
 
 const drawerWidth = 260

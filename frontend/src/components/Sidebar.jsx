@@ -1,6 +1,15 @@
 import { useMemo, useState } from "react"
-import { Box, Flex, Icon, Link, Stack, Text, VStack } from "@chakra-ui/react"
-import { NavLink, useLocation } from "react-router-dom"
+import {
+  Box,
+  Flex,
+  Icon,
+  Link,
+  Stack,
+  Text,
+  VStack,
+  Avatar,
+} from "@chakra-ui/react"
+import { NavLink, useLocation } from "react-router"
 import {
   FiBarChart2,
   FiBox,
@@ -17,7 +26,7 @@ const menuItems = [
     id: "home",
     label: "Home",
     icon: FiHome,
-    children: [{ label: "Dashboard", path: "/" }],
+    path: "/",
   },
   {
     id: "products",
@@ -76,63 +85,96 @@ function Sidebar({ onNavigate }) {
   return (
     <Box bg="blue.700" color="white" h="100%" px={4} py={5}>
       <Stack spacing={1} mb={6}>
-        <Text fontWeight="bold" fontSize="lg">
-          Admin
-        </Text>
-        <Text fontSize="sm" color="blue.100">
-          Operations
-        </Text>
+        <Flex align="center" gap={3}>
+          <Avatar.Root variant="outline" shape="rounded">
+            <Avatar.Fallback name="Segun Adebayo" color="white" />
+          </Avatar.Root>
+          <Text fontWeight="bold" fontSize="lg" px={4}>
+            Admin
+          </Text>
+        </Flex>
       </Stack>
 
       <VStack align="stretch" spacing={2}>
-        {menuItems.map((item) => (
-          <Box key={item.id}>
-            <Flex
-              align="center"
-              justify="space-between"
-              px={3}
-              py={2}
-              borderRadius="md"
-              _hover={{ bg: "whiteAlpha.200" }}
-              onClick={() => handleToggle(item.id)}
-              cursor="pointer"
-            >
-              <Flex align="center" gap={3}>
-                <Icon as={item.icon} boxSize={5} />
-                <Text fontWeight="medium">{item.label}</Text>
-              </Flex>
-              <Icon
-                as={openSections[item.id] ? FiChevronUp : FiChevronDown}
-                boxSize={4}
-              />
-            </Flex>
-            {openSections[item.id] ? (
-              <VStack align="stretch" spacing={1} mt={1}>
-                {item.children.map((child) => {
-                  const selected = location.pathname === child.path
-                  return (
-                    <Link
-                      as={NavLink}
-                      key={child.label}
-                      to={child.path}
-                      onClick={handleNavigate}
-                      px={11}
-                      py={2}
-                      borderRadius="md"
-                      color="white"
-                      fontSize="sm"
-                      fontWeight={selected ? "bold" : "normal"}
-                      bg={selected ? "whiteAlpha.300" : "transparent"}
-                      _hover={{ textDecoration: "none", bg: "whiteAlpha.200" }}
-                    >
-                      {child.label}
-                    </Link>
-                  )
-                })}
-              </VStack>
-            ) : null}
-          </Box>
-        ))}
+        {menuItems.map((item) => {
+          const selected = location.pathname === item.path
+          return (
+            <Box key={item.id}>
+              {item.children ? (
+                <Flex
+                  align="center"
+                  justify="space-between"
+                  px={3}
+                  py={2}
+                  borderRadius="md"
+                  _hover={{ bg: "whiteAlpha.200" }}
+                  onClick={() => handleToggle(item.id)}
+                  cursor="pointer"
+                >
+                  <Flex align="center" gap={3}>
+                    <Icon as={item.icon} boxSize={5} />
+                    <Text fontWeight="medium">{item.label}</Text>
+                  </Flex>
+                  <Icon
+                    as={openSections[item.id] ? FiChevronUp : FiChevronDown}
+                    boxSize={4}
+                  />
+                </Flex>
+              ) : (
+                <Flex
+                  align="center"
+                  justify="flex-start"
+                  as={NavLink}
+                  key={item.label}
+                  to={item.path}
+                  onClick={handleNavigate}
+                  gap={3}
+                  px={3}
+                  py={2}
+                  borderRadius="md"
+                  color="white"
+                  fontSize="sm"
+                  _icon={item.icon}
+                  bg={selected ? "whiteAlpha.300" : "transparent"}
+                  _hover={{ textDecoration: "none", bg: "whiteAlpha.200" }}
+                >
+                  <Icon as={item.icon} boxSize={5} />
+                  <Text fontWeight={selected ? "bold" : "medium"}>
+                    {item.label}
+                  </Text>
+                </Flex>
+              )}
+              {openSections[item.id] ? (
+                <VStack align="stretch" spacing={1} mt={1}>
+                  {item.children.map((child) => {
+                    const selected = location.pathname === child.path
+                    return (
+                      <Link
+                        as={NavLink}
+                        key={child.label}
+                        to={child.path}
+                        onClick={handleNavigate}
+                        px={11}
+                        py={2}
+                        borderRadius="md"
+                        color="white"
+                        fontSize="sm"
+                        fontWeight={selected ? "bold" : "normal"}
+                        bg={selected ? "whiteAlpha.300" : "transparent"}
+                        _hover={{
+                          textDecoration: "none",
+                          bg: "whiteAlpha.200",
+                        }}
+                      >
+                        {child.label}
+                      </Link>
+                    )
+                  })}
+                </VStack>
+              ) : null}
+            </Box>
+          )
+        })}
       </VStack>
     </Box>
   )

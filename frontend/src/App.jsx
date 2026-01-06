@@ -1,11 +1,11 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
-import Layout from './components/Layout'
-import Dashboard from './pages/Dashboard'
-import Finance from './pages/Finance'
-import Logistics from './pages/Logistics'
-import Orders from './pages/Orders'
-import Products from './pages/Products'
-import SalesStats from './pages/SalesStats'
+import { Navigate, Route, Routes } from "react-router"
+import Layout from "./components/Layout"
+import Dashboard from "./pages/Dashboard"
+import Finance from "./pages/Finance"
+import Logistics from "./pages/Logistics"
+import Orders from "./pages/Orders"
+import Products from "./pages/Products"
+import SalesStats from "./pages/SalesStats"
 
 function App() {
   return (
