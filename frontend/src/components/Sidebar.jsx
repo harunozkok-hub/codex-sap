@@ -19,6 +19,7 @@ import {
   FiHome,
   FiShoppingCart,
   FiTruck,
+  FiSettings,
 } from "react-icons/fi"
 
 const menuItems = [
@@ -26,37 +27,43 @@ const menuItems = [
     id: "home",
     label: "Home",
     icon: FiHome,
-    path: "/",
+    path: "",
   },
   {
     id: "products",
     label: "Products",
     icon: FiBox,
-    children: [{ label: "View Products", path: "/products" }],
+    children: [{ label: "View Products", path: "products" }],
   },
   {
     id: "orders",
     label: "Orders",
     icon: FiShoppingCart,
-    children: [{ label: "Manage Orders", path: "/orders" }],
+    children: [{ label: "Manage Orders", path: "orders" }],
   },
   {
     id: "logistics",
     label: "Logistics",
     icon: FiTruck,
-    children: [{ label: "Logistics Overview", path: "/logistics" }],
+    children: [{ label: "Logistics Overview", path: "logistics" }],
   },
   {
     id: "finance",
     label: "Finance",
     icon: FiDollarSign,
-    children: [{ label: "Finance Summary", path: "/finance" }],
+    children: [{ label: "Finance Summary", path: "finance" }],
   },
   {
     id: "sales",
     label: "Sales Stats",
     icon: FiBarChart2,
-    children: [{ label: "Sales Performance", path: "/sales-stats" }],
+    children: [{ label: "Sales Performance", path: "sales-stats" }],
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    icon: FiSettings,
+    children: [{ label: "UI Settings", path: "ui-settings" }],
   },
 ]
 
@@ -83,7 +90,7 @@ function Sidebar({ onNavigate }) {
   }
 
   return (
-    <Box bg="blue.700" color="white" h="100%" px={4} py={5}>
+    <Box bg="blue.800" color="white" h="100%" px={4} py={5}>
       <Stack spacing={1} mb={6}>
         <Flex align="center" gap={3}>
           <Avatar.Root variant="outline" shape="rounded">

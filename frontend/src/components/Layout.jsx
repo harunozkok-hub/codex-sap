@@ -24,7 +24,7 @@ function Layout() {
       {isDesktop ? (
         <Box
           w={drawerWidth}
-          bg="white"
+          bg="gray.100"
           borderRightWidth="1px"
           borderColor="gray.100"
           position="sticky"
@@ -59,6 +59,8 @@ function Layout() {
                   aria-label="Open menu"
                   variant="surface"
                   color="blue.700"
+                  _hover={{ bg: "gray.100" }}
+                  bg="white"
                   mx={3}
                   onClick={onOpen}
                 >
@@ -78,16 +80,21 @@ function Layout() {
                 <Drawer.Content>
                   <Drawer.CloseTrigger asChild>
                     <IconButton
-                      aria-label="Open menu"
-                      variant="surface"
+                      variant="subtle"
                       color="blue.700"
+                      _hover={{ bg: "gray.400" }}
+                      bg="gray.200"
                       mx={3}
                       onClick={onOpen}
                     >
                       <FiX />
                     </IconButton>
                   </Drawer.CloseTrigger>
-                  <Drawer.Header borderBottomWidth="1px">Menu</Drawer.Header>
+                  <Drawer.Header bg="gray.200" borderBottomWidth="1px">
+                    <Text fontWeight="bold" fontSize="lg">
+                      Menu
+                    </Text>
+                  </Drawer.Header>
                   <Drawer.Body p={0}>
                     <Sidebar onNavigate={onClose} />
                   </Drawer.Body>
