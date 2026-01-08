@@ -1,7 +1,7 @@
 import { Box, HStack, Stack, Text } from "@chakra-ui/react"
-import { FiShoppingCart } from "react-icons/fi"
+import { FiTruck } from "react-icons/fi"
 
-function Orders() {
+function ProductionTimeline() {
   return (
     <Box
       bg="white"
@@ -12,24 +12,24 @@ function Orders() {
       boxShadow="sm"
     >
       <HStack spacing={3} align="center">
-        <FiShoppingCart size={24} color="#2b6cb0" />
+        <FiTruck size={24} color="#2b6cb0" />
         <HStack>
           <Text fontWeight="bold" fontSize="lg">
-            Orders
+            Production Timeline
           </Text>
-          <Text fontWeight="medium" fontSize="lg">
-            Manage customer orders from all channels
+          <Text fontWeight="medium" fontSize="sm">
+            - Visualize production schedules and lead times
           </Text>
         </HStack>
       </HStack>
       <Stack>
         <Text fontSize="sm" color="gray.600">
-          View, process, and track customer orders, including orders synced from
-          Wix.
+          See expected completion dates, delays, and production capacity over
+          time.
         </Text>
       </Stack>
     </Box>
   )
 }
 
-export default Orders
+export default ProductionTimeline

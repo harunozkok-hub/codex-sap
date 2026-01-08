@@ -1,7 +1,7 @@
 import { Box, HStack, Stack, Text } from "@chakra-ui/react"
-import { FiShoppingCart } from "react-icons/fi"
+import { FiTruck } from "react-icons/fi"
 
-function Orders() {
+function Samples() {
   return (
     <Box
       bg="white"
@@ -12,24 +12,24 @@ function Orders() {
       boxShadow="sm"
     >
       <HStack spacing={3} align="center">
-        <FiShoppingCart size={24} color="#2b6cb0" />
+        <FiTruck size={24} color="#2b6cb0" />
         <HStack>
           <Text fontWeight="bold" fontSize="lg">
-            Orders
+            Samples & Gifts
           </Text>
-          <Text fontWeight="medium" fontSize="lg">
-            Manage customer orders from all channels
+          <Text fontWeight="medium" fontSize="sm">
+            - Handle non-sellable promotional items
           </Text>
         </HStack>
       </HStack>
       <Stack>
         <Text fontSize="sm" color="gray.600">
-          View, process, and track customer orders, including orders synced from
-          Wix.
+          Manage free samples and gift items used for promotions or marketing
+          campaigns.
         </Text>
       </Stack>
     </Box>
   )
 }
 
-export default Orders
+export default Samples

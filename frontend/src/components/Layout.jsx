@@ -104,7 +104,7 @@ function Layout() {
           ) : null}
         </Drawer.Root>
 
-        <Box as="main" px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }}>
+        <Box as="main" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
           <Outlet />
         </Box>
       </Box>

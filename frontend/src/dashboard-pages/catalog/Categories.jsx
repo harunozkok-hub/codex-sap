@@ -1,7 +1,7 @@
 import { Box, HStack, Stack, Text } from "@chakra-ui/react"
-import { FiShoppingCart } from "react-icons/fi"
+import { FiBox } from "react-icons/fi"
 
-function Orders() {
+function Categories() {
   return (
     <Box
       bg="white"
@@ -12,24 +12,24 @@ function Orders() {
       boxShadow="sm"
     >
       <HStack spacing={3} align="center">
-        <FiShoppingCart size={24} color="#2b6cb0" />
+        <FiBox size={24} color="#2b6cb0" />
         <HStack>
           <Text fontWeight="bold" fontSize="lg">
-            Orders
+            CATEGORIES
           </Text>
-          <Text fontWeight="medium" fontSize="lg">
-            Manage customer orders from all channels
+          <Text fontWeight="medium" fontSize="sm">
+            - Organize products for your store and customers
           </Text>
         </HStack>
       </HStack>
       <Stack>
         <Text fontSize="sm" color="gray.600">
-          View, process, and track customer orders, including orders synced from
-          Wix.
+          Create and manage product categories, and control how products are
+          grouped and displayed, including Wix categories.
         </Text>
       </Stack>
     </Box>
   )
 }
 
-export default Orders
+export default Categories
