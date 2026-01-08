@@ -9,7 +9,7 @@ import {
   VStack,
   Avatar,
 } from "@chakra-ui/react"
-import { NavLink, useLocation } from "react-router"
+import { NavLink } from "react-router"
 import {
   FiBarChart2,
   FiBox,
@@ -68,7 +68,7 @@ const menuItems = [
 ]
 
 function Sidebar({ onNavigate }) {
-  const location = useLocation()
+  //const location = useLocation()
   const initialOpenState = useMemo(
     () =>
       menuItems.reduce((acc, item) => {
@@ -104,7 +104,6 @@ function Sidebar({ onNavigate }) {
 
       <VStack align="stretch" spacing={2}>
         {menuItems.map((item) => {
-          const selected = location.pathname === item.path
           return (
             <Box key={item.id}>
               {item.children ? (
@@ -114,6 +113,7 @@ function Sidebar({ onNavigate }) {
                   px={3}
                   py={2}
                   borderRadius="md"
+                  //bg={sectionActive ? "whiteAlpha.200" : "transparent"}
                   _hover={{ bg: "whiteAlpha.200" }}
                   onClick={() => handleToggle(item.id)}
                   cursor="pointer"
@@ -134,6 +134,7 @@ function Sidebar({ onNavigate }) {
                   as={NavLink}
                   key={item.label}
                   to={item.path}
+                  end
                   onClick={handleNavigate}
                   gap={3}
                   px={3}
@@ -141,20 +142,18 @@ function Sidebar({ onNavigate }) {
                   borderRadius="md"
                   color="white"
                   fontSize="sm"
-                  _icon={item.icon}
-                  bg={selected ? "whiteAlpha.300" : "transparent"}
+                  style={({ isActive }) => ({
+                    background: isActive ? "whiteAlpha.300" : "transparent",
+                  })}
                   _hover={{ textDecoration: "none", bg: "whiteAlpha.200" }}
                 >
                   <Icon as={item.icon} boxSize={5} />
-                  <Text fontWeight={selected ? "bold" : "medium"}>
-                    {item.label}
-                  </Text>
+                  <Text>{item.label}</Text>
                 </Flex>
               )}
               {openSections[item.id] ? (
                 <VStack align="stretch" spacing={1} mt={1}>
                   {item.children.map((child) => {
-                    const selected = location.pathname === child.path
                     return (
                       <Link
                         as={NavLink}
@@ -166,12 +165,16 @@ function Sidebar({ onNavigate }) {
                         borderRadius="md"
                         color="white"
                         fontSize="sm"
-                        fontWeight={selected ? "bold" : "normal"}
-                        bg={selected ? "whiteAlpha.300" : "transparent"}
-                        _hover={{
-                          textDecoration: "none",
-                          bg: "whiteAlpha.200",
-                        }}
+                        style={({ isActive }) => ({
+                          fontWeight: isActive ? "bold" : "normal",
+                          background: isActive
+                            ? "rgba(255,255,255,0.18)"
+                            : "transparent",
+                          _hover: {
+                            textDecoration: "none",
+                            background: "whiteAlpha.200",
+                          },
+                        })}
                       >
                         {child.label}
                       </Link>
