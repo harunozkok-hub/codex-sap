@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useState } from "react";
 import {
   Box,
   Flex,
@@ -8,8 +8,10 @@ import {
   Text,
   VStack,
   Avatar,
-} from "@chakra-ui/react"
-import { NavLink } from "react-router"
+  Button,
+  Separator,
+} from "@chakra-ui/react";
+import { NavLink } from "react-router";
 import {
   FiBarChart2,
   FiBox,
@@ -20,7 +22,7 @@ import {
   FiShoppingCart,
   FiTruck,
   FiSettings,
-} from "react-icons/fi"
+} from "react-icons/fi";
 
 const menuItems = [
   {
@@ -65,29 +67,29 @@ const menuItems = [
     icon: FiSettings,
     children: [{ label: "UI Settings", path: "ui-settings" }],
   },
-]
+];
 
 function Sidebar({ onNavigate }) {
   //const location = useLocation()
   const initialOpenState = useMemo(
     () =>
       menuItems.reduce((acc, item) => {
-        acc[item.id] = false
-        return acc
+        acc[item.id] = false;
+        return acc;
       }, {}),
     []
-  )
-  const [openSections, setOpenSections] = useState(initialOpenState)
+  );
+  const [openSections, setOpenSections] = useState(initialOpenState);
 
   const handleToggle = (id) => {
-    setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }))
-  }
+    setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const handleNavigate = () => {
     if (onNavigate) {
-      onNavigate()
+      onNavigate();
     }
-  }
+  };
 
   return (
     <Box bg="blue.800" color="white" h="100%" px={4} py={5}>
@@ -113,14 +115,15 @@ function Sidebar({ onNavigate }) {
                   px={3}
                   py={2}
                   borderRadius="md"
-                  //bg={sectionActive ? "whiteAlpha.200" : "transparent"}
                   _hover={{ bg: "whiteAlpha.200" }}
                   onClick={() => handleToggle(item.id)}
                   cursor="pointer"
                 >
                   <Flex align="center" gap={3}>
                     <Icon as={item.icon} boxSize={5} />
-                    <Text fontWeight="medium">{item.label}</Text>
+                    <Text fontSize="md" fontWeight="medium">
+                      {item.label}
+                    </Text>
                   </Flex>
                   <Icon
                     as={openSections[item.id] ? FiChevronUp : FiChevronDown}
@@ -134,7 +137,7 @@ function Sidebar({ onNavigate }) {
                   as={NavLink}
                   key={item.label}
                   to={item.path}
-                  end
+                  relative="deshboard"
                   onClick={handleNavigate}
                   gap={3}
                   px={3}
@@ -142,10 +145,10 @@ function Sidebar({ onNavigate }) {
                   borderRadius="md"
                   color="white"
                   fontSize="sm"
-                  style={({ isActive }) => ({
-                    background: isActive ? "whiteAlpha.300" : "transparent",
-                  })}
-                  _hover={{ textDecoration: "none", bg: "whiteAlpha.200" }}
+                  // style={({ isActive }) => ({
+                  //   background: isActive ? "whiteAlpha.300" : "transparent",
+                  // })}
+                  _hover={{ bg: "whiteAlpha.200" }}
                 >
                   <Icon as={item.icon} boxSize={5} />
                   <Text>{item.label}</Text>
@@ -153,41 +156,53 @@ function Sidebar({ onNavigate }) {
               )}
               {openSections[item.id] ? (
                 <VStack align="stretch" spacing={1} mt={1}>
+                  <Separator />
                   {item.children.map((child) => {
                     return (
-                      <Link
-                        as={NavLink}
-                        key={child.label}
-                        to={child.path}
-                        onClick={handleNavigate}
-                        px={11}
-                        py={2}
-                        borderRadius="md"
-                        color="white"
-                        fontSize="sm"
-                        style={({ isActive }) => ({
-                          fontWeight: isActive ? "bold" : "normal",
-                          background: isActive
-                            ? "rgba(255,255,255,0.18)"
-                            : "transparent",
-                          _hover: {
-                            textDecoration: "none",
-                            background: "whiteAlpha.200",
-                          },
-                        })}
-                      >
-                        {child.label}
-                      </Link>
-                    )
+                      <NavLink to={child.path}>
+                        {({ isActive }) => (
+                          <Flex
+                            key={child.label}
+                            to={child.path}
+                            onClick={handleNavigate}
+                            px={11}
+                            py={2}
+                            borderRadius="md"
+                            fontSize="sm"
+                            colorPalette="blue"
+                            {...(isActive // <-- conditional application
+                              ? {
+                                  bg: "rgba(255,255,255,0.18)",
+                                  fontWeight: "bold",
+                                }
+                              : {
+                                  bg: "transparent",
+                                  fontWeight: "medium",
+                                })}
+                            // style={({ isActive }) => ({
+                            //   fontWeight: isActive ? "bold" : "normal",
+                            //   background: isActive
+                            //     ?
+                            //     : "transparent",
+                            // })}
+                            _hover={{
+                              bg: "whiteAlpha.200",
+                            }}
+                          >
+                            {child.label}
+                          </Flex>
+                        )}
+                      </NavLink>
+                    );
                   })}
                 </VStack>
               ) : null}
             </Box>
-          )
+          );
         })}
       </VStack>
     </Box>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;
