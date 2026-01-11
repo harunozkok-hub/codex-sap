@@ -13,8 +13,6 @@ import { FiMenu, FiX } from "react-icons/fi"
 import { Outlet } from "react-router"
 import Sidebar from "./Sidebar"
 
-const drawerWidth = 260
-
 function Layout() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
@@ -23,7 +21,7 @@ function Layout() {
     <Flex bg="gray.50" minH="100vh">
       {isDesktop ? (
         <Box
-          w={drawerWidth}
+          w={{ sm: "260px", xl: "320px" }}
           bg="gray.100"
           borderRightWidth="1px"
           borderColor="gray.100"

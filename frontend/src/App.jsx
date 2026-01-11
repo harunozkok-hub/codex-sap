@@ -1,5 +1,8 @@
-import { Navigate, Route, Routes } from "react-router"
+import { RouterProvider } from "react-router/dom"
+import { createBrowserRouter, Navigate } from "react-router"
+
 import Layout from "./components/Layout"
+import LayoutWeb from "./components/LayoutWeb"
 
 import Dashboard from "./dashboard-pages/Dashboard"
 import Products from "./dashboard-pages/catalog/Products"
@@ -19,59 +22,78 @@ import Finance from "./dashboard-pages/Finance"
 import Orders from "./dashboard-pages/Orders"
 import SalesStats from "./dashboard-pages/SalesStats"
 import UISettings from "./dashboard-pages/UISettings"
-import LayoutWeb from "./components/LayoutWeb"
 
 import Home from "./web-pages/Home"
 import PricePlans from "./web-pages/PricePlans"
 import Login from "./web-pages/Login"
+import Signup from "./web-pages/Signup"
+
+import { loginAction, signupAction } from "./web-pages/actions"
+import { requireAuthLoader } from "./dashboard-pages/loaders"
+
+const router = createBrowserRouter([
+  {
+    element: <LayoutWeb />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: "price-plans", element: <PricePlans /> },
+
+      { path: "login", element: <Login />, action: loginAction },
+      { path: "register", element: <Signup />, action: signupAction },
+    ],
+  },
+
+  {
+    path: "dashboard",
+    element: <Layout />,
+    id: "dashboard",
+    loader: requireAuthLoader,
+    children: [
+      { index: true, element: <Dashboard /> },
+
+      {
+        path: "catalog",
+        children: [
+          { path: "products", element: <Products /> },
+          { path: "categories", element: <Categories /> },
+          { path: "bundles", element: <Bundles /> },
+        ],
+      },
+
+      {
+        path: "inventory",
+        children: [
+          { path: "warehouses", element: <Warehouses /> },
+          { path: "stock", element: <Stock /> },
+          { path: "packaging", element: <Packaging /> },
+          { path: "samples", element: <Samples /> },
+          { path: "raw-materials", element: <RawMaterials /> },
+        ],
+      },
+
+      { path: "orders", element: <Orders /> },
+
+      {
+        path: "production",
+        children: [
+          { path: "production-orders", element: <ProductionOrders /> },
+          { path: "production-timeline", element: <ProductionTimeline /> },
+        ],
+      },
+
+      { path: "finance", element: <Finance /> },
+      { path: "sales-stats", element: <SalesStats /> },
+      { path: "ui-settings", element: <UISettings /> },
+
+      { path: "*", element: <Navigate to="/dashboard" replace /> },
+    ],
+  },
+
+  { path: "*", element: <Navigate to="/" replace /> },
+])
 
 function App() {
-  return (
-    <Routes>
-      <Route element={<LayoutWeb />}>
-        <Route index element={<Home />} />
-        <Route path="price-plans" element={<PricePlans />} />
-        <Route path="login" element={<Login />} />
-      </Route>
-
-      <Route path="dashboard" element={<Layout />}>
-        <Route index element={<Dashboard />} />
-
-        {/* Catalog */}
-        <Route path="catalog">
-          <Route path="products" element={<Products />} />
-          <Route path="categories" element={<Categories />} />
-          <Route path="bundles" element={<Bundles />} />
-        </Route>
-
-        {/* Inventory */}
-        <Route path="inventory">
-          <Route path="warehouses" element={<Warehouses />} />
-          <Route path="stock" element={<Stock />} />
-          <Route path="packaging" element={<Packaging />} />
-          <Route path="samples" element={<Samples />} />
-          <Route path="raw-materials" element={<RawMaterials />} />
-        </Route>
-
-        {/* Orders */}
-        <Route path="orders" element={<Orders />} />
-
-        {/* Production */}
-        <Route path="production">
-          <Route path="production-orders" element={<ProductionOrders />} />
-          <Route path="production-timeline" element={<ProductionTimeline />} />
-        </Route>
-
-        {/* Finance / Sales / Settings */}
-        <Route path="finance" element={<Finance />} />
-        <Route path="sales-stats" element={<SalesStats />} />
-        <Route path="ui-settings" element={<UISettings />} />
-
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App

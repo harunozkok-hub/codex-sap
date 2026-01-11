@@ -1,4 +1,4 @@
-import { Box, HStack, Separator, Stack, Text } from "@chakra-ui/react"
+import { Box, HStack, Stack, Text } from "@chakra-ui/react"
 import { FiBox } from "react-icons/fi"
 
 function Products() {

@@ -1,6 +1,15 @@
 import { useMemo, useState } from "react"
-import { Box, Flex, Icon, Stack, Text, VStack, Avatar } from "@chakra-ui/react"
-import { NavLink } from "react-router"
+import {
+  Box,
+  Flex,
+  Icon,
+  Stack,
+  Text,
+  VStack,
+  Avatar,
+  For,
+} from "@chakra-ui/react"
+import { NavLink, useRouteLoaderData } from "react-router"
 import {
   FiBarChart2,
   FiBox,
@@ -27,9 +36,9 @@ const menuItems = [
     label: "Catalog",
     icon: FiBox,
     children: [
-      { label: "Product List", path: "catalog/products" },
-      { label: "Categories", path: "catalog/categories" },
-      { label: "Bundles & Kits", path: "catalog/bundles" },
+      { key: "product-list", label: "Product List", path: "catalog/products" },
+      { key: "categories", label: "Categories", path: "catalog/categories" },
+      { key: "bundles", label: "Bundles & Kits", path: "catalog/bundles" },
     ],
   },
 
@@ -39,11 +48,23 @@ const menuItems = [
     label: "Inventory",
     icon: FiTruck,
     children: [
-      { label: "Warehouses", path: "inventory/warehouses" },
-      { label: "Stock Levels", path: "inventory/stock" },
-      { label: "Packaging Materials", path: "inventory/packaging" },
-      { label: "Samples & Gifts", path: "inventory/samples" },
-      { label: "Raw Materials", path: "inventory/raw-materials" },
+      { key: "warehouses", label: "Warehouses", path: "inventory/warehouses" },
+      { key: "stock-levels", label: "Stock Levels", path: "inventory/stock" },
+      {
+        key: "packaging-materials",
+        label: "Packaging Materials",
+        path: "inventory/packaging",
+      },
+      {
+        key: "samples-gifts",
+        label: "Samples & Gifts",
+        path: "inventory/samples",
+      },
+      {
+        key: "raw-materials",
+        label: "Raw Materials",
+        path: "inventory/raw-materials",
+      },
     ],
   },
 
@@ -52,7 +73,7 @@ const menuItems = [
     id: "orders",
     label: "Orders",
     icon: FiShoppingCart,
-    children: [{ label: "Manage Orders", path: "orders" }],
+    children: [{ key: "orders", label: "Manage Orders", path: "orders" }],
   },
 
   // ✅ PRODUCTION
@@ -61,8 +82,16 @@ const menuItems = [
     label: "Production",
     icon: FiTruck,
     children: [
-      { label: "Production Orders", path: "production/production-orders" },
-      { label: "Timeline", path: "production/production-timeline" },
+      {
+        key: "production-orders",
+        label: "Production Orders",
+        path: "production/production-orders",
+      },
+      {
+        key: "production-timeline",
+        label: "Timeline",
+        path: "production/production-timeline",
+      },
     ],
   },
 
@@ -71,7 +100,9 @@ const menuItems = [
     id: "finance",
     label: "Finance",
     icon: FiDollarSign,
-    children: [{ label: "Finance Summary", path: "finance" }],
+    children: [
+      { key: "finance-summary", label: "Finance Summary", path: "finance" },
+    ],
   },
 
   // ✅ SALES
@@ -79,7 +110,13 @@ const menuItems = [
     id: "sales",
     label: "Sales Stats",
     icon: FiBarChart2,
-    children: [{ label: "Sales Performance", path: "sales-stats" }],
+    children: [
+      {
+        key: "sales-performance",
+        label: "Sales Performance",
+        path: "sales-stats",
+      },
+    ],
   },
 
   // ✅ SETTINGS
@@ -87,12 +124,17 @@ const menuItems = [
     id: "settings",
     label: "Settings",
     icon: FiSettings,
-    children: [{ label: "UI Settings", path: "ui-settings" }],
+    children: [
+      { key: "ui-settings", label: "UI Settings", path: "ui-settings" },
+    ],
   },
 ]
 
 function Sidebar({ onNavigate }) {
-  //const location = useLocation()
+  const { profile } = useRouteLoaderData("dashboard")
+
+  const avatarName = profile.first_name + " " + profile.last_name
+  const userRole = profile.role.charAt(0).toUpperCase() + profile.role.slice(1)
   const initialOpenState = useMemo(
     () =>
       menuItems.reduce((acc, item) => {
@@ -118,119 +160,115 @@ function Sidebar({ onNavigate }) {
       <Stack spacing={1} mb={6}>
         <Flex align="center" gap={3}>
           <Avatar.Root variant="outline" shape="rounded">
-            <Avatar.Fallback name="Segun Adebayo" color="white" />
+            <Avatar.Fallback name={avatarName} color="white" />
           </Avatar.Root>
           <Text fontWeight="bold" fontSize="lg" px={4}>
-            Admin
+            {userRole}
           </Text>
         </Flex>
       </Stack>
 
       <VStack align="stretch" spacing={2}>
-        {menuItems.map((item) => {
-          return (
-            <Box key={item.id}>
-              {item.children ? (
-                <Flex
-                  align="center"
-                  justify="space-between"
-                  px={3}
-                  py={1}
-                  borderRadius="md"
-                  _hover={{ bg: "whiteAlpha.200" }}
-                  onClick={() => handleToggle(item.id)}
-                  cursor="pointer"
-                >
-                  <Flex align="center" gap={3}>
-                    <Icon as={item.icon} boxSize={5} />
-                    <Text fontSize="md" fontWeight="medium">
-                      {item.label}
-                    </Text>
-                  </Flex>
-                  <Icon
-                    as={openSections[item.id] ? FiChevronUp : FiChevronDown}
-                    boxSize={4}
-                  />
-                </Flex>
-              ) : (
-                <NavLink to={item.path} end>
-                  {({ isActive }) => (
-                    <Flex
-                      key={item.label}
-                      align="center"
-                      justify="flex-start"
-                      onClick={handleNavigate}
-                      gap={3}
-                      px={3}
-                      py={2}
-                      borderRadius="md"
-                      fontSize="md"
-                      _hover={{
-                        bg: "whiteAlpha.200",
-                      }}
-                      {...(isActive // <-- conditional application
-                        ? {
-                            letterSpacing: "widest",
-                            color: "red.emphasized",
-                            fontWeight: "bold",
-                          }
-                        : {
-                            bg: "transparent",
-                            fontWeight: "medium",
-                          })}
-                    >
+        <For each={menuItems}>
+          {(item) => {
+            return (
+              <Box key={item.id}>
+                {item.children ? (
+                  <Flex
+                    align="center"
+                    justify="space-between"
+                    px={3}
+                    py={1}
+                    borderRadius="md"
+                    _hover={{ bg: "whiteAlpha.200" }}
+                    onClick={() => handleToggle(item.id)}
+                    cursor="pointer"
+                  >
+                    <Flex align="center" gap={3}>
                       <Icon as={item.icon} boxSize={5} />
-                      <Text>{item.label}</Text>
+                      <Text fontSize="md" fontWeight="medium">
+                        {item.label}
+                      </Text>
                     </Flex>
-                  )}
-                </NavLink>
-              )}
-              {openSections[item.id] ? (
-                <VStack
-                  align="stretch"
-                  spacing={1}
-                  boxShadow="lg"
-                  borderLeftWidth={5}
-                  py={2}
-                  mt={1}
-                >
-                  {item.children.map((child) => {
-                    return (
-                      <NavLink to={child.path}>
-                        {({ isActive }) => (
-                          <Flex
-                            key={child.label}
-                            to={child.path}
-                            onClick={handleNavigate}
-                            pl={5}
-                            py={2}
-                            borderRadius="md"
-                            fontSize="xs"
-                            _hover={{
-                              bg: "whiteAlpha.200",
-                            }}
-                            {...(isActive // <-- conditional application
-                              ? {
-                                  letterSpacing: "widest",
-                                  color: "red.emphasized",
-                                  fontWeight: "bold",
-                                }
-                              : {
-                                  bg: "transparent",
-                                  fontWeight: "medium",
-                                })}
-                          >
-                            {child.label}
-                          </Flex>
-                        )}
-                      </NavLink>
-                    )
-                  })}
-                </VStack>
-              ) : null}
-            </Box>
-          )
-        })}
+                    <Icon
+                      as={openSections[item.id] ? FiChevronUp : FiChevronDown}
+                      boxSize={4}
+                    />
+                  </Flex>
+                ) : (
+                  <NavLink to={item.path} end>
+                    {({ isActive }) => (
+                      <Flex
+                        key={item.id}
+                        align="center"
+                        justify="flex-start"
+                        onClick={handleNavigate}
+                        gap={3}
+                        px={3}
+                        py={2}
+                        borderRadius="md"
+                        fontSize="md"
+                        _hover={{
+                          bg: "whiteAlpha.200",
+                        }}
+                        {...(isActive // <-- conditional application
+                          ? {
+                              letterSpacing: "widest",
+                              color: "red.300",
+                              fontWeight: "bold",
+                            }
+                          : {
+                              bg: "transparent",
+                              fontWeight: "medium",
+                            })}
+                      >
+                        <Icon as={item.icon} boxSize={5} />
+                        <Text>{item.label}</Text>
+                      </Flex>
+                    )}
+                  </NavLink>
+                )}
+                {openSections[item.id] ? (
+                  <VStack align="stretch" spacing={1} shadow="xs" py={2} mt={1}>
+                    <For each={item.children}>
+                      {(child, index) => {
+                        return (
+                          <NavLink to={child.path} key={index}>
+                            {({ isActive }) => (
+                              <Flex
+                                to={child.path}
+                                onClick={handleNavigate}
+                                pl={5}
+                                py={2}
+                                borderRadius="md"
+                                fontSize="xs"
+                                _hover={{
+                                  bg: "whiteAlpha.200",
+                                }}
+                                {...(isActive // <-- conditional application
+                                  ? {
+                                      letterSpacing: "widest",
+                                      color: "red.300",
+                                      fontWeight: "bold",
+                                    }
+                                  : {
+                                      bg: "transparent",
+                                      fontWeight: "medium",
+                                    })}
+                              >
+                                {child.label}
+                              </Flex>
+                            )}
+                          </NavLink>
+                        )
+                      }}
+                    </For>
+                  </VStack>
+                ) : null}
+              </Box>
+            )
+          }}
+        </For>
       </VStack>
     </Box>
   )

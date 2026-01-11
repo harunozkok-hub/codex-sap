@@ -1,34 +1,60 @@
-import { Box, Flex, HStack, Heading } from "@chakra-ui/react"
+import { Box, Flex, HStack, Heading, Button } from "@chakra-ui/react"
+import { NavLink, Outlet } from "react-router"
 
-import { Outlet } from "react-router"
+const MAX_W = "1600px"
+const HEADER_H = "60px"
 
 function LayoutWeb() {
   return (
-    <Flex bg="gray.50" minH="100vh">
-      <Box
-        bg="blue.700"
-        as="header"
-        position="fixed"
-        top={0}
-        width="100%"
-        color="white"
-        boxShadow="sm"
-        zIndex={1000}
-        h="60px"
-      >
-        <HStack
-          display="flex"
-          alignItems="center"
-          justify="space-between"
-          h="100%"
-          padding={5}
+    <Flex bg="gray.50" justifyContent="center" minH="100vh">
+      {/* ✅ Shell must have width */}
+      <Box w="100%" maxW={MAX_W} mx="auto" shadow="md" bg="white">
+        <Box
+          bg="blue.700"
+          as="header"
+          position="fixed"
+          top={0}
+          left="50%"
+          transform="translateX(-50%)"
+          px={{ base: 3, md: 5 }}
+          maxW={MAX_W}
+          w="100%"
+          color="white"
+          boxShadow="sm"
+          zIndex={1000}
+          h={HEADER_H}
         >
-          <Heading size="md">Hopps Systems</Heading>
-          <Heading size="md">My Sticky Nav</Heading>
-        </HStack>
-      </Box>
-      <Box as="main" px={{ base: 4, md: 6 }} py={{ base: 4, md: 6 }}>
-        <Outlet />
+          <HStack alignItems="center" justify="space-between" h="100%">
+            <Heading as={NavLink} to="" cursor="pointer" size="md">
+              Hopps Systems
+            </Heading>
+            <HStack gap={3}>
+              <Button
+                as={NavLink}
+                to="login"
+                colorPalette="blue"
+                variant="solid"
+              >
+                Login
+              </Button>
+              <Button
+                colorPalette="blackAlpha"
+                variant="surface"
+                as={NavLink}
+                to="register"
+              >
+                Register
+              </Button>
+            </HStack>
+          </HStack>
+        </Box>
+
+        <Box as="main" pt={HEADER_H}>
+          {/* ✅ Make main content stretch inside shell */}
+          <Box w="100%" px={{ base: 3, md: 4 }} py={{ base: 3, md: 4 }}>
+            <Outlet />
+          </Box>
+        </Box>
       </Box>
     </Flex>
   )

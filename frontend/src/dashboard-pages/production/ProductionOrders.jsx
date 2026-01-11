@@ -1,3 +1,6 @@
+import { Box, HStack, Stack, Text } from "@chakra-ui/react"
+import { FiTruck } from "react-icons/fi"
+
 function ProductionOrders() {
   return (
     <Box
