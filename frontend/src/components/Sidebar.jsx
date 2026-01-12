@@ -8,6 +8,7 @@ import {
   VStack,
   Avatar,
   For,
+  Separator,
 } from "@chakra-ui/react"
 import { NavLink, useRouteLoaderData } from "react-router"
 import {

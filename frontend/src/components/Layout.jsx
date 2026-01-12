@@ -8,10 +8,12 @@ import {
   Text,
   useDisclosure,
   useMediaQuery,
+  Image,
 } from "@chakra-ui/react"
 import { FiMenu, FiX } from "react-icons/fi"
-import { Outlet } from "react-router"
+import { Outlet, NavLink } from "react-router"
 import Sidebar from "./Sidebar"
+import logo from "../assets/hoops-icon.png"
 
 function Layout() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -82,16 +84,23 @@ function Layout() {
                       color="blue.700"
                       _hover={{ bg: "gray.400" }}
                       bg="gray.200"
-                      mx={3}
+                      mx={4}
+                      my={4}
                       onClick={onOpen}
                     >
                       <FiX />
                     </IconButton>
                   </Drawer.CloseTrigger>
                   <Drawer.Header bg="gray.200" borderBottomWidth="1px">
-                    <Text fontWeight="bold" fontSize="lg">
-                      Menu
-                    </Text>
+                    <Box as={NavLink} to="/" cursor="pointer">
+                      <Image
+                        src={logo}
+                        alt="hoops-logo"
+                        fit="cover"
+                        aspectRatio={2 / 1}
+                        width="100px"
+                      />
+                    </Box>
                   </Drawer.Header>
                   <Drawer.Body p={0}>
                     <Sidebar onNavigate={onClose} />

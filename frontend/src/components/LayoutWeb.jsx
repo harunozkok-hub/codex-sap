@@ -1,8 +1,9 @@
-import { Box, Flex, HStack, Heading, Button } from "@chakra-ui/react"
+import { Box, Flex, HStack, Heading, Button, Image } from "@chakra-ui/react"
 import { NavLink, Outlet } from "react-router"
+import logo from "../assets/hoops-icon.png"
 
 const MAX_W = "1600px"
-const HEADER_H = "60px"
+const HEADER_H = "70px"
 
 function LayoutWeb() {
   return (
@@ -25,9 +26,15 @@ function LayoutWeb() {
           h={HEADER_H}
         >
           <HStack alignItems="center" justify="space-between" h="100%">
-            <Heading as={NavLink} to="" cursor="pointer" size="md">
-              Hopps Systems
-            </Heading>
+            <Box as={NavLink} to="" cursor="pointer">
+              <Image
+                src={logo}
+                alt="hoops-logo"
+                fit="cover"
+                aspectRatio={2 / 1}
+                width="140px"
+              />
+            </Box>
             <HStack gap={3}>
               <Button
                 as={NavLink}
