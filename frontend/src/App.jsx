@@ -4,6 +4,11 @@ import { createBrowserRouter, Navigate } from "react-router"
 import Layout from "./components/Layout"
 import LayoutWeb from "./components/LayoutWeb"
 
+import DashboardPermissions from "./dashboard-pages/profile/DashboardPermissions"
+import Invitations from "./dashboard-pages/profile/Invitations"
+import ManageDashboardUsers from "./dashboard-pages/profile/ManageDashboardUsers"
+import ManageProfile from "./dashboard-pages/profile/ManageProfile"
+
 import Dashboard from "./dashboard-pages/Dashboard"
 import Products from "./dashboard-pages/catalog/Products"
 import Categories from "./dashboard-pages/catalog/Categories"
@@ -28,12 +33,14 @@ import PricePlans from "./web-pages/PricePlans"
 import Login from "./web-pages/Login"
 import Signup from "./web-pages/Signup"
 
-import { loginAction, signupAction } from "./web-pages/actions"
-import { requireAuthLoader } from "./dashboard-pages/loaders"
+import { loginAction, signupAction, logoutAction } from "./actions/login-signup"
+import { requireAuthLoader, homeLoader } from "./loaders/auth"
 
 const router = createBrowserRouter([
   {
     element: <LayoutWeb />,
+    id: "home-page",
+    loader: homeLoader,
     children: [
       { index: true, element: <Home /> },
       { path: "price-plans", element: <PricePlans /> },
@@ -42,7 +49,7 @@ const router = createBrowserRouter([
       { path: "register", element: <Signup />, action: signupAction },
     ],
   },
-
+  { path: "logout", action: logoutAction },
   {
     path: "dashboard",
     element: <Layout />,
@@ -50,6 +57,24 @@ const router = createBrowserRouter([
     loader: requireAuthLoader,
     children: [
       { index: true, element: <Dashboard /> },
+      {
+        path: "profile",
+        children: [
+          {
+            path: "profile-settings",
+            element: <ManageProfile />,
+          },
+          {
+            path: "manage-users",
+            element: <ManageDashboardUsers />,
+          },
+          { path: "invitations", element: <Invitations /> },
+          {
+            path: "dashboard-permissions",
+            element: <DashboardPermissions />,
+          },
+        ],
+      },
 
       {
         path: "catalog",

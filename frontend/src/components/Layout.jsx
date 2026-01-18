@@ -11,12 +11,13 @@ import {
   Image,
 } from "@chakra-ui/react"
 import { FiMenu, FiX } from "react-icons/fi"
-import { Outlet, NavLink } from "react-router"
+import { Outlet, NavLink, useRouteLoaderData } from "react-router"
 import Sidebar from "./Sidebar"
 import logo from "../assets/hoops-icon.png"
 
 function Layout() {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const { profile } = useRouteLoaderData("dashboard")
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
 
   return (
@@ -43,6 +44,8 @@ function Layout() {
         >
           <HStack
             as="header"
+            align="center"
+            justify="space-between"
             spacing={3}
             px={4}
             py={3}
@@ -69,8 +72,17 @@ function Layout() {
               </Drawer.Trigger>
             ) : null}
             <Text fontWeight="bold" fontSize="lg" color="gray.800">
-              Admin Dashboard
+              {profile.role === "admin" ? "Admin Dashboard" : "User Dashboard"}
             </Text>
+            <Box as={NavLink} to="/" cursor="pointer" hidden={!isDesktop}>
+              <Image
+                src={logo}
+                alt="hoops-logo"
+                fit="cover"
+                aspectRatio={3 / 1}
+                width="90px"
+              />
+            </Box>
           </HStack>
 
           {!isDesktop ? (
@@ -84,8 +96,8 @@ function Layout() {
                       color="blue.700"
                       _hover={{ bg: "gray.400" }}
                       bg="gray.200"
-                      mx={4}
-                      my={4}
+                      mx={3}
+                      my={3}
                       onClick={onOpen}
                     >
                       <FiX />
@@ -97,8 +109,8 @@ function Layout() {
                         src={logo}
                         alt="hoops-logo"
                         fit="cover"
-                        aspectRatio={2 / 1}
-                        width="100px"
+                        aspectRatio={3 / 1}
+                        width="90px"
                       />
                     </Box>
                   </Drawer.Header>

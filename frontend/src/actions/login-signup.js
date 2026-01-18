@@ -1,12 +1,13 @@
+import { toaster } from "../components/ui/toaster"
+import { redirect } from "react-router"
 import {
   validateEmail,
   validateFields,
   validateName,
   validatePasswordPair,
 } from "../utils/validators"
-import { redirect } from "react-router"
 import { api } from "../utils/api"
-import { toaster } from "../components/ui/toaster"
+import { clearSessionCache } from "../loaders/auth"
 
 export const signupAction = async ({ request }) => {
   const formData = await request.formData()
@@ -47,9 +48,11 @@ export const signupAction = async ({ request }) => {
       accept_terms: acceptTerms,
     })
 
+    clearSessionCache()
+
     // either redirect to dashboard or login
     toaster.create({
-      title: "Toast Title",
+      title: "Sign-up Success",
       type: "success",
       duration: 6000,
       description:
@@ -92,9 +95,10 @@ export const loginAction = async ({ request }) => {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
     })
 
+    clearSessionCache()
     // either redirect to dashboard or login
     toaster.create({
-      title: "Toast Title",
+      title: "Login Success",
       type: "success",
       description: "Logged in successfully",
     })
@@ -108,4 +112,15 @@ export const loginAction = async ({ request }) => {
       errors: { form: msg },
     }
   }
+}
+
+export async function logoutAction() {
+  try {
+    await api.post("/auth/logout")
+  } catch (e) {
+    // ignore
+  } finally {
+    clearSessionCache()
+  }
+  return redirect("/")
 }

@@ -1,11 +1,93 @@
-import { Box, Flex, HStack, Heading, Button, Image } from "@chakra-ui/react"
-import { NavLink, Outlet } from "react-router"
+import {
+  Box,
+  Flex,
+  HStack,
+  Avatar,
+  Button,
+  Image,
+  useMediaQuery,
+  Menu,
+  Portal,
+  Text,
+  VStack,
+} from "@chakra-ui/react"
+import { NavLink, Outlet, useRouteLoaderData } from "react-router"
 import logo from "../assets/hoops-icon.png"
+import SidebarHome from "./SidebarHome"
 
 const MAX_W = "1600px"
 const HEADER_H = "70px"
 
 function LayoutWeb() {
+  const { profile } = useRouteLoaderData("home-page")
+  const [isDesktop] = useMediaQuery("(min-width: 1024px)")
+
+  let avatarName
+  if (profile) {
+    avatarName = profile.first_name + " " + profile.last_name
+  }
+
+  let userBox = profile ? (
+    <HStack>
+      {isDesktop && (
+        <VStack
+          align="flex-end"
+          mx={5}
+          pl={5}
+          borderLeftWidth="1px"
+          borderColor="whiteAlpha.300"
+        >
+          <Text textStyle="md">Welcome,</Text>
+          <Text textStyle="sm">{avatarName}</Text>
+        </VStack>
+      )}
+      {isDesktop ? (
+        <Menu.Root
+          size={100}
+          variant="solid"
+          positioning={{ placement: "bottom-end" }}
+        >
+          <Menu.Trigger focusRing="mixed">
+            <Avatar.Root variant="outline" shape="rounded">
+              <Avatar.Fallback name={avatarName} color="white" />
+            </Avatar.Root>
+          </Menu.Trigger>
+          <Portal>
+            <Menu.Positioner>
+              <Menu.Content my={2} mx={-5}>
+                <SidebarHome />
+              </Menu.Content>
+            </Menu.Positioner>
+          </Portal>
+        </Menu.Root>
+      ) : (
+        <Avatar.Root variant="outline" shape="rounded">
+          <Avatar.Fallback name={avatarName} color="white" />
+        </Avatar.Root>
+      )}
+    </HStack>
+  ) : (
+    <HStack
+      gap={3}
+      mx={5}
+      pl={5}
+      borderLeftWidth="1px"
+      borderColor="whiteAlpha.300"
+    >
+      <Button as={NavLink} to="login" colorPalette="blue" variant="solid">
+        Login
+      </Button>
+      <Button
+        colorPalette="blackAlpha"
+        variant="surface"
+        as={NavLink}
+        to="register"
+      >
+        Register
+      </Button>
+    </HStack>
+  )
+
   return (
     <Flex bg="gray.50" justifyContent="center" minH="100vh">
       {/* ✅ Shell must have width */}
@@ -35,24 +117,7 @@ function LayoutWeb() {
                 width="140px"
               />
             </Box>
-            <HStack gap={3}>
-              <Button
-                as={NavLink}
-                to="login"
-                colorPalette="blue"
-                variant="solid"
-              >
-                Login
-              </Button>
-              <Button
-                colorPalette="blackAlpha"
-                variant="surface"
-                as={NavLink}
-                to="register"
-              >
-                Register
-              </Button>
-            </HStack>
+            {userBox}
           </HStack>
         </Box>
 
