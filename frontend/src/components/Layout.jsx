@@ -24,7 +24,7 @@ function Layout() {
     <Flex bg="gray.50" minH="100vh">
       {isDesktop ? (
         <Box
-          w={{ sm: "260px", xl: "320px" }}
+          w={{ sm: "280px", xl: "320px" }}
           bg="gray.100"
           borderRightWidth="1px"
           borderColor="gray.100"
@@ -38,6 +38,7 @@ function Layout() {
 
       <Box flex="1" minW={0}>
         <Drawer.Root
+          size="sm"
           open={!isDesktop && isOpen}
           onOpenChange={(open) => (open ? onOpen() : onClose())}
           placement="start"
@@ -89,21 +90,21 @@ function Layout() {
             <Portal>
               <Drawer.Backdrop />
               <Drawer.Positioner>
-                <Drawer.Content>
+                <Drawer.Content className="light">
                   <Drawer.CloseTrigger asChild>
                     <IconButton
-                      variant="subtle"
+                      variant="outline"
                       color="blue.700"
-                      _hover={{ bg: "gray.400" }}
-                      bg="gray.200"
-                      mx={3}
-                      my={3}
+                      _hover={{ bg: "gray.200" }}
+                      bg="gray.50"
+                      mx={2}
+                      my={2}
                       onClick={onOpen}
                     >
                       <FiX />
                     </IconButton>
                   </Drawer.CloseTrigger>
-                  <Drawer.Header bg="gray.200" borderBottomWidth="1px">
+                  <Drawer.Header bg="white" borderBottomWidth="1px">
                     <Box as={NavLink} to="/" cursor="pointer">
                       <Image
                         src={logo}

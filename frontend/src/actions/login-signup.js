@@ -50,15 +50,7 @@ export const signupAction = async ({ request }) => {
 
     clearSessionCache()
 
-    // either redirect to dashboard or login
-    toaster.create({
-      title: "Sign-up Success",
-      type: "success",
-      duration: 6000,
-      description:
-        "Your account was created as admin successfully. You can invite users to join to dashboards. Please login to your account...",
-    })
-    return redirect("/login")
+    return { ok: true, email }
   } catch (err) {
     // Map backend error -> field errors (simple version)
     const msg = err?.response?.data?.detail || "Signup failed"
@@ -100,16 +92,21 @@ export const loginAction = async ({ request }) => {
     toaster.create({
       title: "Login Success",
       type: "success",
+      duration: 6000,
       description: "Logged in successfully",
     })
     return redirect("/dashboard")
   } catch (err) {
-    // Map backend error -> field errors (simple version)
+    const status = err?.response?.status
     const msg = err?.response?.data?.detail || "Login failed"
-    //const msg = "Please enter correct email or password!"
+
+    const needsVerification =
+      status === 403 && msg.toLowerCase().includes("verify")
 
     return {
       errors: { form: msg },
+      needsVerification,
+      email,
     }
   }
 }

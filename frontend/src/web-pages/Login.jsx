@@ -3,13 +3,14 @@ import {
   Input,
   Checkbox,
   Button,
+  Text,
   Stack,
   Heading,
   Flex,
   Alert,
 } from "@chakra-ui/react"
 
-import { Form, useNavigation, useActionData } from "react-router"
+import { Form, useNavigation, useActionData, NavLink } from "react-router"
 
 function Login() {
   const actionData = useActionData()
@@ -19,6 +20,8 @@ function Login() {
   const emailError = actionData?.errors?.email
   const passwordError = actionData?.errors?.password
   const formSubmitError = actionData?.errors?.form
+  const showResend = actionData?.needsVerification
+  const email = actionData?.email
 
   return (
     <Flex
@@ -70,6 +73,23 @@ function Login() {
             </Button>
           </Stack>
         </Form>
+        {showResend && (
+          <>
+            <Text fontSize="sm" mt={2}>
+              Didn’t receive the email?
+            </Text>
+            <Button
+              as={NavLink}
+              to={`/resend-email${email ? `?email=${encodeURIComponent(email)}` : ""}`}
+              variant="ghost"
+              colorPalette="blue"
+              w="100%"
+              mt={2}
+            >
+              Resend verification email
+            </Button>
+          </>
+        )}
       </Stack>
     </Flex>
   )

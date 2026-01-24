@@ -10,7 +10,11 @@ import {
   Portal,
   Text,
   VStack,
+  Drawer,
+  IconButton,
+  useDisclosure,
 } from "@chakra-ui/react"
+import { FiX } from "react-icons/fi"
 import { NavLink, Outlet, useRouteLoaderData } from "react-router"
 import logo from "../assets/hoops-icon.png"
 import SidebarHome from "./SidebarHome"
@@ -21,6 +25,7 @@ const HEADER_H = "70px"
 function LayoutWeb() {
   const { profile } = useRouteLoaderData("home-page")
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   let avatarName
   if (profile) {
@@ -41,30 +46,80 @@ function LayoutWeb() {
           <Text textStyle="sm">{avatarName}</Text>
         </VStack>
       )}
-      {isDesktop ? (
-        <Menu.Root
-          size={100}
-          variant="solid"
-          positioning={{ placement: "bottom-end" }}
-        >
-          <Menu.Trigger focusRing="mixed">
+      <Drawer.Root
+        open={!isDesktop && isOpen}
+        onOpenChange={(open) => (open ? onOpen() : onClose())}
+        placement="end"
+        size="sm"
+      >
+        {isDesktop ? (
+          <Menu.Root
+            size={100}
+            variant="solid"
+            positioning={{ placement: "bottom-end" }}
+          >
+            <Menu.Trigger focusRing="mixed">
+              <Avatar.Root variant="outline" shape="rounded">
+                <Avatar.Fallback name={avatarName} color="white" />
+              </Avatar.Root>
+            </Menu.Trigger>
+            <Portal>
+              <Menu.Positioner>
+                <Menu.Content my={2} mx={-5}>
+                  <SidebarHome />
+                </Menu.Content>
+              </Menu.Positioner>
+            </Portal>
+          </Menu.Root>
+        ) : (
+          <Drawer.Trigger asChild>
             <Avatar.Root variant="outline" shape="rounded">
               <Avatar.Fallback name={avatarName} color="white" />
             </Avatar.Root>
-          </Menu.Trigger>
+          </Drawer.Trigger>
+        )}
+        {!isDesktop ? (
           <Portal>
-            <Menu.Positioner>
-              <Menu.Content my={2} mx={-5}>
-                <SidebarHome />
-              </Menu.Content>
-            </Menu.Positioner>
+            <Drawer.Backdrop />
+            <Drawer.Positioner>
+              <Drawer.Content>
+                <Drawer.CloseTrigger asChild>
+                  <IconButton
+                    variant="subtle"
+                    color="blue.700"
+                    _hover={{ bg: "blue.300" }}
+                    bg="blue.100"
+                    mx={3}
+                    my={3}
+                    onClick={onOpen}
+                  >
+                    <FiX />
+                  </IconButton>
+                </Drawer.CloseTrigger>
+                <Drawer.Header
+                  px={0}
+                  bg="blue.800"
+                  align="flex-start"
+                  borderBottomWidth="1px"
+                  borderColor="white"
+                >
+                  <VStack align="flex-start" mx={5} pl={5}>
+                    <Text textStyle="md" color="whiteAlpha.800">
+                      Welcome,
+                    </Text>
+                    <Text textStyle="sm" fontWeight="bold" color="white">
+                      {avatarName}
+                    </Text>
+                  </VStack>
+                </Drawer.Header>
+                <Drawer.Body p={0}>
+                  <SidebarHome onNavigate={onClose} />
+                </Drawer.Body>
+              </Drawer.Content>
+            </Drawer.Positioner>
           </Portal>
-        </Menu.Root>
-      ) : (
-        <Avatar.Root variant="outline" shape="rounded">
-          <Avatar.Fallback name={avatarName} color="white" />
-        </Avatar.Root>
-      )}
+        ) : null}
+      </Drawer.Root>
     </HStack>
   ) : (
     <HStack

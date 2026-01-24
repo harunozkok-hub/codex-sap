@@ -60,3 +60,29 @@ export function setSessionCache(profile) {
   cachedProfile = profile
   cacheTime = Date.now()
 }
+
+export async function confirmEmailLoader({ request }) {
+  const url = new URL(request.url)
+  const token = url.searchParams.get("token")
+
+  if (!token) {
+    return { ok: false, message: "Missing token" }
+  }
+
+  try {
+    // const res = await api.get(
+    //   `/auth/confirm-email?token=${encodeURIComponent(token)}`
+    // )
+    const res = await api.get("/auth/confirm-email", { params: { token } })
+    return { ok: true, message: res.data?.message || "Email confirmed" }
+  } catch (err) {
+    const status = err?.response?.status
+    const msg =
+      status === 401
+        ? "Invalid or expired link - Email verification link may be expired!"
+        : status === 409
+          ? "Email already verified"
+          : "Confirmation failed"
+    return { ok: false, message: msg, status }
+  }
+}

@@ -32,9 +32,17 @@ import Home from "./web-pages/Home"
 import PricePlans from "./web-pages/PricePlans"
 import Login from "./web-pages/Login"
 import Signup from "./web-pages/Signup"
+import ConfirmEmail from "./web-pages/ConfirmEmail"
+import ResendEmail from "./web-pages/ResendEmail"
+import SignupSuccess from "./web-pages/SignupSuccess"
 
 import { loginAction, signupAction, logoutAction } from "./actions/login-signup"
-import { requireAuthLoader, homeLoader } from "./loaders/auth"
+import { resendEmailVerificationAction } from "./actions/resend-email-verification"
+import {
+  requireAuthLoader,
+  homeLoader,
+  confirmEmailLoader,
+} from "./loaders/auth"
 
 const router = createBrowserRouter([
   {
@@ -46,7 +54,18 @@ const router = createBrowserRouter([
       { path: "price-plans", element: <PricePlans /> },
 
       { path: "login", element: <Login />, action: loginAction },
+      {
+        path: "confirm-email",
+        element: <ConfirmEmail />,
+        loader: confirmEmailLoader,
+      },
+      {
+        path: "resend-email",
+        element: <ResendEmail />,
+        action: resendEmailVerificationAction,
+      },
       { path: "register", element: <Signup />, action: signupAction },
+      { path: "signup-success", element: <SignupSuccess /> },
     ],
   },
   { path: "logout", action: logoutAction },

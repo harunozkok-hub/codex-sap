@@ -8,12 +8,21 @@ import {
   Heading,
   Flex,
 } from "@chakra-ui/react"
-import { Form, useActionData, useNavigation } from "react-router"
+import { useEffect } from "react"
+import { Form, useActionData, useNavigation, useNavigate } from "react-router"
 
 const Register = () => {
   const actionData = useActionData()
   const navigation = useNavigation()
+  const navigate = useNavigate()
   const pending = navigation.state === "submitting"
+
+  useEffect(() => {
+    if (actionData?.ok && actionData?.email) {
+      sessionStorage.setItem("pending_signup_email", actionData.email)
+      navigate("/signup-success", { replace: true })
+    }
+  }, [actionData, navigate])
 
   const formSubmitError = actionData?.errors?.form
   const companyNameError = actionData?.errors?.companyName
