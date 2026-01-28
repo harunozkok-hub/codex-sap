@@ -1,0 +1,9 @@
+{
+  "i18n-ally.localesPaths": "./frontend/public/locales",
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.extract.ignoredByFiles": {
+    "frontend/src/components/LayoutWeb.jsx": ["(min-width: 1024px)"],
+    "frontend/src/components/Layout.jsx": ["(min-width: 1024px)"],
+    "frontend/src/dashboard-pages/UISettings.jsx": ["(min-width: 800px)"]
+  }
+}

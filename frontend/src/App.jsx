@@ -1,5 +1,5 @@
 import { RouterProvider } from "react-router/dom"
-import { createBrowserRouter, Navigate } from "react-router"
+import { createBrowserRouter, Navigate, redirect } from "react-router"
 
 import Layout from "./components/Layout"
 import LayoutWeb from "./components/LayoutWeb"
@@ -43,97 +43,140 @@ import {
   homeLoader,
   confirmEmailLoader,
 } from "./loaders/auth"
+import { langLoader } from "./loaders/langLoader"
+import { editUserProfileAction } from "./actions/profile-actions"
+
+const getStoredLang = () => localStorage.getItem("i18nextLng") || "en"
 
 const router = createBrowserRouter([
   {
-    element: <LayoutWeb />,
-    id: "home-page",
-    loader: homeLoader,
+    path: "/",
     children: [
-      { index: true, element: <Home /> },
-      { path: "price-plans", element: <PricePlans /> },
-
-      { path: "login", element: <Login />, action: loginAction },
       {
-        path: "confirm-email",
-        element: <ConfirmEmail />,
-        loader: confirmEmailLoader,
+        index: true,
+        loader: () => {
+          const lang = getStoredLang()
+          throw redirect(`/${lang}`)
+        },
       },
-      {
-        path: "resend-email",
-        element: <ResendEmail />,
-        action: resendEmailVerificationAction,
-      },
-      { path: "register", element: <Signup />, action: signupAction },
-      { path: "signup-success", element: <SignupSuccess /> },
     ],
   },
-  { path: "logout", action: logoutAction },
+  // ✅ correct root lang route
   {
-    path: "dashboard",
-    element: <Layout />,
-    id: "dashboard",
-    loader: requireAuthLoader,
+    path: "/:lang",
+    loader: langLoader,
     children: [
-      { index: true, element: <Dashboard /> },
       {
-        path: "profile",
+        element: <LayoutWeb />,
+        id: "home-page",
+        loader: homeLoader,
         children: [
+          { index: true, element: <Home /> },
+          { path: "price-plans", element: <PricePlans /> },
+
+          { path: "login", element: <Login />, action: loginAction },
           {
-            path: "profile-settings",
-            element: <ManageProfile />,
+            path: "confirm-email",
+            element: <ConfirmEmail />,
+            loader: confirmEmailLoader,
           },
           {
-            path: "manage-users",
-            element: <ManageDashboardUsers />,
+            path: "resend-email",
+            element: <ResendEmail />,
+            action: resendEmailVerificationAction,
           },
-          { path: "invitations", element: <Invitations /> },
+          { path: "register", element: <Signup />, action: signupAction },
+          { path: "signup-success", element: <SignupSuccess /> },
+        ],
+      },
+
+      { path: "logout", action: logoutAction },
+
+      {
+        path: "dashboard",
+        element: <Layout />,
+        id: "dashboard",
+        loader: requireAuthLoader,
+        children: [
+          { index: true, element: <Dashboard /> },
+
           {
-            path: "dashboard-permissions",
-            element: <DashboardPermissions />,
+            path: "profile",
+            children: [
+              {
+                index: true,
+                element: <Navigate to="profile-settings" replace />,
+              },
+              {
+                path: "profile-settings",
+                action: editUserProfileAction,
+                element: <ManageProfile />,
+              },
+              { path: "manage-users", element: <ManageDashboardUsers /> },
+              { path: "invitations", element: <Invitations /> },
+              {
+                path: "dashboard-permissions",
+                element: <DashboardPermissions />,
+              },
+            ],
           },
+
+          {
+            path: "catalog",
+            children: [
+              { index: true, element: <Navigate to="products" replace /> },
+              { path: "products", element: <Products /> },
+              { path: "categories", element: <Categories /> },
+              { path: "bundles", element: <Bundles /> },
+            ],
+          },
+
+          {
+            path: "inventory",
+            children: [
+              { index: true, element: <Navigate to="stock" replace /> },
+              { path: "warehouses", element: <Warehouses /> },
+              { path: "stock", element: <Stock /> },
+              { path: "packaging", element: <Packaging /> },
+              { path: "samples", element: <Samples /> },
+              { path: "raw-materials", element: <RawMaterials /> },
+            ],
+          },
+
+          { path: "orders", element: <Orders /> },
+
+          {
+            path: "production",
+            children: [
+              {
+                index: true,
+                element: <Navigate to="production-orders" replace />,
+              },
+              { path: "production-orders", element: <ProductionOrders /> },
+              { path: "production-timeline", element: <ProductionTimeline /> },
+            ],
+          },
+
+          { path: "finance", element: <Finance /> },
+          { path: "sales-stats", element: <SalesStats /> },
+          { path: "ui-settings", element: <UISettings /> },
+
+          { path: "*", element: <Navigate to="../" replace /> },
         ],
       },
 
-      {
-        path: "catalog",
-        children: [
-          { path: "products", element: <Products /> },
-          { path: "categories", element: <Categories /> },
-          { path: "bundles", element: <Bundles /> },
-        ],
-      },
-
-      {
-        path: "inventory",
-        children: [
-          { path: "warehouses", element: <Warehouses /> },
-          { path: "stock", element: <Stock /> },
-          { path: "packaging", element: <Packaging /> },
-          { path: "samples", element: <Samples /> },
-          { path: "raw-materials", element: <RawMaterials /> },
-        ],
-      },
-
-      { path: "orders", element: <Orders /> },
-
-      {
-        path: "production",
-        children: [
-          { path: "production-orders", element: <ProductionOrders /> },
-          { path: "production-timeline", element: <ProductionTimeline /> },
-        ],
-      },
-
-      { path: "finance", element: <Finance /> },
-      { path: "sales-stats", element: <SalesStats /> },
-      { path: "ui-settings", element: <UISettings /> },
-
-      { path: "*", element: <Navigate to="/dashboard" replace /> },
+      { path: "*", element: <Navigate to="../" replace /> },
     ],
   },
 
-  { path: "*", element: <Navigate to="/" replace /> },
+  {
+    path: "*",
+    loader: ({ request }) => {
+      const lang = getStoredLang()
+      const url = new URL(request.url)
+      throw redirect(`/${lang}${url.pathname}${url.search}`)
+    },
+  },
 ])
 
 function App() {

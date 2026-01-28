@@ -18,11 +18,14 @@ import { FiX } from "react-icons/fi"
 import { NavLink, Outlet, useRouteLoaderData } from "react-router"
 import logo from "../assets/hoops-icon.png"
 import SidebarHome from "./SidebarHome"
+import { useTranslation } from "react-i18next"
+import LanguageSelector from "./LanguageSelector"
 
 const MAX_W = "1600px"
 const HEADER_H = "70px"
 
 function LayoutWeb() {
+  const { t } = useTranslation("common")
   const { profile } = useRouteLoaderData("home-page")
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -34,16 +37,21 @@ function LayoutWeb() {
 
   let userBox = profile ? (
     <HStack>
+      {isDesktop ? <LanguageSelector size="lg" /> : <LanguageSelector />}
       {isDesktop && (
         <VStack
-          align="flex-end"
+          align="center"
           mx={5}
-          pl={5}
+          borderRightWidth="1px"
           borderLeftWidth="1px"
           borderColor="whiteAlpha.300"
+          w="10%"
+          minWidth="8rem"
         >
-          <Text textStyle="md">Welcome,</Text>
-          <Text textStyle="sm">{avatarName}</Text>
+          <Text textStyle="sm">{t("welcome")}</Text>
+          <Text textStyle="xs" fontWeight="bold">
+            {avatarName}
+          </Text>
         </VStack>
       )}
       <Drawer.Root
@@ -59,7 +67,11 @@ function LayoutWeb() {
             positioning={{ placement: "bottom-end" }}
           >
             <Menu.Trigger focusRing="mixed">
-              <Avatar.Root variant="outline" shape="rounded">
+              <Avatar.Root
+                variant="outline"
+                shape="rounded"
+                borderColor="whiteAlpha.600"
+              >
                 <Avatar.Fallback name={avatarName} color="white" />
               </Avatar.Root>
             </Menu.Trigger>
@@ -105,7 +117,7 @@ function LayoutWeb() {
                 >
                   <VStack align="flex-start" mx={5} pl={5}>
                     <Text textStyle="md" color="whiteAlpha.800">
-                      Welcome,
+                      {t("welcome")}
                     </Text>
                     <Text textStyle="sm" fontWeight="bold" color="white">
                       {avatarName}
@@ -130,7 +142,7 @@ function LayoutWeb() {
       borderColor="whiteAlpha.300"
     >
       <Button as={NavLink} to="login" colorPalette="blue" variant="solid">
-        Login
+        {t("login")}
       </Button>
       <Button
         colorPalette="blackAlpha"
@@ -138,7 +150,7 @@ function LayoutWeb() {
         as={NavLink}
         to="register"
       >
-        Register
+        {t("signup")}
       </Button>
     </HStack>
   )

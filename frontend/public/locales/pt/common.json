@@ -1,0 +1,16 @@
+{
+  "admin-dashboard": "Painel de administração",
+  "english": "Inglês",
+  "french": "Francês",
+  "german": "Alemão",
+  "italian": "italiano",
+  "login": "Conecte-se",
+  "logout": "Sair",
+  "open-menu": "abrir menu",
+  "portuguese": "Português",
+  "profile-company-dashboard": "Painel da {{company}}",
+  "signup": "Inscrever-se",
+  "spanish": "Espanhol",
+  "user-dashboard": "Painel do Usuário",
+  "welcome": "Bem-vindo,"
+}

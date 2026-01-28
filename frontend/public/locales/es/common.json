@@ -1,0 +1,16 @@
+{
+  "admin-dashboard": "Panel de Administrador",
+  "english": "Inglés",
+  "french": "Francés",
+  "german": "Alemán",
+  "italian": "Italiano",
+  "login": "Acceso",
+  "logout": "Cerrar sesión",
+  "open-menu": "abrir menú",
+  "portuguese": "Portugués",
+  "profile-company-dashboard": "Panel de {{company}}",
+  "signup": "Inscribirse",
+  "spanish": "Español",
+  "user-dashboard": "Panel de Usuario",
+  "welcome": "Bienvenido,"
+}

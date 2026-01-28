@@ -1,0 +1,16 @@
+{
+  "admin-dashboard": "Admin Dashboard",
+  "english": "English",
+  "french": "French",
+  "german": "German",
+  "italian": "Italian",
+  "login": "Login",
+  "logout": "Logout",
+  "open-menu": "open menu",
+  "portuguese": "Portuguese",
+  "profile-company-dashboard": "{{company}} Dashboard",
+  "signup": "Signup",
+  "spanish": "Spanish",
+  "user-dashboard": "User Dashboard",
+  "welcome": "Welcome,"
+}

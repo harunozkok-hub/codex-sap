@@ -1,34 +1,39 @@
 import { Box, VStack, For, Flex, Button } from "@chakra-ui/react"
+
+import { useTranslation } from "react-i18next"
 import { NavLink, Form } from "react-router"
 
-const homeMenuItems = [
-  {
-    id: "my-dashboard",
-    label: "Go to Dashboard",
-    path: "dashboard",
-  },
-  {
-    id: "manage-profile",
-    label: "My profile",
-    path: "dashboard/profile/profile-settings",
-  },
-  {
-    id: "invite-users",
-    label: "Invite Users to Dashboard",
-    path: "dashboard/profile/invitations",
-  },
-  {
-    id: "logout",
-    label: "Logout",
-    actionPath: "/logout",
-  },
-]
+function homeMenuItems(t) {
+  return [
+    {
+      id: "my-dashboard",
+      label: t("go-to-dashboard", { ns: "home-sidebar" }),
+      path: "dashboard",
+    },
+    {
+      id: "manage-profile",
+      label: t("my-profile", { ns: "home-sidebar" }),
+      path: "dashboard/profile/profile-settings",
+    },
+    {
+      id: "invite-users",
+      label: t("invite-users-to-dashboard", { ns: "home-sidebar" }),
+      path: "dashboard/profile/invitations",
+    },
+    {
+      id: "logout",
+      label: t("logout", { ns: "common" }),
+      actionPath: "/logout",
+    },
+  ]
+}
 
 function SidebarHome() {
+  const { t } = useTranslation(["common", "home-sidebar"])
   return (
     <Box bg="blue.600" color="white" h="100%" px={4} py={5}>
       <VStack alignItems="stretch" spacing={1} p={3}>
-        <For each={homeMenuItems}>
+        <For each={homeMenuItems(t)}>
           {(item) => {
             return item.path ? (
               <NavLink to={item.path} key={item.id}>

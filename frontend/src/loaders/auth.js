@@ -70,9 +70,6 @@ export async function confirmEmailLoader({ request }) {
   }
 
   try {
-    // const res = await api.get(
-    //   `/auth/confirm-email?token=${encodeURIComponent(token)}`
-    // )
     const res = await api.get("/auth/confirm-email", { params: { token } })
     return { ok: true, message: res.data?.message || "Email confirmed" }
   } catch (err) {

@@ -12,6 +12,7 @@ import {
 } from "@chakra-ui/react"
 import { FiMenu, FiX } from "react-icons/fi"
 import { Outlet, NavLink, useRouteLoaderData } from "react-router"
+import { useTranslation } from "react-i18next"
 import Sidebar from "./Sidebar"
 import logo from "../assets/hoops-icon.png"
 
@@ -19,6 +20,13 @@ function Layout() {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { profile } = useRouteLoaderData("dashboard")
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
+  const { t } = useTranslation("common")
+
+  const title = profile.company
+    ? t("profile-company-dashboard", { company: profile.company.name })
+    : profile.role === "admin"
+      ? t("admin-dashboard")
+      : t("user-dashboard")
 
   return (
     <Flex bg="gray.50" minH="100vh">
@@ -60,7 +68,7 @@ function Layout() {
             {!isDesktop ? (
               <Drawer.Trigger asChild>
                 <IconButton
-                  aria-label="Open menu"
+                  aria-label={t("open-menu")}
                   variant="surface"
                   color="blue.700"
                   _hover={{ bg: "gray.100" }}
@@ -73,7 +81,7 @@ function Layout() {
               </Drawer.Trigger>
             ) : null}
             <Text fontWeight="bold" fontSize="lg" color="gray.800">
-              {profile.role === "admin" ? "Admin Dashboard" : "User Dashboard"}
+              {title}
             </Text>
             <Box as={NavLink} to="/" cursor="pointer" hidden={!isDesktop}>
               <Image
