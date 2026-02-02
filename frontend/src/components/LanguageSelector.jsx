@@ -14,8 +14,8 @@ function LanguageSelector({ size, dark }) {
     { code: "es", label: t("spanish"), flag: "🇪🇸" },
     { code: "it", label: t("italian"), flag: "🇮🇹" },
     { code: "pt", label: t("portuguese"), flag: "🇧🇷" },
-    { code: "de", label: t("german"), flag: "🇩🇪" },
-    { code: "fr", label: t("french"), flag: "🇫🇷" },
+    // { code: "de", label: t("german"), flag: "🇩🇪" },
+    // { code: "fr", label: t("french"), flag: "🇫🇷" },
   ]
   const handleChangeLanguage = (e) => {
     const newLang = e.target.value

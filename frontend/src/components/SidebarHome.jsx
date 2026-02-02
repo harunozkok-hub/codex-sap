@@ -29,9 +29,10 @@ function homeMenuItems(t) {
 }
 
 function SidebarHome() {
-  const { t } = useTranslation(["common", "home-sidebar"])
+  const { t, i18n } = useTranslation(["common", "home-sidebar"])
+  const resolvedLang = i18n.resolvedLanguage
   return (
-    <Box bg="blue.600" color="white" h="100%" px={4} py={5}>
+    <Box bg="teal.50" color="black" h="100%" px={4} py={5}>
       <VStack alignItems="stretch" spacing={1} p={3}>
         <For each={homeMenuItems(t)}>
           {(item) => {
@@ -45,12 +46,12 @@ function SidebarHome() {
                     borderRadius="md"
                     fontSize="sm"
                     _hover={{
-                      bg: "whiteAlpha.200",
+                      bg: "blackAlpha.200",
                     }}
                     {...(isActive // <-- conditional application
                       ? {
                           letterSpacing: "widest",
-                          color: "red.300",
+                          color: "green.400",
                           fontWeight: "bold",
                         }
                       : {
@@ -63,10 +64,14 @@ function SidebarHome() {
                 )}
               </NavLink>
             ) : (
-              <Form method="post" action={item.actionPath} key={item.id}>
+              <Form
+                method="post"
+                action={`/${resolvedLang}${item.actionPath}`}
+                key={item.id}
+              >
                 <Button
                   type="submit"
-                  colorPalette="blue"
+                  colorPalette="green"
                   variant="surface"
                   w="100%"
                 >

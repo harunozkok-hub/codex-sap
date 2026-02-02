@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next"
 
 function UISettings() {
   const [bigSize] = useMediaQuery("(min-width: 800px)")
-  const { t } = useTranslation("ui-settings")
+  const { t } = useTranslation("settings")
 
   return (
     <Box

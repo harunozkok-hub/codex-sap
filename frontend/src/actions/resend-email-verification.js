@@ -1,10 +1,11 @@
-import { redirect } from "react-router"
 import { validateEmail, validateFields } from "../utils/validators"
 import { api } from "../utils/api"
 import { toaster } from "../components/ui/toaster"
+import { loadNamespaces, t } from "../utils/helper-i18n"
 
 export const resendEmailVerificationAction = async ({ request }) => {
   const formData = await request.formData()
+  await loadNamespaces(["validators", "common"])
   const email = formData.get("email")
 
   const errors = validateFields({
@@ -19,14 +20,15 @@ export const resendEmailVerificationAction = async ({ request }) => {
   try {
     const res = await api.post("/auth/resend-confirmation", { email })
     toaster.create({
-      title: "Resend Verification Email Success",
+      title: t("resend-verification-email-succ", { ns: "common" }),
       type: "success",
       duration: 8000,
-      description: `We resent email to: ${email}. ${res.data?.message}`,
+      description: `${t("we-resent-email-to", { ns: "common" })} ${email}. ${res.data?.message}`,
     })
     return { ok: true, email, message: res.data?.message }
   } catch (error) {
-    const msg = error?.response?.data?.detail || "Resend failed"
+    const msg =
+      error?.response?.data?.detail || t("resend-failed", { ns: "common" })
     return {
       errors: { form: msg },
     }

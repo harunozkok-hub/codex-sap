@@ -7,12 +7,15 @@ import "./index.css"
 import App from "./App"
 import { Toaster } from "./components/ui/toaster"
 import "./utils/i18n"
+import FullpageSpinner from "./components/FullpageSpinner"
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider>
-      <Toaster />
-      <App />
+      <Suspense fallback={<FullpageSpinner />}>
+        <Toaster />
+        <App />
+      </Suspense>
     </Provider>
   </StrictMode>,
 )

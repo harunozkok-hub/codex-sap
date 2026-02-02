@@ -6,10 +6,11 @@ import {
   normalizeOptional,
 } from "../utils/validators"
 import { api } from "../utils/api"
-import { redirect } from "react-router"
+import { t, loadNamespaces } from "../utils/helper-i18n"
 
 export const editUserProfileAction = async ({ request }) => {
   const formData = await request.formData()
+  await loadNamespaces(["validators", "profile"])
 
   const first_name = formData.get("firstName")
   const last_name = formData.get("lastName")
@@ -19,11 +20,21 @@ export const editUserProfileAction = async ({ request }) => {
   const newsletter = formData.get("newsletter") === "on"
 
   const errors = validateFields({
-    firstName: () => validateName(first_name, "First name", 2, 100),
-    lastName: () => validateName(last_name, "Last name", 2, 100),
-    jobTitle: () => validateName(job_title, "Job title", 2, 100, true),
+    firstName: () =>
+      validateName(first_name, t("first-name", { ns: "profile" }), 2, 100),
+    lastName: () =>
+      validateName(last_name, t("last-name", { ns: "profile" }), 2, 100),
+    jobTitle: () =>
+      validateName(job_title, t("job-title", { ns: "profile" }), 2, 100, true),
     phoneNumber: () =>
-      validatePhone(phone_number, country_code, "Phone number", 5, 25, true),
+      validatePhone(
+        phone_number,
+        country_code,
+        t("phone-number", { ns: "profile" }),
+        5,
+        25,
+        true,
+      ),
   })
 
   if (errors) {
@@ -43,10 +54,10 @@ export const editUserProfileAction = async ({ request }) => {
     })
 
     toaster.create({
-      title: "Profile Update Success",
+      title: t("profile-update-success", { ns: "profile" }),
       type: "success",
       duration: 6000,
-      description: "Profile informations updated successfully",
+      description: t("profile-informations-updated-s", { ns: "profile" }),
     })
 
     return { newProfile: res.data }
@@ -54,7 +65,7 @@ export const editUserProfileAction = async ({ request }) => {
     // Map backend error -> field errors (simple version)
     const msg =
       err?.response?.data?.detail ||
-      "Updating profile failed, please try in few minutes!"
+      t("updating-profile-failed-please", { ns: "profile" })
 
     return { errors: { form: msg } }
   }

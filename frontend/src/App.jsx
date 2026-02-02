@@ -45,8 +45,13 @@ import {
 } from "./loaders/auth"
 import { langLoader } from "./loaders/langLoader"
 import { editUserProfileAction } from "./actions/profile-actions"
+import { getResolvedLanguage } from "./utils/helper-i18n"
 
-const getStoredLang = () => localStorage.getItem("i18nextLng") || "en"
+const resolveLanguageLoader = async () => {
+  const lang = await getResolvedLanguage()
+  console.log(lang)
+  throw redirect(`/${lang}`)
+}
 
 const router = createBrowserRouter([
   {
@@ -54,10 +59,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        loader: () => {
-          const lang = getStoredLang()
-          throw redirect(`/${lang}`)
-        },
+        loader: resolveLanguageLoader,
       },
     ],
   },
@@ -85,7 +87,11 @@ const router = createBrowserRouter([
             element: <ResendEmail />,
             action: resendEmailVerificationAction,
           },
-          { path: "register", element: <Signup />, action: signupAction },
+          {
+            path: "register",
+            element: <Signup />,
+            action: signupAction,
+          },
           { path: "signup-success", element: <SignupSuccess /> },
         ],
       },
@@ -171,8 +177,8 @@ const router = createBrowserRouter([
 
   {
     path: "*",
-    loader: ({ request }) => {
-      const lang = getStoredLang()
+    loader: async ({ request }) => {
+      const lang = await getResolvedLanguage()
       const url = new URL(request.url)
       throw redirect(`/${lang}${url.pathname}${url.search}`)
     },

@@ -3,12 +3,8 @@ import { initReactI18next } from "react-i18next"
 import Backend from "i18next-http-backend"
 
 import LanguageDetector from "i18next-browser-languagedetector"
-import { cache } from "react"
-// don't want to use this?
-// have a look at the Quick start guide
-// for passing in lng and translations on init
 
-i18n
+const initPromise = i18n
   .use(Backend)
   .use(LanguageDetector)
   // pass the i18n instance to react-i18next.
@@ -32,7 +28,7 @@ i18n
 
       caches: ["localStorage", "cookie"],
     },
-    fallbackLng: "en",
+    fallbackLng: "es",
     ns: ["common", "homepage", "home-sidebar"],
     supportedLngs: ["en", "es", "it", "pt"],
     debug: true,
@@ -44,4 +40,5 @@ i18n
     },
   })
 
+export { initPromise }
 export default i18n

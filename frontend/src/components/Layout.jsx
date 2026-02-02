@@ -14,7 +14,7 @@ import { FiMenu, FiX } from "react-icons/fi"
 import { Outlet, NavLink, useRouteLoaderData } from "react-router"
 import { useTranslation } from "react-i18next"
 import Sidebar from "./Sidebar"
-import logo from "../assets/hoops-icon.png"
+import logo from "../assets/hoops-icon-trans.png"
 
 function Layout() {
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -88,8 +88,8 @@ function Layout() {
                 src={logo}
                 alt="hoops-logo"
                 fit="cover"
-                aspectRatio={3 / 1}
-                width="90px"
+                aspectRatio={4 / 1}
+                width="120px"
               />
             </Box>
           </HStack>
@@ -112,14 +112,14 @@ function Layout() {
                       <FiX />
                     </IconButton>
                   </Drawer.CloseTrigger>
-                  <Drawer.Header bg="white" borderBottomWidth="1px">
+                  <Drawer.Header bg="teal.50" borderBottomWidth="1px">
                     <Box as={NavLink} to="/" cursor="pointer">
                       <Image
                         src={logo}
                         alt="hoops-logo"
                         fit="cover"
-                        aspectRatio={3 / 1}
-                        width="90px"
+                        aspectRatio={4 / 1}
+                        width="120px"
                       />
                     </Box>
                   </Drawer.Header>

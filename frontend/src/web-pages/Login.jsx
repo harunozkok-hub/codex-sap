@@ -9,10 +9,12 @@ import {
   Flex,
   Alert,
 } from "@chakra-ui/react"
-
+import { autofillInput } from "../utils/css-chakra"
 import { Form, useNavigation, useActionData, NavLink } from "react-router"
+import { useTranslation, withTranslation } from "react-i18next"
 
 function Login() {
+  const { t } = useTranslation("common")
   const actionData = useActionData()
   const navigation = useNavigation()
   const pending = navigation.state === "submitting"
@@ -40,17 +42,26 @@ function Login() {
         py={{ base: 3, md: 5 }}
         px={{ base: 3, md: 6 }}
       >
-        <Heading>LOGIN</Heading>
+        <Heading>{t("login").toUpperCase()}</Heading>
         <Form method="POST" style={{ width: "100%" }}>
           <Stack>
             <Field.Root invalid={!!emailError}>
-              <Field.Label>Email</Field.Label>
-              <Input name="email" placeholder="username" />
+              <Field.Label>Email:</Field.Label>
+              <Input
+                name="email"
+                _autofill={autofillInput}
+                placeholder={t("e-g-example-example-com")}
+              />
               {emailError && <Field.ErrorText>{emailError}</Field.ErrorText>}
             </Field.Root>
             <Field.Root invalid={passwordError}>
-              <Field.Label>Password</Field.Label>
-              <Input type="password" name="password" placeholder="password" />
+              <Field.Label>{t("password")}</Field.Label>
+              <Input
+                type="password"
+                name="password"
+                _autofill={autofillInput}
+                placeholder={t("e-g-mystrongpass_95")}
+              />
               {passwordError && (
                 <Field.ErrorText>{passwordError}</Field.ErrorText>
               )}
@@ -59,7 +70,7 @@ function Login() {
             <Checkbox.Root mt="2" value="remember me" name="rememberme">
               <Checkbox.HiddenInput />
               <Checkbox.Control />
-              <Checkbox.Label>Remember me</Checkbox.Label>
+              <Checkbox.Label>{t("remember-me")}</Checkbox.Label>
             </Checkbox.Root>
 
             {formSubmitError && (
@@ -68,25 +79,32 @@ function Login() {
                 <Alert.Title>{formSubmitError}</Alert.Title>
               </Alert.Root>
             )}
-            <Button type="submit" variant="solid" mt={10} loading={pending}>
-              Submit
+            <Button
+              type="submit"
+              variant="surface"
+              colorPalette="green"
+              mt={10}
+              loading={pending}
+            >
+              {t("submit")}
             </Button>
           </Stack>
         </Form>
         {showResend && (
           <>
             <Text fontSize="sm" mt={2}>
-              Didn’t receive the email?
+              {t("didnt-receive-the-email")}
             </Text>
             <Button
               as={NavLink}
               to={`/resend-email${email ? `?email=${encodeURIComponent(email)}` : ""}`}
-              variant="ghost"
-              colorPalette="blue"
+              variant="outline"
+              colorPalette="blackAlpha"
+              color="green.500"
               w="100%"
               mt={2}
             >
-              Resend verification email
+              {t("resend-verification-email")}
             </Button>
           </>
         )}

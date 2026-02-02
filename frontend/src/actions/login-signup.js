@@ -8,9 +8,11 @@ import {
 } from "../utils/validators"
 import { api } from "../utils/api"
 import { clearSessionCache } from "../loaders/auth"
+import { loadNamespaces, t } from "../utils/helper-i18n"
 
 export const signupAction = async ({ request }) => {
   const formData = await request.formData()
+  await loadNamespaces(["profile", "validators", "common"])
 
   const companyName = formData.get("companyName")
   const firstName = formData.get("firstName")
@@ -22,13 +24,18 @@ export const signupAction = async ({ request }) => {
   const acceptTerms = formData.get("acceptTerms") === "acceptTerms"
 
   const errors = validateFields({
-    companyName: () => validateName(companyName, "Company name", 5, 100),
-    firstName: () => validateName(firstName, "First name", 2, 100),
-    lastName: () => validateName(lastName, "Last name", 2, 100),
+    companyName: () =>
+      validateName(companyName, t("company-name", { ns: "profile" }), 5, 100),
+    firstName: () =>
+      validateName(firstName, t("first-name", { ns: "profile" }), 2, 100),
+    lastName: () =>
+      validateName(lastName, t("last-name", { ns: "profile" }), 2, 100),
     email: () => validateEmail(email),
     password: () => validatePasswordPair(password, confirmPassword),
     acceptTerms: () =>
-      !acceptTerms ? "Please accept terms & conditions" : null,
+      !acceptTerms
+        ? t("please-accept-terms-and-condit", { ns: "common" })
+        : null,
   })
 
   if (errors) {
@@ -53,7 +60,8 @@ export const signupAction = async ({ request }) => {
     return { ok: true, email }
   } catch (err) {
     // Map backend error -> field errors (simple version)
-    const msg = err?.response?.data?.detail || "Signup failed"
+    const msg =
+      err?.response?.data?.detail || t("signup-failed", { ns: "common" })
 
     return {
       errors: { form: msg },
@@ -63,13 +71,14 @@ export const signupAction = async ({ request }) => {
 
 export const loginAction = async ({ request }) => {
   const formData = await request.formData()
+  await loadNamespaces(["validators", "common"])
 
   const email = formData.get("email")
   const password = formData.get("password")
 
   const errors = validateFields({
     email: () => validateEmail(email),
-    password: () => validateName(password, "Password"),
+    password: () => validateName(password, t("password", { ns: "common" })),
   })
 
   if (errors) {
@@ -90,15 +99,16 @@ export const loginAction = async ({ request }) => {
     clearSessionCache()
     // either redirect to dashboard or login
     toaster.create({
-      title: "Login Success",
+      title: t("login-success", { ns: "common" }),
       type: "success",
       duration: 6000,
-      description: "Logged in successfully",
+      description: t("logged-in-successfully", { ns: "common" }),
     })
     return redirect("/dashboard")
   } catch (err) {
     const status = err?.response?.status
-    const msg = err?.response?.data?.detail || "Login failed"
+    const msg =
+      err?.response?.data?.detail || t("login-failed", { ns: "common" })
 
     const needsVerification =
       status === 403 && msg.toLowerCase().includes("verify")

@@ -5,7 +5,7 @@
   "dashboard": "Mio Dashboard",
   "finance": "Gestione Finanziaria",
   "finance-summary": "Riepilogo Finanziario",
-  "inventory": "Magazziono",
+  "inventory": "Magazzino",
   "invitations": "Inviti",
   "logout": "Esci",
   "manage-dashboard-users": "Gestisci Utenti della Dashboard",
@@ -26,5 +26,6 @@
   "stock-levels": "Livelli di Magazzino",
   "timeline": "Cronologia",
   "ui-settings": "Impostazioni dell’Interfaccia",
-  "warehouses": "Info Magazzini"
+  "warehouses": "Info Magazzini",
+  "welcome": "Benvenuto,"
 }

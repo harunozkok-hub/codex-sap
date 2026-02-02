@@ -4,6 +4,13 @@
   "i18n-ally.extract.ignoredByFiles": {
     "frontend/src/components/LayoutWeb.jsx": ["(min-width: 1024px)"],
     "frontend/src/components/Layout.jsx": ["(min-width: 1024px)"],
-    "frontend/src/dashboard-pages/UISettings.jsx": ["(min-width: 800px)"]
-  }
+    "frontend/src/dashboard-pages/UISettings.jsx": ["(min-width: 800px)"],
+    "frontend/src/dashboard-pages/profile/ManageProfile.jsx": [
+      "repeat(4, 1fr)"
+    ],
+    "frontend/src/web-pages/Login.jsx": ["calc(100vh - 60px)"],
+    "frontend/src/web-pages/ConfirmEmail.jsx": ["calc(100vh - 60px)"],
+    "frontend/src/App.jsx": ["*"]
+  },
+  "i18n-ally.extract.ignored": ["(", "(", ")", ")"]
 }

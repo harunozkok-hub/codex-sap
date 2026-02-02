@@ -1,3 +1,5 @@
+import { t } from "./helper-i18n"
+
 // ==============================
 // Generic helpers
 // ==============================
@@ -59,10 +61,22 @@ export const isValidEmail = (email) =>
   !isEmpty(email) && EMAIL_REGEX.test(String(email).toLowerCase())
 
 export const validateEmail = (email) => {
-  if (isEmpty(email)) return "Email is required"
-  if (!hasMinLength(email, 5)) return "Email is too short"
-  if (!hasMaxLength(email, 254)) return "Email is too long"
-  if (!isValidEmail(email)) return "Invalid email address"
+  if (isEmpty(email)) {
+    const error = t("email-is-required", { ns: "validators" })
+    return error
+  }
+  if (!hasMinLength(email, 5)) {
+    const error = t("email-is-too-short", { ns: "validators" })
+    return error
+  }
+  if (!hasMaxLength(email, 254)) {
+    const error = t("email-is-too-long", { ns: "validators" })
+    return error
+  }
+  if (!isValidEmail(email)) {
+    const error = t("invalid-email-address", { ns: "validators" })
+    return error
+  }
   return null
 }
 
@@ -86,20 +100,34 @@ export const validatePassword = (password, options = {}) => {
     requireSpecialChar = true,
   } = options
 
-  if (isEmpty(password)) return "Password is required"
-  if (!hasMinLength(password, minLength))
-    return `Password must be at least ${minLength} characters`
-  if (!hasMaxLength(password, maxLength))
-    return `Password must be at most ${maxLength} characters`
+  if (isEmpty(password)) {
+    const error = t("password-is-required", { ns: "validators" })
+    return error
+  }
+  if (!hasMinLength(password, minLength)) {
+    const error = t("password-must-be-at-least-minl", {
+      ns: "validators",
+      min: minLength,
+    })
+    return error
+  }
+  if (!hasMaxLength(password, maxLength)) {
+    const error = t("password-must-be-at-most-maxle", {
+      ns: "validators",
+      max: maxLength,
+    })
+    return error
+  }
 
-  if (requireUppercase && !hasUppercase(password))
-    return "Password must contain at least one uppercase, one lowercase letter, one number and one special character"
-  if (requireLowercase && !hasLowercase(password))
-    return "Password must contain at least one uppercase, one lowercase letter, one number and one special character"
-  if (requireNumber && !hasNumber(password))
-    return "Password must contain at least one uppercase, one lowercase letter, one number and one special character"
-  if (requireSpecialChar && !hasSpecialChar(password))
-    return "Password must contain at least one uppercase, one lowercase letter, one number and one special character"
+  if (
+    (requireUppercase && !hasUppercase(password)) ||
+    (requireLowercase && !hasLowercase(password)) ||
+    (requireNumber && !hasNumber(password)) ||
+    (requireSpecialChar && !hasSpecialChar(password))
+  ) {
+    const error = t("password-must-contain-at-least", { ns: "validators" })
+    return error
+  }
 
   return null
 }
@@ -112,19 +140,29 @@ export const validateConfirmPassword = (
   const { minLength = 8, maxLength = 128 } = options
 
   if (!confirmPassword || String(confirmPassword).trim().length === 0) {
-    return "Confirm password is required"
+    const error = t("confirm-password-is-required", { ns: "validators" })
+    return error
   }
 
   if (String(confirmPassword).length < minLength) {
-    return `Confirm password must be at least ${minLength} characters`
+    const error = t("confirm-password-must-be-at-le", {
+      ns: "validators",
+      min: minLength,
+    })
+    return error
   }
 
   if (String(confirmPassword).length > maxLength) {
-    return `Confirm password must be at most ${maxLength} characters`
+    const error = t("confirm-password-must-be-at-mo", {
+      ns: "validators",
+      max: maxLength,
+    })
+    return error
   }
 
   if (password !== confirmPassword) {
-    return "Passwords do not match"
+    const error = t("passwords-do-not-match", { ns: "validators" })
+    return error
   }
 
   return null
@@ -153,23 +191,49 @@ export const validatePasswordPair = (
 
 export const validateName = (
   name,
-  label = "Name",
+  label = t("name", { ns: "validators" }),
   minLength = 2,
   maxLength = 100,
   optional = false,
 ) => {
   if (optional) {
-    const defaultText = `${label} is an optional field. If it is not empty,`
-    if (!hasMinLength(name, minLength) && !isEmpty(name))
-      return `${defaultText} it must be at least ${minLength} characters`
-    if (!hasMaxLength(name, maxLength))
-      return `${defaultText} it must be at most ${maxLength} characters`
+    if (!hasMinLength(name, minLength) && !isEmpty(name)) {
+      const error = t("label-is-optional-if-provided-min-name", {
+        ns: "validators",
+        label,
+        min: minLength,
+      })
+      return error
+    }
+    if (!hasMaxLength(name, maxLength)) {
+      const error = t("label-is-optional-if-provided-", {
+        ns: "validators",
+        label,
+        max: maxLength,
+      })
+      return error
+    }
   } else {
-    if (isEmpty(name)) return `${label} is required`
-    if (!hasMinLength(name, minLength))
-      return `${label} must be at least ${minLength} characters`
-    if (!hasMaxLength(name, maxLength))
-      return `${label} must be at most ${maxLength} characters`
+    if (isEmpty(name)) {
+      const error = t("label-is-required", { ns: "validators", label })
+      return error
+    }
+    if (!hasMinLength(name, minLength)) {
+      const error = t("label-must-be-at-least-minleng", {
+        ns: "validators",
+        label,
+        min: minLength,
+      })
+      return error
+    }
+    if (!hasMaxLength(name, maxLength)) {
+      const error = t("label-must-be-at-most-maxlengt-name-max", {
+        ns: "validators",
+        label,
+        max: maxLength,
+      })
+      return error
+    }
   }
 
   return null
@@ -181,36 +245,65 @@ export const validateName = (
 export const validatePhone = (
   phone,
   countryCode,
-  label = "Name",
+  label = t("name", { ns: "validators" }),
   minLength = 5,
   maxLength = 25,
   optional = false,
 ) => {
+  if (!isEmpty(phone) && !hasMinLength(countryCode, 2)) {
+    const error = t("missing-country-code", { ns: "validators", label })
+    return error
+  }
   if (optional) {
-    const defaultText = `${label} is an optional field. If it is not empty,`
-    if (!hasMinLength(phone, minLength) && !isEmpty(phone))
-      return `${defaultText} it must be at least ${minLength} numeric characters`
-    if (!hasMaxLength(phone, maxLength))
-      return `${defaultText} it must be at most ${maxLength} numeric characters`
-    if (!onlyNumbers(phone) && !isEmpty(phone)) {
-      return `${label} is optional. You can either enter numeric characters or leave the field empty`
+    if (!hasMinLength(phone, minLength) && !isEmpty(phone)) {
+      const error = t("opt-min-digits", {
+        ns: "validators",
+        label,
+        min: minLength,
+      })
+      return error
     }
-    if (!isEmpty(phone) && !hasMinLength(countryCode, 2)) {
-      return `${label} was entered but country code was not selected.Please select country code to proceed`
+    if (!hasMaxLength(phone, maxLength)) {
+      const error = t("opt-max-digits", {
+        ns: "validators",
+        label,
+        max: maxLength,
+      })
+      return error
+    }
+    if (!onlyNumbers(phone) && !isEmpty(phone)) {
+      const error = t("opt-numeric-only", { ns: "validators", label })
+      return error
     }
     if (!isEmpty(countryCode) && isEmpty(phone)) {
-      return `Country code was entered but ${label} was not entered. Please select type number to proceed`
+      const error = t("opt-missing-number", { ns: "validators", label })
+      return error
     }
   } else {
-    if (isEmpty(phone)) return `${label} is required`
-    if (!hasMinLength(phone, minLength))
-      return `${label} must be at least ${minLength} characters`
-    if (!hasMaxLength(phone, maxLength))
-      return `${label} must be at most ${maxLength} characters`
-    if (!onlyNumbers(phone)) {
-      return `${label} needs to be numeric characters`
+    if (isEmpty(phone)) {
+      const error = t("label-is-required", { ns: "validators", label })
+      return error
     }
-    //needs adjustment
+    if (!hasMinLength(phone, minLength)) {
+      const error = t("label-must-be-at-least-minleng", {
+        ns: "validators",
+        label,
+        min: minLength,
+      })
+      return error
+    }
+    if (!hasMaxLength(phone, maxLength)) {
+      const error = t("label-must-be-at-most-maxlengt-name-max", {
+        ns: "validators",
+        label,
+        max: maxLength,
+      })
+      return error
+    }
+    if (!onlyNumbers(phone)) {
+      const error = t("numeric-only", { ns: "validators", label })
+      return error
+    }
   }
   return null
 }

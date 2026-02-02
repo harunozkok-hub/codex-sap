@@ -10,6 +10,7 @@ import {
   Button,
   For,
 } from "@chakra-ui/react"
+import { sidebarMask } from "../utils/css-chakra"
 import { NavLink, useRouteLoaderData, Form } from "react-router"
 import { FiChevronDown, FiChevronUp } from "react-icons/fi"
 import { menuItems } from "./menuItems"
@@ -46,10 +47,11 @@ function Sidebar({ onNavigate }) {
   return (
     <Suspense fallback={<FullpageSpinner />}>
       <Box
-        bg="blue.800"
+        bg="green.950"
         color="white"
         h="100%"
-        px={5}
+        pl={5}
+        pr={2}
         py={5}
         flexDirection="column"
         display="flex"
@@ -57,7 +59,7 @@ function Sidebar({ onNavigate }) {
       >
         <Stack maxH="20%">
           <Stack align="flex-start" mb={3} mx={3}>
-            <Text fontSize="sm">Welcome,</Text>
+            <Text fontSize="sm">{t("welcome")}</Text>
             <Text fontWeight="bold" fontSize="md">
               {avatarName}
             </Text>
@@ -69,7 +71,14 @@ function Sidebar({ onNavigate }) {
             borderColor="whiteAlpha.300"
           >
             <Form method="post" action={`/${resolvedLang}/logout`}>
-              <Button type="submit" size="xs" variant="surface" w="100%">
+              <Button
+                type="submit"
+                size="xs"
+                colorPalette="green"
+                color="green.500"
+                variant="outline"
+                w="100%"
+              >
                 {t("logout")}
               </Button>
             </Form>
@@ -77,21 +86,7 @@ function Sidebar({ onNavigate }) {
         </Stack>
 
         <ScrollArea.Root variant="hover" h="75%" spacing={2} mt={5}>
-          <ScrollArea.Viewport
-            css={{
-              "--scroll-shadow-size": "2rem",
-              maskImage:
-                "linear-gradient(#000,#000,transparent 0,#000 var(--scroll-shadow-size),#000 calc(100% - var(--scroll-shadow-size)),transparent)",
-              "&[data-at-top]": {
-                maskImage:
-                  "linear-gradient(180deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
-              },
-              "&[data-at-bottom]": {
-                maskImage:
-                  "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
-              },
-            }}
-          >
+          <ScrollArea.Viewport css={sidebarMask}>
             <ScrollArea.Content paddingEnd="3" py="4" textStyle="sm">
               <VStack alignItems="flex-start">
                 <For each={menuItems(t)}>
@@ -143,7 +138,7 @@ function Sidebar({ onNavigate }) {
                                 {...(isActive // <-- conditional application
                                   ? {
                                       letterSpacing: "widest",
-                                      color: "red.200",
+                                      color: "green.400",
                                       fontWeight: "bold",
                                     }
                                   : {
@@ -184,7 +179,7 @@ function Sidebar({ onNavigate }) {
                                         {...(isActive // <-- conditional application
                                           ? {
                                               letterSpacing: "widest",
-                                              color: "red.200",
+                                              color: "green.400",
                                               fontWeight: "bold",
                                             }
                                           : {

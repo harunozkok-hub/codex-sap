@@ -1,3 +1,4 @@
+import { autofillInput } from "../utils/css-chakra"
 import {
   Alert,
   Field,
@@ -10,8 +11,10 @@ import {
 } from "@chakra-ui/react"
 import { useEffect } from "react"
 import { Form, useActionData, useNavigation, useNavigate } from "react-router"
+import { useTranslation, withTranslation } from "react-i18next"
 
 const Register = () => {
+  const { t } = useTranslation(["common", "profile"])
   const actionData = useActionData()
   const navigation = useNavigation()
   const navigate = useNavigate()
@@ -50,36 +53,42 @@ const Register = () => {
         py={{ base: 3, md: 5 }}
         px={{ base: 3, md: 6 }}
       >
-        <Heading>REGISTER</Heading>
+        <Heading>{t("signup").toUpperCase()}</Heading>
 
         <Form method="POST" style={{ width: "100%" }}>
           <Stack>
-            <Alert.Root status="info" title="Single admin registry per company">
+            <Alert.Root
+              status="info"
+              title={t("single-admin-registry-per-comp")}
+            >
               <Alert.Indicator />
-              <Alert.Title>
-                Please note that you can register with your company name only
-                once. This will make you admin account for the account
-                automatically. The other users can join to your company
-                dashboard with registry code
-              </Alert.Title>
+              <Alert.Title>{t("please-note-that-you-can-regis")}</Alert.Title>
             </Alert.Root>
 
             <Field.Root required invalid={!!companyNameError}>
               <Field.Label>
-                Company name
+                {t("company-name", { ns: "profile" })}
                 <Field.RequiredIndicator />
               </Field.Label>
-              <Input name="companyName" placeholder="Company name" />
+              <Input
+                name="companyName"
+                _autofill={autofillInput}
+                placeholder={t("company-name-0", { ns: "profile" })}
+              />
               {companyNameError && (
                 <Field.ErrorText>{companyNameError}</Field.ErrorText>
               )}
             </Field.Root>
             <Field.Root required invalid={!!firstNameError}>
               <Field.Label>
-                First name
+                {t("first-name", { ns: "profile" })}
                 <Field.RequiredIndicator />
               </Field.Label>
-              <Input name="firstName" placeholder="First name" />
+              <Input
+                name="firstName"
+                _autofill={autofillInput}
+                placeholder={t("first-name-0", { ns: "profile" })}
+              />
               {firstNameError && (
                 <Field.ErrorText>{firstNameError}</Field.ErrorText>
               )}
@@ -87,10 +96,14 @@ const Register = () => {
 
             <Field.Root required invalid={!!lastNameError}>
               <Field.Label>
-                Last name
+                {t("last-name", { ns: "profile" })}
                 <Field.RequiredIndicator />
               </Field.Label>
-              <Input name="lastName" placeholder="Last name" />
+              <Input
+                name="lastName"
+                _autofill={autofillInput}
+                placeholder={t("last-name-0", { ns: "profile" })}
+              />
               {lastNameError && (
                 <Field.ErrorText>{lastNameError}</Field.ErrorText>
               )}
@@ -100,16 +113,25 @@ const Register = () => {
               <Field.Label>
                 Email <Field.RequiredIndicator />
               </Field.Label>
-              <Input name="email" placeholder="Email" />
+              <Input
+                name="email"
+                placeholder={t("e-g-example-example-com")}
+                _autofill={autofillInput}
+              />
               {emailError && <Field.ErrorText>{emailError}</Field.ErrorText>}
             </Field.Root>
 
             <Field.Root required invalid={!!passwordError}>
               <Field.Label>
-                Password
+                {t("password")}
                 <Field.RequiredIndicator />
               </Field.Label>
-              <Input type="password" name="password" placeholder="Password" />
+              <Input
+                type="password"
+                name="password"
+                _autofill={autofillInput}
+                placeholder={t("e-g-mystrongpass_95")}
+              />
               {passwordError && (
                 <Field.ErrorText>{passwordError}</Field.ErrorText>
               )}
@@ -117,13 +139,14 @@ const Register = () => {
 
             <Field.Root required invalid={!!confirmPasswordError}>
               <Field.Label>
-                Confirm Password
+                {t("confirm-password")}
                 <Field.RequiredIndicator />
               </Field.Label>
               <Input
                 type="password"
                 name="confirmPassword"
-                placeholder="Confirm password"
+                _autofill={autofillInput}
+                placeholder={t("e-g-mystrongpass_95")}
               />
               {confirmPasswordError && (
                 <Field.ErrorText>{confirmPasswordError}</Field.ErrorText>
@@ -131,13 +154,13 @@ const Register = () => {
             </Field.Root>
             <Field.Root required invalid={!!acceptTermsError}>
               <Field.Label>
-                Accept terms <Field.RequiredIndicator />
+                {t("accept-terms")} <Field.RequiredIndicator />
               </Field.Label>
               <Checkbox.Root mt="2" name="acceptTerms" value="acceptTerms">
                 <Checkbox.HiddenInput />
                 <Checkbox.Control />
                 <Checkbox.Label>
-                  I have read and agree to the Terms and Conditions
+                  {t("i-have-read-and-agree-to-the-t")}
                 </Checkbox.Label>
               </Checkbox.Root>
               {acceptTermsError && (
@@ -149,7 +172,7 @@ const Register = () => {
               <Checkbox.HiddenInput />
               <Checkbox.Control />
               <Checkbox.Label>
-                Subscribe to our newsletter for news & offers
+                {t("subscribe-to-our-newsletter-fo", { ns: "profile" })}
               </Checkbox.Label>
             </Checkbox.Root>
             {formSubmitError && (
@@ -159,8 +182,14 @@ const Register = () => {
               </Alert.Root>
             )}
 
-            <Button type="submit" variant="solid" mt={10} loading={pending}>
-              Submit
+            <Button
+              type="submit"
+              variant="surface"
+              colorPalette="green"
+              mt={10}
+              loading={pending}
+            >
+              {t("submit")}
             </Button>
           </Stack>
         </Form>

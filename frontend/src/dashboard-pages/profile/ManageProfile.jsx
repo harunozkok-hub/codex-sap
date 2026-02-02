@@ -18,6 +18,9 @@ import {
   Center,
   Spinner,
 } from "@chakra-ui/react"
+
+import { Tooltip } from "../../components/ui/tooltip"
+import { autofillInput } from "../../utils/css-chakra"
 import { FiUser } from "react-icons/fi"
 import { useState, useMemo, useEffect } from "react"
 import {
@@ -32,13 +35,15 @@ import {
   clearFieldErrorFromErrors,
   isFormDifferent,
 } from "../../utils/validators"
+import { useTranslation } from "react-i18next"
 
 function ManageProfile() {
+  const { t } = useTranslation("profile")
   const { profile } = useRouteLoaderData("dashboard")
   const actionData = useActionData()
   const navigation = useNavigation()
 
-  const pending = navigation.state !== "idle"
+  const pending = navigation.state === "submitting"
 
   const initialProfile = useMemo(() => mapProfileToForm(profile), [profile])
   // ✅ baseline = "last saved snapshot" (starts from loader)
@@ -82,7 +87,6 @@ function ManageProfile() {
     setFormData(baseline)
     setErrors(null)
   }
-  console.log("rerender")
 
   return (
     <Box
@@ -97,13 +101,13 @@ function ManageProfile() {
         <FiUser size={24} color="#2b6cb0" />
         <Stack>
           <Text fontWeight="bold" fontSize="lg">
-            Manage Profile
+            {t("manage-personal-profile")}
           </Text>
         </Stack>
       </HStack>
       <Stack>
         <Text fontSize="sm" color="gray.600">
-          You can modify the company & user information provided by you
+          {t("you-can-modify-the-personal-in")}
         </Text>
       </Stack>
       <Separator size="xs" colorPalette="blue" m={2} />
@@ -112,20 +116,24 @@ function ManageProfile() {
           <Box rounded="sm">
             <Field.Root disabled readOnly>
               <Field.Label>Email:</Field.Label>
-              <Input name="email" placeholder="Email" value={formData?.email} />
+              <Input
+                name="email"
+                placeholder="name@company.com"
+                value={formData?.email}
+              />
             </Field.Root>
           </Box>
           <Box alignSelf="flex-end">
             <Field.Root disabled readOnly>
-              <Field.Label>Dashboard Role</Field.Label>
+              <Field.Label>{t("dashboard-role")}</Field.Label>
               <NativeSelect.Root size="md">
                 <NativeSelect.Field
-                  placeholder="Select a role"
+                  placeholder={t("select-a-role")}
                   name="role"
                   value={formData?.role}
                 >
-                  <option value="admin">Admin</option>
-                  <option value="user">User</option>
+                  <option value="admin">{t("admin")}</option>
+                  <option value="user">{t("user")}</option>
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
               </NativeSelect.Root>
@@ -134,12 +142,13 @@ function ManageProfile() {
           <Box rounded="sm">
             <Field.Root required invalid={!!firstNameError}>
               <Field.Label>
-                First name:
+                {t("first-name")}
                 <Field.RequiredIndicator />
               </Field.Label>
               <Input
                 name="firstName"
-                placeholder="First name"
+                _autofill={autofillInput}
+                placeholder={t("first-name-0")}
                 value={formData?.firstName}
                 onChange={handleFormData}
               />
@@ -151,12 +160,13 @@ function ManageProfile() {
           <Box rounded="sm">
             <Field.Root required invalid={!!lastNameError}>
               <Field.Label>
-                Last name:
+                {t("last-name")}
                 <Field.RequiredIndicator />
               </Field.Label>
               <Input
                 name="lastName"
-                placeholder="Last name"
+                _autofill={autofillInput}
+                placeholder={t("last-name-0")}
                 value={formData?.lastName}
                 onChange={handleFormData}
               />
@@ -167,20 +177,21 @@ function ManageProfile() {
           </Box>
           <Box rounded="sm">
             <Field.Root disabled readOnly>
-              <Field.Label>Company name:</Field.Label>
+              <Field.Label>{t("company-name")}</Field.Label>
               <Input
                 name="companyName"
-                placeholder="Company name"
+                placeholder={t("company-name-0")}
                 value={formData?.companyName}
               />
             </Field.Root>
           </Box>
           <Box rounded="sm">
             <Field.Root invalid={!!jobTitleError}>
-              <Field.Label>Job title:</Field.Label>
+              <Field.Label>{t("job-title")}</Field.Label>
               <Input
                 name="jobTitle"
-                placeholder="Job title"
+                _autofill={autofillInput}
+                placeholder={t("e-g-it-manager")}
                 value={formData?.jobTitle}
                 onChange={handleFormData}
               />
@@ -191,14 +202,15 @@ function ManageProfile() {
           </Box>
           <Box rounded="sm">
             <Field.Root invalid={!!phoneNumberError}>
-              <Field.Label>Phone number:</Field.Label>
+              <Field.Label>{t("phone-number")}</Field.Label>
               <Grid templateColumns="repeat(4, 1fr)" width="100%">
                 <GridItem colSpan={1}>
                   <NativeSelect.Root width="8rem">
                     <NativeSelect.Field
                       name="countryCode"
                       fontSize="xs"
-                      placeholder="Country Code"
+                      _autofill={autofillInput}
+                      placeholder={t("country-code")}
                       value={formData?.countryCode}
                       onChange={handleFormData}
                     >
@@ -222,7 +234,8 @@ function ManageProfile() {
                 <GridItem colSpan={3}>
                   <Input
                     name="phoneNumber"
-                    placeholder="Phone number"
+                    _autofill={autofillInput}
+                    placeholder={t("123123123-without-country-code")}
                     value={formData?.phoneNumber}
                     onChange={handleFormData}
                   />
@@ -242,7 +255,7 @@ function ManageProfile() {
             >
               <Checkbox.HiddenInput />
               <Checkbox.Label>
-                Subscribe to our newsletter for news & offers
+                {t("subscribe-to-our-newsletter-fo")}
               </Checkbox.Label>
               <Checkbox.Control />
             </Checkbox.Root>
@@ -261,22 +274,31 @@ function ManageProfile() {
           justifyContent="center"
           align="center"
           display="flex"
-          my={5}
+          my={10}
         >
           <Button
             type="submit"
+            variant="surface"
             disabled={!isDirty || pending}
-            colorPalette="blue"
+            colorPalette="green"
           >
-            Save
+            {t("save")}
           </Button>
-          <Button
-            type="button"
-            onClick={resetFormHandler}
+          <Tooltip
             disabled={!isDirty || pending}
+            showArrow
+            content={t("restore-the-last-saved-values")}
           >
-            Reset Changes
-          </Button>
+            <Button
+              type="button"
+              variant="outline"
+              color="red.500"
+              onClick={resetFormHandler}
+              disabled={!isDirty || pending}
+            >
+              {t("reset-changes")}
+            </Button>
+          </Tooltip>
         </ButtonGroup>
       </Form>
       {pending && (

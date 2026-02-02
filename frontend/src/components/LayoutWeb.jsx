@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react"
 import { FiX } from "react-icons/fi"
 import { NavLink, Outlet, useRouteLoaderData } from "react-router"
-import logo from "../assets/hoops-icon.png"
+import logo from "../assets/hoops-icon-trans.png"
 import SidebarHome from "./SidebarHome"
 import { useTranslation } from "react-i18next"
 import LanguageSelector from "./LanguageSelector"
@@ -37,14 +37,18 @@ function LayoutWeb() {
 
   let userBox = profile ? (
     <HStack>
-      {isDesktop ? <LanguageSelector size="lg" /> : <LanguageSelector />}
+      {isDesktop ? (
+        <LanguageSelector dark size="lg" />
+      ) : (
+        <LanguageSelector dark />
+      )}
       {isDesktop && (
         <VStack
           align="center"
           mx={5}
           borderRightWidth="1px"
           borderLeftWidth="1px"
-          borderColor="whiteAlpha.300"
+          borderColor="blackAlpha.400"
           w="10%"
           minWidth="8rem"
         >
@@ -70,9 +74,9 @@ function LayoutWeb() {
               <Avatar.Root
                 variant="outline"
                 shape="rounded"
-                borderColor="whiteAlpha.600"
+                borderColor="blackAlpha.600"
               >
-                <Avatar.Fallback name={avatarName} color="white" />
+                <Avatar.Fallback name={avatarName} color="blackAlpha.600" />
               </Avatar.Root>
             </Menu.Trigger>
             <Portal>
@@ -86,7 +90,7 @@ function LayoutWeb() {
         ) : (
           <Drawer.Trigger asChild>
             <Avatar.Root variant="outline" shape="rounded">
-              <Avatar.Fallback name={avatarName} color="white" />
+              <Avatar.Fallback name={avatarName} color="blackAlpha.600" />
             </Avatar.Root>
           </Drawer.Trigger>
         )}
@@ -110,7 +114,7 @@ function LayoutWeb() {
                 </Drawer.CloseTrigger>
                 <Drawer.Header
                   px={0}
-                  bg="blue.800"
+                  bg="green.950"
                   align="flex-start"
                   borderBottomWidth="1px"
                   borderColor="white"
@@ -141,15 +145,21 @@ function LayoutWeb() {
       borderLeftWidth="1px"
       borderColor="whiteAlpha.300"
     >
-      <Button as={NavLink} to="login" colorPalette="blue" variant="solid">
+      {isDesktop ? (
+        <LanguageSelector dark size="lg" />
+      ) : (
+        <LanguageSelector dark />
+      )}
+      <Button
+        as={NavLink}
+        to="login"
+        colorPalette="blackAlpha"
+        color="green.500"
+        variant="outline"
+      >
         {t("login")}
       </Button>
-      <Button
-        colorPalette="blackAlpha"
-        variant="surface"
-        as={NavLink}
-        to="register"
-      >
+      <Button colorPalette="green" variant="surface" as={NavLink} to="register">
         {t("signup")}
       </Button>
     </HStack>
@@ -160,7 +170,7 @@ function LayoutWeb() {
       {/* ✅ Shell must have width */}
       <Box w="100%" maxW={MAX_W} mx="auto" shadow="md" bg="white">
         <Box
-          bg="blue.700"
+          bg="teal.50"
           as="header"
           position="fixed"
           top={0}
@@ -169,7 +179,6 @@ function LayoutWeb() {
           px={{ base: 3, md: 5 }}
           maxW={MAX_W}
           w="100%"
-          color="white"
           boxShadow="sm"
           zIndex={1000}
           h={HEADER_H}
@@ -180,8 +189,8 @@ function LayoutWeb() {
                 src={logo}
                 alt="hoops-logo"
                 fit="cover"
-                aspectRatio={2 / 1}
-                width="140px"
+                aspectRatio={4 / 1}
+                width="150px"
               />
             </Box>
             {userBox}
