@@ -6,19 +6,21 @@ import {
   IconButton,
   Portal,
   Text,
-  useDisclosure,
   useMediaQuery,
   Image,
 } from "@chakra-ui/react"
 import { FiMenu, FiX } from "react-icons/fi"
-import { Outlet, NavLink, useRouteLoaderData } from "react-router"
+import { Outlet, NavLink } from "react-router"
 import { useTranslation } from "react-i18next"
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { sessionQuery } from "../queries/profile-queries"
+import { useState } from "react"
 import Sidebar from "./Sidebar"
 import logo from "../assets/hoops-icon-trans.png"
 
 function Layout() {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { profile } = useRouteLoaderData("dashboard")
+  const [isOpen, setIsOpen] = useState(false)
+  const { data: profile } = useSuspenseQuery(sessionQuery())
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
   const { t } = useTranslation("common")
 
@@ -48,7 +50,7 @@ function Layout() {
         <Drawer.Root
           size="sm"
           open={!isDesktop && isOpen}
-          onOpenChange={(open) => (open ? onOpen() : onClose())}
+          onOpenChange={(e) => setIsOpen(e.open)}
           placement="start"
         >
           <HStack
@@ -74,7 +76,6 @@ function Layout() {
                   _hover={{ bg: "gray.100" }}
                   bg="white"
                   mx={3}
-                  onClick={onOpen}
                 >
                   <FiMenu />
                 </IconButton>
@@ -107,7 +108,6 @@ function Layout() {
                       bg="gray.50"
                       mx={2}
                       my={2}
-                      onClick={onOpen}
                     >
                       <FiX />
                     </IconButton>
@@ -124,7 +124,7 @@ function Layout() {
                     </Box>
                   </Drawer.Header>
                   <Drawer.Body p={0}>
-                    <Sidebar onNavigate={onClose} />
+                    <Sidebar onNavigate={() => setIsOpen(false)} />
                   </Drawer.Body>
                 </Drawer.Content>
               </Drawer.Positioner>

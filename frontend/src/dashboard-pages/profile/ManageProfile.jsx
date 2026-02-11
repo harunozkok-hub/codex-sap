@@ -15,31 +15,28 @@ import {
   ButtonGroup,
   Button,
   Alert,
-  Center,
-  Spinner,
 } from "@chakra-ui/react"
 
 import { Tooltip } from "../../components/ui/tooltip"
-import { autofillInput } from "../../utils/css-chakra"
 import { FiUser } from "react-icons/fi"
 import { useState, useMemo, useEffect } from "react"
-import {
-  useRouteLoaderData,
-  useActionData,
-  useNavigation,
-  Form,
-} from "react-router"
+import { useActionData, useNavigation, Form } from "react-router"
+import { useTranslation } from "react-i18next"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import { country } from "../../utils/country"
+import { autofillInput } from "../../utils/css-chakra"
 import { mapProfileToForm } from "./util/manage-profile"
 import {
   clearFieldErrorFromErrors,
   isFormDifferent,
 } from "../../utils/validators"
-import { useTranslation } from "react-i18next"
+
+import { sessionQuery } from "../../queries/profile-queries"
+import FullpageSpinner from "../../components/generic/FullpageSpinner"
 
 function ManageProfile() {
   const { t } = useTranslation("profile")
-  const { profile } = useRouteLoaderData("dashboard")
+  const { data: profile } = useSuspenseQuery(sessionQuery())
   const actionData = useActionData()
   const navigation = useNavigation()
 
@@ -47,7 +44,6 @@ function ManageProfile() {
 
   const initialProfile = useMemo(() => mapProfileToForm(profile), [profile])
   // ✅ baseline = "last saved snapshot" (starts from loader)
-  const [baseline, setBaseline] = useState(initialProfile)
   const [formData, setFormData] = useState(initialProfile)
   const [errors, setErrors] = useState(null)
 
@@ -59,11 +55,6 @@ function ManageProfile() {
 
   useEffect(() => {
     if (navigation.state === "idle") {
-      if (actionData?.newProfile) {
-        const next = mapProfileToForm(actionData.newProfile)
-        setBaseline(next)
-        setFormData(next)
-      }
       if (actionData?.errors) {
         setErrors(actionData.errors)
       }
@@ -80,17 +71,18 @@ function ManageProfile() {
   }
 
   const isDirty = useMemo(() => {
-    return isFormDifferent(baseline, formData)
-  }, [formData, baseline])
+    return isFormDifferent(initialProfile, formData)
+  }, [formData, initialProfile])
 
   const resetFormHandler = () => {
-    setFormData(baseline)
+    setFormData(initialProfile)
     setErrors(null)
   }
 
   return (
     <Box
       bg="white"
+      position="relative"
       borderWidth="1px"
       borderColor="gray.100"
       borderRadius="lg"
@@ -280,7 +272,7 @@ function ManageProfile() {
             type="submit"
             variant="surface"
             disabled={!isDirty || pending}
-            colorPalette="green"
+            colorPalette="teal"
           >
             {t("save")}
           </Button>
@@ -292,7 +284,7 @@ function ManageProfile() {
             <Button
               type="button"
               variant="outline"
-              color="red.500"
+              color="red.600"
               onClick={resetFormHandler}
               disabled={!isDirty || pending}
             >
@@ -301,13 +293,7 @@ function ManageProfile() {
           </Tooltip>
         </ButtonGroup>
       </Form>
-      {pending && (
-        <Box pos="absolute" inset="0" bg="bg/80">
-          <Center h="full">
-            <Spinner color="blue" />
-          </Center>
-        </Box>
-      )}
+      {pending && <FullpageSpinner />}
     </Box>
   )
 }

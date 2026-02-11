@@ -14,7 +14,7 @@ import {
   useSearchParams,
 } from "react-router"
 import { autofillInput } from "../utils/css-chakra"
-import { useTranslation, withTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 
 function ResendEmail() {
   const { t } = useTranslation("common")
@@ -66,6 +66,4 @@ function ResendEmail() {
   )
 }
 
-const ExtendedResendEmail = withTranslation("validators")(ResendEmail)
-
-export default ExtendedResendEmail
+export default ResendEmail

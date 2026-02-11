@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi"
 
 export const menuItems = (t) => {
+  //const {} = useTranslation("dashboard-sidebar")
   return [
     {
       id: "home",
@@ -27,6 +28,11 @@ export const menuItems = (t) => {
           key: "manage-profile",
           label: t("manage-profile"),
           path: "profile/profile-settings",
+        },
+        {
+          key: "manage-company-profile",
+          label: t("company-profile"),
+          path: "profile/company-profile-settings",
         },
         {
           key: "manage-dashboard-users",

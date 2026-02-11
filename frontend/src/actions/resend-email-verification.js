@@ -27,8 +27,7 @@ export const resendEmailVerificationAction = async ({ request }) => {
     })
     return { ok: true, email, message: res.data?.message }
   } catch (error) {
-    const msg =
-      error?.response?.data?.detail || t("resend-failed", { ns: "common" })
+    const msg = error?.message || t("resend-failed", { ns: "common" })
     return {
       errors: { form: msg },
     }

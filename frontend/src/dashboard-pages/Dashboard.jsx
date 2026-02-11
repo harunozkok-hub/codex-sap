@@ -6,7 +6,7 @@ import {
   FiShoppingCart,
   FiTruck,
 } from "react-icons/fi"
-import DashboardCard from "../components/DashboardCard"
+import DashboardCard from "../components/generic/DashboardCard"
 
 function Dashboard() {
   const cards = [

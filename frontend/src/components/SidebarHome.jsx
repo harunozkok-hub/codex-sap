@@ -1,7 +1,7 @@
 import { Box, VStack, For, Flex, Button } from "@chakra-ui/react"
 
 import { useTranslation } from "react-i18next"
-import { NavLink, Form } from "react-router"
+import { NavLink, Form, useParams } from "react-router"
 
 function homeMenuItems(t) {
   return [
@@ -29,8 +29,9 @@ function homeMenuItems(t) {
 }
 
 function SidebarHome() {
-  const { t, i18n } = useTranslation(["common", "home-sidebar"])
-  const resolvedLang = i18n.resolvedLanguage
+  const { t } = useTranslation(["common", "home-sidebar"])
+  const params = useParams()
+  const resolvedLang = params.lang
   return (
     <Box bg="teal.50" color="black" h="100%" px={4} py={5}>
       <VStack alignItems="stretch" spacing={1} p={3}>

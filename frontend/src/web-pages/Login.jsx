@@ -10,11 +10,18 @@ import {
   Alert,
 } from "@chakra-ui/react"
 import { autofillInput } from "../utils/css-chakra"
-import { Form, useNavigation, useActionData, NavLink } from "react-router"
-import { useTranslation, withTranslation } from "react-i18next"
+import {
+  Form,
+  useNavigation,
+  useActionData,
+  NavLink,
+  useParams,
+} from "react-router"
+import { useTranslation } from "react-i18next"
 
 function Login() {
   const { t } = useTranslation("common")
+  const params = useParams()
   const actionData = useActionData()
   const navigation = useNavigation()
   const pending = navigation.state === "submitting"
@@ -97,7 +104,7 @@ function Login() {
             </Text>
             <Button
               as={NavLink}
-              to={`/resend-email${email ? `?email=${encodeURIComponent(email)}` : ""}`}
+              to={`${params.lang}/resend-email${email ? `?email=${encodeURIComponent(email)}` : ""}`}
               variant="outline"
               colorPalette="blackAlpha"
               color="green.500"

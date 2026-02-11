@@ -1,66 +1,24 @@
 import { redirect } from "react-router"
+import { sessionQuery } from "../queries/profile-queries"
 import { api } from "../utils/api"
 
-// ---- tiny in-memory cache (module-scoped) ----
-let cachedProfile = undefined // undefined = not fetched yet
-let cacheTime = 0
-const TTL_MS = 30_000 // 30 seconds
-
-function isCacheValid() {
-  return cachedProfile !== undefined && Date.now() - cacheTime < TTL_MS
+export const homeLoader = (queryClient) => async () => {
+  await queryClient.ensureQueryData(sessionQuery())
+  return null
 }
 
-async function fetchProfile() {
-  const res = await api.get("/api-user/profile")
-  return res.data
-}
+export const requireAuthLoader =
+  (queryClient) =>
+  async ({ params }) => {
+    const profile = await queryClient.ensureQueryData(sessionQuery())
 
-async function getSession({ force = false } = {}) {
-  if (!force && isCacheValid()) return cachedProfile
-
-  try {
-    const profile = await fetchProfile()
-    cachedProfile = profile
-    cacheTime = Date.now()
-    return profile
-  } catch (err) {
-    const status = err?.response?.status
-
-    // Not authenticated
-    if (status === 401 || status === 403) {
-      cachedProfile = null
-      cacheTime = Date.now()
-      return null
+    if (!profile) {
+      // ✅ keep language in redirect
+      throw redirect(`/${params.lang}/login`)
     }
 
-    // Real error: surface it
-    throw err
+    return null
   }
-}
-
-// ---- loaders ----
-export async function homeLoader() {
-  const profile = await getSession()
-  return { profile }
-}
-
-export async function requireAuthLoader() {
-  const profile = await getSession()
-  if (!profile) return redirect("/login")
-  return { profile }
-}
-
-// ---- helpers to keep cache correct after auth actions ----
-export function clearSessionCache() {
-  cachedProfile = undefined
-  cacheTime = 0
-}
-
-export function setSessionCache(profile) {
-  cachedProfile = profile
-  cacheTime = Date.now()
-}
-
 export async function confirmEmailLoader({ request }) {
   const url = new URL(request.url)
   const token = url.searchParams.get("token")
@@ -81,5 +39,51 @@ export async function confirmEmailLoader({ request }) {
           ? "Email already verified"
           : "Confirmation failed"
     return { ok: false, message: msg, status }
+  }
+}
+
+export const checkAdmin =
+  (queryClient) =>
+  async ({ params }) => {
+    const profile = await queryClient.ensureQueryData(sessionQuery())
+
+    if (profile.role !== "admin") {
+      throw redirect(`/${params.lang}/dashboard`)
+    }
+    return null
+  }
+
+// Small helper: redirects to /:lang/dashboard (or /:lang if you prefer)
+function denyRedirect(params, to = "dashboard") {
+  const lang = params?.lang || "en"
+  return redirect(`/${lang}/${to}`)
+}
+
+export function requireModulePerm(queryClient, moduleKey, options = {}) {
+  const { redirectTo = "dashboard" } = options
+
+  return async ({ params }) => {
+    // Ensure we have session (cached or fetched)
+    const session = await queryClient.ensureQueryData(sessionQuery())
+
+    // Not logged in -> go login (include lang)
+    if (!session) {
+      const lang = params?.lang || "en"
+      throw redirect(`/${lang}/login`)
+    }
+
+    // Admin bypass if you want:
+    if (session.role === "admin") return null
+
+    const perms = session.permissions || []
+
+    // Optional: wildcard support
+    if (perms.includes("*")) return null
+
+    if (!perms.includes(moduleKey)) {
+      throw denyRedirect(params, redirectTo)
+    }
+
+    return null
   }
 }

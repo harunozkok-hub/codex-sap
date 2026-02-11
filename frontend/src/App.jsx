@@ -1,5 +1,6 @@
 import { RouterProvider } from "react-router/dom"
 import { createBrowserRouter, Navigate, redirect } from "react-router"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 import Layout from "./components/Layout"
 import LayoutWeb from "./components/LayoutWeb"
@@ -8,6 +9,7 @@ import DashboardPermissions from "./dashboard-pages/profile/DashboardPermissions
 import Invitations from "./dashboard-pages/profile/Invitations"
 import ManageDashboardUsers from "./dashboard-pages/profile/ManageDashboardUsers"
 import ManageProfile from "./dashboard-pages/profile/ManageProfile"
+import ManageCompanyProfile from "./dashboard-pages/profile/ManageCompanyProfile"
 
 import Dashboard from "./dashboard-pages/Dashboard"
 import Products from "./dashboard-pages/catalog/Products"
@@ -42,22 +44,40 @@ import {
   requireAuthLoader,
   homeLoader,
   confirmEmailLoader,
+  checkAdmin,
+  requireModulePerm,
 } from "./loaders/auth"
 import { langLoader } from "./loaders/langLoader"
 import { editUserProfileAction } from "./actions/profile-actions"
 import { getResolvedLanguage } from "./utils/helper-i18n"
+import RedirectPage from "./web-pages/RedirectPage"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { companyProfileLoader } from "./loaders/profile-loaders"
 
 const resolveLanguageLoader = async () => {
   const lang = await getResolvedLanguage()
-  console.log(lang)
   throw redirect(`/${lang}`)
 }
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      suspense: true,
+      staleTime: 60_000,
+      gcTime: 15 * 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+})
 
 const router = createBrowserRouter([
   {
     path: "/",
+    hydrateFallbackElement: <p>Fallback..</p>,
     children: [
       {
+        element: <RedirectPage />,
         index: true,
         loader: resolveLanguageLoader,
       },
@@ -71,12 +91,16 @@ const router = createBrowserRouter([
       {
         element: <LayoutWeb />,
         id: "home-page",
-        loader: homeLoader,
+        loader: homeLoader(queryClient),
         children: [
           { index: true, element: <Home /> },
           { path: "price-plans", element: <PricePlans /> },
 
-          { path: "login", element: <Login />, action: loginAction },
+          {
+            path: "login",
+            element: <Login />,
+            action: loginAction(queryClient),
+          },
           {
             path: "confirm-email",
             element: <ConfirmEmail />,
@@ -96,13 +120,13 @@ const router = createBrowserRouter([
         ],
       },
 
-      { path: "logout", action: logoutAction },
+      { path: "logout", action: logoutAction(queryClient) },
 
       {
         path: "dashboard",
         element: <Layout />,
         id: "dashboard",
-        loader: requireAuthLoader,
+        loader: requireAuthLoader(queryClient),
         children: [
           { index: true, element: <Dashboard /> },
 
@@ -115,10 +139,19 @@ const router = createBrowserRouter([
               },
               {
                 path: "profile-settings",
-                action: editUserProfileAction,
+                action: editUserProfileAction(queryClient),
                 element: <ManageProfile />,
               },
-              { path: "manage-users", element: <ManageDashboardUsers /> },
+              {
+                path: "company-profile-settings",
+                loader: companyProfileLoader(queryClient),
+                element: <ManageCompanyProfile />,
+              },
+              {
+                path: "manage-users",
+                loader: checkAdmin(queryClient),
+                element: <ManageDashboardUsers />,
+              },
               { path: "invitations", element: <Invitations /> },
               {
                 path: "dashboard-permissions",
@@ -129,6 +162,7 @@ const router = createBrowserRouter([
 
           {
             path: "catalog",
+            loader: requireModulePerm(queryClient, "catalog"),
             children: [
               { index: true, element: <Navigate to="products" replace /> },
               { path: "products", element: <Products /> },
@@ -139,6 +173,7 @@ const router = createBrowserRouter([
 
           {
             path: "inventory",
+            loader: requireModulePerm(queryClient, "inventory"),
             children: [
               { index: true, element: <Navigate to="stock" replace /> },
               { path: "warehouses", element: <Warehouses /> },
@@ -149,22 +184,38 @@ const router = createBrowserRouter([
             ],
           },
 
-          { path: "orders", element: <Orders /> },
+          {
+            path: "orders",
+            loader: requireModulePerm(queryClient, "orders"),
+            element: <Orders />,
+          },
 
           {
             path: "production",
+            loader: requireModulePerm(queryClient, "production"),
             children: [
               {
                 index: true,
                 element: <Navigate to="production-orders" replace />,
               },
               { path: "production-orders", element: <ProductionOrders /> },
-              { path: "production-timeline", element: <ProductionTimeline /> },
+              {
+                path: "production-timeline",
+                element: <ProductionTimeline />,
+              },
             ],
           },
 
-          { path: "finance", element: <Finance /> },
-          { path: "sales-stats", element: <SalesStats /> },
+          {
+            path: "finance",
+            loader: requireModulePerm(queryClient, "finance"),
+            element: <Finance />,
+          },
+          {
+            path: "sales-stats",
+            loader: requireModulePerm(queryClient, "sales-stats"),
+            element: <SalesStats />,
+          },
           { path: "ui-settings", element: <UISettings /> },
 
           { path: "*", element: <Navigate to="../" replace /> },
@@ -186,7 +237,12 @@ const router = createBrowserRouter([
 ])
 
 function App() {
-  return <RouterProvider router={router} />
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      <ReactQueryDevtools />
+    </QueryClientProvider>
+  )
 }
 
 export default App

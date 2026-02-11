@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react"
 import { useEffect } from "react"
 import { Form, useActionData, useNavigation, useNavigate } from "react-router"
-import { useTranslation, withTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 
 const Register = () => {
   const { t } = useTranslation(["common", "profile"])

@@ -7,8 +7,8 @@ import {
   validatePasswordPair,
 } from "../utils/validators"
 import { api } from "../utils/api"
-import { clearSessionCache } from "../loaders/auth"
 import { loadNamespaces, t } from "../utils/helper-i18n"
+import { sessionQuery } from "../queries/profile-queries"
 
 export const signupAction = async ({ request }) => {
   const formData = await request.formData()
@@ -55,13 +55,10 @@ export const signupAction = async ({ request }) => {
       accept_terms: acceptTerms,
     })
 
-    clearSessionCache()
-
     return { ok: true, email }
   } catch (err) {
     // Map backend error -> field errors (simple version)
-    const msg =
-      err?.response?.data?.detail || t("signup-failed", { ns: "common" })
+    const msg = err?.message || t("signup-failed", { ns: "common" })
 
     return {
       errors: { form: msg },
@@ -69,65 +66,67 @@ export const signupAction = async ({ request }) => {
   }
 }
 
-export const loginAction = async ({ request }) => {
-  const formData = await request.formData()
-  await loadNamespaces(["validators", "common"])
+export const loginAction =
+  (queryClient) =>
+  async ({ request, params }) => {
+    const formData = await request.formData()
+    await loadNamespaces(["validators", "common"])
 
-  const email = formData.get("email")
-  const password = formData.get("password")
+    const email = formData.get("email")
+    const password = formData.get("password")
 
-  const errors = validateFields({
-    email: () => validateEmail(email),
-    password: () => validateName(password, t("password", { ns: "common" })),
-  })
+    const errors = validateFields({
+      email: () => validateEmail(email),
+      password: () => validateName(password, t("password", { ns: "common" })),
+    })
 
-  if (errors) {
-    return {
-      errors,
+    if (errors) {
+      return {
+        errors,
+      }
+    }
+
+    try {
+      const body = new URLSearchParams()
+      body.set("username", email)
+      body.set("password", password)
+
+      await api.post("/auth/login", body, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      })
+      await queryClient.invalidateQueries({ queryKey: ["session"] })
+
+      toaster.create({
+        title: t("login-success", { ns: "common" }),
+        type: "success",
+        duration: 6000,
+        description: t("logged-in-successfully", { ns: "common" }),
+      })
+
+      return redirect(`/${params.lang}/dashboard`)
+    } catch (err) {
+      const status = err?.response?.status
+      const msg = err?.message || t("login-failed", { ns: "common" })
+
+      const needsVerification =
+        status === 403 && msg.toLowerCase().includes("verify")
+
+      return {
+        errors: { form: msg },
+        needsVerification,
+        email,
+      }
     }
   }
 
-  try {
-    const body = new URLSearchParams()
-    body.set("username", email)
-    body.set("password", password)
-
-    await api.post("/auth/login", body, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    })
-
-    clearSessionCache()
-    // either redirect to dashboard or login
-    toaster.create({
-      title: t("login-success", { ns: "common" }),
-      type: "success",
-      duration: 6000,
-      description: t("logged-in-successfully", { ns: "common" }),
-    })
-    return redirect("/dashboard")
-  } catch (err) {
-    const status = err?.response?.status
-    const msg =
-      err?.response?.data?.detail || t("login-failed", { ns: "common" })
-
-    const needsVerification =
-      status === 403 && msg.toLowerCase().includes("verify")
-
-    return {
-      errors: { form: msg },
-      needsVerification,
-      email,
+export const logoutAction =
+  (queryClient) =>
+  async ({ params }) => {
+    try {
+      await api.post("/auth/logout")
+    } catch (e) {
+      // ignore
     }
+    queryClient.invalidateQueries(["session"])
+    return redirect(`/${params.lang}`)
   }
-}
-
-export async function logoutAction() {
-  try {
-    await api.post("/auth/logout")
-  } catch (e) {
-    // ignore
-  } finally {
-    clearSessionCache()
-  }
-  return redirect("/")
-}
