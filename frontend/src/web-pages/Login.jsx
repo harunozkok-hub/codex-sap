@@ -19,6 +19,8 @@ import {
 } from "react-router"
 import { useTranslation } from "react-i18next"
 
+import PageTitle from "../components/generic/PageTitle"
+
 function Login() {
   const { t } = useTranslation("common")
   const params = useParams()
@@ -49,6 +51,7 @@ function Login() {
         py={{ base: 3, md: 5 }}
         px={{ base: 3, md: 6 }}
       >
+        <PageTitle ns="common" titleKey="login" />
         <Heading>{t("login").toUpperCase()}</Heading>
         <Form method="POST" style={{ width: "100%" }}>
           <Stack>

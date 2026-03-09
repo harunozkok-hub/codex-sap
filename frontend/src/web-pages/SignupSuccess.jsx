@@ -1,6 +1,7 @@
 import { VStack, Heading, Text, Button } from "@chakra-ui/react"
 import { Navigate, NavLink } from "react-router"
 import { useTranslation } from "react-i18next"
+import PageTitle from "../components/generic/PageTitle"
 
 function SignupSuccess() {
   const { t } = useTranslation("common")
@@ -9,6 +10,7 @@ function SignupSuccess() {
   if (!email) return <Navigate to="/register" replace />
   return (
     <VStack padding={5} m={5} shadow="xs" rounded="md">
+      <PageTitle ns="common" titleKey="thanks-for-signing-up-to-hoops" />
       <Heading size="md" mb={3}>
         {t("thanks-for-signing-up-to-hoops")}
       </Heading>

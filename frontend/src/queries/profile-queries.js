@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query"
 import { api } from "../utils/api"
+import { ok, fail } from "../utils/query-error-handler"
 
 //query profile
 export const sessionQuery = () =>
@@ -27,18 +28,34 @@ export async function updateProfile(payload) {
 export const companyProfileQuery = () =>
   queryOptions({
     queryKey: ["profile", "company-details"],
+    retry: false,
     queryFn: async () => {
-      const res = await api.get("/api-user/companyaaa")
-      return res.data
+      try {
+        const res = await api.get("/api-user/company")
+        return ok(res.data)
+      } catch (err) {
+        return fail(err)
+      }
     },
   })
+
+// updates + patches company profile info
+export async function updateCompanyProfile(payload) {
+  const res = await api.patch("/api-user/company", payload)
+  return ok(res.data)
+}
 
 // query for company addresses
 export const companyAddressesQuery = () =>
   queryOptions({
     queryKey: ["profile", "company-addresses"],
+    retry: false,
     queryFn: async () => {
-      const res = await api.get("/api-user/company-addressesaaa")
-      return res.data
+      try {
+        const res = await api.get("/api-user/company-addresses")
+        return ok(res.data)
+      } catch (err) {
+        return fail(err)
+      }
     },
   })

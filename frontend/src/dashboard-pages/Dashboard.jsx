@@ -7,8 +7,11 @@ import {
   FiTruck,
 } from "react-icons/fi"
 import DashboardCard from "../components/generic/DashboardCard"
+import { useTranslation } from "react-i18next"
+import PageTitle from "../components/generic/PageTitle"
 
 function Dashboard() {
+  const { t } = useTranslation("dashboard")
   const cards = [
     {
       title: "Orders",
@@ -49,8 +52,9 @@ function Dashboard() {
 
   return (
     <>
+      <PageTitle ns="dashboard" titleKey="dashboard-overview" />
       <Text fontSize="xl" fontWeight="bold" mb={4} color="gray.800">
-        Dashboard Overview
+        {t("dashboard-overview")}
       </Text>
       <SimpleGrid minChildWidth="72" gap={4}>
         {cards.map((card) => (

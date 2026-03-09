@@ -1,12 +1,18 @@
 import { toaster } from "../components/ui/toaster"
 import {
   validateFields,
+  validateEmail,
   validateName,
   validatePhone,
   normalizeOptional,
 } from "../utils/validators"
 import { t, loadNamespaces } from "../utils/helper-i18n"
-import { sessionQuery, updateProfile } from "../queries/profile-queries"
+import {
+  companyProfileQuery,
+  sessionQuery,
+  updateCompanyProfile,
+  updateProfile,
+} from "../queries/profile-queries"
 
 export const editUserProfileAction =
   (queryClient) =>
@@ -77,6 +83,84 @@ export const editUserProfileAction =
       // Map backend error -> field errors (simple version)
       const msg =
         err?.message || t("updating-profile-failed-please", { ns: "profile" })
+
+      return { errors: { form: msg } }
+    }
+  }
+
+export const editCompanyProfileAction =
+  (queryClient) =>
+  async ({ request }) => {
+    const formData = await request.formData()
+    await loadNamespaces(["validators", "company-profile"])
+
+    const display_name = formData.get("displayName")
+    const legal_name = formData.get("legalName")
+    const vat_number = formData.get("vatNumber")
+    const billing_email = formData.get("billingEmail")
+    const country_code = formData.get("countryCode")
+    const phone_number = formData.get("phoneNumber")
+
+    const errors = validateFields({
+      displayName: () =>
+        validateName(
+          display_name,
+          t("company-profile:display-name"),
+          2,
+          255,
+          true,
+        ),
+      legalName: () =>
+        validateName(legal_name, t("company-profile:legal-name"), 2, 255, true),
+      vatNumber: () =>
+        validateName(vat_number, t("company-profile:vat-number"), 2, 100, true),
+      phoneNumber: () =>
+        validatePhone(
+          phone_number,
+          country_code,
+          t("company-profile:company-phone"),
+          5,
+          25,
+          true,
+        ),
+      billingEmail: () => validateEmail(billing_email, true),
+    })
+
+    if (errors) {
+      return { errors }
+    }
+    const newPhoneNumber = normalizeOptional(phone_number)
+      ? `${country_code} ${phone_number}`
+      : null
+
+    const payload = {
+      display_name: normalizeOptional(display_name),
+      legal_name: normalizeOptional(legal_name),
+      vat_number: normalizeOptional(vat_number),
+      phone: newPhoneNumber,
+      billing_email: normalizeOptional(billing_email),
+    }
+    try {
+      const response = await updateCompanyProfile(payload)
+
+      queryClient.setQueryData(
+        ["profile", "company-details"],
+        (oldData) => response,
+      )
+      await queryClient.ensureQueryData(companyProfileQuery())
+
+      toaster.create({
+        title: t("company-profile:company-profile-update-success"),
+        type: "success",
+        duration: 6000,
+        description: t("company-profile:company-profile-updated-succes"),
+      })
+
+      return null
+    } catch (err) {
+      // Map backend error -> field errors (simple version)
+      const msg =
+        err?.message || t("company-profile:company-profile-update-failed")
 
       return { errors: { form: msg } }
     }

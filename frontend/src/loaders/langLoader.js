@@ -22,6 +22,7 @@ export async function langLoader({ params, request }) {
   if (i18n.resolvedLanguage !== lang) {
     await i18n.changeLanguage(lang)
   }
+  document.documentElement.lang = lang
 
   return { lang }
 }

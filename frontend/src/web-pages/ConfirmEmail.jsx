@@ -1,6 +1,7 @@
 import { NavLink, useLoaderData } from "react-router"
 import { Flex, Stack, Heading, Alert, Text, Button } from "@chakra-ui/react"
 import { useTranslation } from "react-i18next"
+import PageTitle from "../components/generic/PageTitle"
 
 function ConfirmEmail() {
   const { t, i18n } = useTranslation("common")
@@ -21,6 +22,7 @@ function ConfirmEmail() {
       align="center"
       justify="center"
     >
+      <PageTitle ns="common" titleKey="email-confirmation" />
       <Stack
         maxW={{ base: "sm", md: "lg" }}
         width="100%"

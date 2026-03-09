@@ -15,6 +15,7 @@ import {
 } from "react-router"
 import { autofillInput } from "../utils/css-chakra"
 import { useTranslation } from "react-i18next"
+import PageTitle from "../components/generic/PageTitle"
 
 function ResendEmail() {
   const { t } = useTranslation("common")
@@ -32,6 +33,7 @@ function ResendEmail() {
 
   return (
     <VStack padding={5} m={5} shadow="xs" rounded="md">
+      <PageTitle ns="common" titleKey="resend-verification-email" />
       <Form method="post">
         <Heading size="md" mb={3}>
           {t("resend-verification-email").toUpperCase()}:

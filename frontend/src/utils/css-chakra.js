@@ -17,3 +17,7 @@ export const sidebarMask = {
       "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
   },
 }
+
+export const resGap = { base: "1rem", sm: "1.5rem", md: "2rem" }
+export const resM = { base: "1rem", sm: "2rem", md: "3rem" }
+export const resP = { base: "1rem", sm: "2rem", md: "2rem" }

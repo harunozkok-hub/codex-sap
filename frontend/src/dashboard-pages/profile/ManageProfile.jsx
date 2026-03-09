@@ -5,13 +5,7 @@ import {
   Stack,
   Text,
   SimpleGrid,
-  Field,
-  Input,
   Checkbox,
-  NativeSelect,
-  For,
-  GridItem,
-  Grid,
   ButtonGroup,
   Button,
   Alert,
@@ -20,32 +14,52 @@ import {
 import { Tooltip } from "../../components/ui/tooltip"
 import { FiUser } from "react-icons/fi"
 import { useState, useMemo, useEffect } from "react"
-import { useActionData, useNavigation, Form } from "react-router"
+import {
+  useActionData,
+  useNavigation,
+  Form,
+  useOutletContext,
+} from "react-router"
 import { useTranslation } from "react-i18next"
 import { useSuspenseQuery } from "@tanstack/react-query"
-import { country } from "../../utils/country"
-import { autofillInput } from "../../utils/css-chakra"
-import { mapProfileToForm } from "./util/manage-profile"
+import { mapProfileToForm } from "./util/profile"
 import {
   clearFieldErrorFromErrors,
   isFormDifferent,
 } from "../../utils/validators"
+import { resGap, resP, resM } from "../../utils/css-chakra"
 
+import { rolesList } from "./util/profile"
 import { sessionQuery } from "../../queries/profile-queries"
 import FullpageSpinner from "../../components/generic/FullpageSpinner"
+import PageTitle from "../../components/generic/PageTitle"
+import FormInput from "../../components/form/FormInput"
+import FormSelect from "../../components/form/FormSelect"
+import PhoneInput from "../../components/form/PhoneInput"
 
 function ManageProfile() {
   const { t } = useTranslation("profile")
   const { data: profile } = useSuspenseQuery(sessionQuery())
   const actionData = useActionData()
   const navigation = useNavigation()
+  const { isDirty, setIsDirty } = useOutletContext()
 
   const pending = navigation.state === "submitting"
 
   const initialProfile = useMemo(() => mapProfileToForm(profile), [profile])
-  // ✅ baseline = "last saved snapshot" (starts from loader)
+  // ✅ baseline = "last saved snapshot" (starts from prefetched query)
   const [formData, setFormData] = useState(initialProfile)
   const [errors, setErrors] = useState(null)
+
+  // Report dirty state upward (and clean up on unmount)
+  useEffect(() => {
+    const formDirty = isFormDifferent(initialProfile, formData)
+    setIsDirty(formDirty)
+
+    return () => {
+      setIsDirty(false)
+    }
+  }, [initialProfile, formData, setIsDirty])
 
   const firstNameError = errors?.firstName
   const lastNameError = errors?.lastName
@@ -70,10 +84,6 @@ function ManageProfile() {
     }
   }
 
-  const isDirty = useMemo(() => {
-    return isFormDifferent(initialProfile, formData)
-  }, [formData, initialProfile])
-
   const resetFormHandler = () => {
     setFormData(initialProfile)
     setErrors(null)
@@ -86,10 +96,11 @@ function ManageProfile() {
       borderWidth="1px"
       borderColor="gray.100"
       borderRadius="lg"
-      p={4}
+      p={resP}
       boxShadow="sm"
     >
-      <HStack spacing={3} align="center">
+      <PageTitle ns="profile" titleKey="manage-personal-profile" />
+      <HStack spacing={3} m={1} align="center">
         <FiUser size={24} color="#2b6cb0" />
         <Stack>
           <Text fontWeight="bold" fontSize="lg">
@@ -97,147 +108,70 @@ function ManageProfile() {
           </Text>
         </Stack>
       </HStack>
-      <Stack>
+      <Stack px={1}>
         <Text fontSize="sm" color="gray.600">
           {t("you-can-modify-the-personal-in")}
         </Text>
       </Stack>
       <Separator size="xs" colorPalette="blue" m={2} />
+
       <Form method="post" action=".">
-        <SimpleGrid minChildWidth="xs" gap="2rem" m={3}>
-          <Box rounded="sm">
-            <Field.Root disabled readOnly>
-              <Field.Label>Email:</Field.Label>
-              <Input
-                name="email"
-                placeholder="name@company.com"
-                value={formData?.email}
-              />
-            </Field.Root>
-          </Box>
-          <Box alignSelf="flex-end">
-            <Field.Root disabled readOnly>
-              <Field.Label>{t("dashboard-role")}</Field.Label>
-              <NativeSelect.Root size="md">
-                <NativeSelect.Field
-                  placeholder={t("select-a-role")}
-                  name="role"
-                  value={formData?.role}
-                >
-                  <option value="admin">{t("admin")}</option>
-                  <option value="user">{t("user")}</option>
-                </NativeSelect.Field>
-                <NativeSelect.Indicator />
-              </NativeSelect.Root>
-            </Field.Root>
-          </Box>
-          <Box rounded="sm">
-            <Field.Root required invalid={!!firstNameError}>
-              <Field.Label>
-                {t("first-name")}
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                name="firstName"
-                _autofill={autofillInput}
-                placeholder={t("first-name-0")}
-                value={formData?.firstName}
-                onChange={handleFormData}
-              />
-              {firstNameError && (
-                <Field.ErrorText>{firstNameError}</Field.ErrorText>
-              )}
-            </Field.Root>
-          </Box>
-          <Box rounded="sm">
-            <Field.Root required invalid={!!lastNameError}>
-              <Field.Label>
-                {t("last-name")}
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                name="lastName"
-                _autofill={autofillInput}
-                placeholder={t("last-name-0")}
-                value={formData?.lastName}
-                onChange={handleFormData}
-              />
-              {lastNameError && (
-                <Field.ErrorText>{lastNameError}</Field.ErrorText>
-              )}
-            </Field.Root>
-          </Box>
-          <Box rounded="sm">
-            <Field.Root disabled readOnly>
-              <Field.Label>{t("company-name")}</Field.Label>
-              <Input
-                name="companyName"
-                placeholder={t("company-name-0")}
-                value={formData?.companyName}
-              />
-            </Field.Root>
-          </Box>
-          <Box rounded="sm">
-            <Field.Root invalid={!!jobTitleError}>
-              <Field.Label>{t("job-title")}</Field.Label>
-              <Input
-                name="jobTitle"
-                _autofill={autofillInput}
-                placeholder={t("e-g-it-manager")}
-                value={formData?.jobTitle}
-                onChange={handleFormData}
-              />
-              {jobTitleError && (
-                <Field.ErrorText>{jobTitleError}</Field.ErrorText>
-              )}
-            </Field.Root>
-          </Box>
-          <Box rounded="sm">
-            <Field.Root invalid={!!phoneNumberError}>
-              <Field.Label>{t("phone-number")}</Field.Label>
-              <Grid templateColumns="repeat(4, 1fr)" width="100%">
-                <GridItem colSpan={1}>
-                  <NativeSelect.Root width="8rem">
-                    <NativeSelect.Field
-                      name="countryCode"
-                      fontSize="xs"
-                      _autofill={autofillInput}
-                      placeholder={t("country-code")}
-                      value={formData?.countryCode}
-                      onChange={handleFormData}
-                    >
-                      <For each={country}>
-                        {(item) => (
-                          <option key={item.iso2} value={item.phone_code}>
-                            {item.icon +
-                              "  " +
-                              item.iso2 +
-                              "  " +
-                              "(" +
-                              item.phone_code +
-                              ")"}
-                          </option>
-                        )}
-                      </For>
-                    </NativeSelect.Field>
-                    <NativeSelect.Indicator />
-                  </NativeSelect.Root>
-                </GridItem>
-                <GridItem colSpan={3}>
-                  <Input
-                    name="phoneNumber"
-                    _autofill={autofillInput}
-                    placeholder={t("123123123-without-country-code")}
-                    value={formData?.phoneNumber}
-                    onChange={handleFormData}
-                  />
-                </GridItem>
-              </Grid>
-              {phoneNumberError && (
-                <Field.ErrorText>{phoneNumberError}</Field.ErrorText>
-              )}
-            </Field.Root>
-          </Box>
+        <SimpleGrid minChildWidth="xs" gap={resGap}>
+          <FormInput
+            readOnly
+            value={formData?.email}
+            inputName="email"
+            placeholder="name@company.com"
+            label="Email"
+          />
+          <FormSelect
+            value={formData?.role}
+            placeholder={t("select-a-role")}
+            inputName="role"
+            selectList={rolesList(t)}
+            label={t("dashboard-role")}
+            readOnly
+          />
+          <FormInput
+            inputName="firstName"
+            label={t("first-name")}
+            placeholder={t("first-name-0")}
+            value={formData?.firstName}
+            onChange={handleFormData}
+            error={firstNameError}
+            required
+          />
+          <FormInput
+            inputName="lastName"
+            label={t("last-name")}
+            placeholder={t("last-name-0")}
+            value={formData?.lastName}
+            onChange={handleFormData}
+            error={lastNameError}
+            required
+          />
+          <FormInput
+            readOnly
+            value={formData?.companyName}
+            inputName="companyName"
+            placeholder={t("company-name-0")}
+            label={t("company-name")}
+          />
+          <FormInput
+            inputName="jobTitle"
+            label={t("job-title")}
+            placeholder={t("e-g-it-manager")}
+            value={formData?.jobTitle}
+            onChange={handleFormData}
+            error={jobTitleError}
+          />
+          <PhoneInput
+            error={phoneNumberError}
+            label={t("phone-number")}
+            countryCodeValue={formData?.countryCode}
+            phoneNumberValue={formData?.phoneNumber}
+            onChange={handleFormData}
+          />
 
           <Box alignSelf="center">
             <Checkbox.Root
@@ -266,7 +200,7 @@ function ManageProfile() {
           justifyContent="center"
           align="center"
           display="flex"
-          my={10}
+          my={resM}
         >
           <Button
             type="submit"

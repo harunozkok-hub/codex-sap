@@ -48,7 +48,10 @@ import {
   requireModulePerm,
 } from "./loaders/auth"
 import { langLoader } from "./loaders/langLoader"
-import { editUserProfileAction } from "./actions/profile-actions"
+import {
+  editCompanyProfileAction,
+  editUserProfileAction,
+} from "./actions/profile-actions"
 import { getResolvedLanguage } from "./utils/helper-i18n"
 import RedirectPage from "./web-pages/RedirectPage"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
@@ -145,6 +148,7 @@ const router = createBrowserRouter([
               {
                 path: "company-profile-settings",
                 loader: companyProfileLoader(queryClient),
+                action: editCompanyProfileAction(queryClient),
                 element: <ManageCompanyProfile />,
               },
               {
