@@ -60,22 +60,37 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export const isValidEmail = (email) =>
   !isEmpty(email) && EMAIL_REGEX.test(String(email).toLowerCase())
 
-export const validateEmail = (email) => {
-  if (isEmpty(email)) {
-    const error = t("email-is-required", { ns: "validators" })
-    return error
-  }
-  if (!hasMinLength(email, 5)) {
-    const error = t("email-is-too-short", { ns: "validators" })
-    return error
-  }
-  if (!hasMaxLength(email, 254)) {
-    const error = t("email-is-too-long", { ns: "validators" })
-    return error
-  }
-  if (!isValidEmail(email)) {
-    const error = t("invalid-email-address", { ns: "validators" })
-    return error
+export const validateEmail = (email, optional = false) => {
+  if (optional) {
+    if (!isEmpty(email) && !hasMinLength(email, 5)) {
+      const error = t("optional-email-minlength-error", { ns: "validators" })
+      return error
+    }
+    if (!hasMaxLength(email, 254)) {
+      const error = t("optional-email-maxlength-error", { ns: "validators" })
+      return error
+    }
+    if (!isEmpty(email) && !isValidEmail(email)) {
+      const error = t("optional-and-and-invalid-email", { ns: "validators" })
+      return error
+    }
+  } else {
+    if (isEmpty(email)) {
+      const error = t("email-is-required", { ns: "validators" })
+      return error
+    }
+    if (!hasMinLength(email, 5)) {
+      const error = t("email-is-too-short", { ns: "validators" })
+      return error
+    }
+    if (!hasMaxLength(email, 254)) {
+      const error = t("email-is-too-long", { ns: "validators" })
+      return error
+    }
+    if (!isValidEmail(email)) {
+      const error = t("invalid-email-address", { ns: "validators" })
+      return error
+    }
   }
   return null
 }

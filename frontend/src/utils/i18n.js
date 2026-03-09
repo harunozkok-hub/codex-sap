@@ -28,7 +28,7 @@ const initPromise = i18n
 
       caches: ["localStorage", "cookie"],
     },
-    fallbackLng: "es",
+    fallbackLng: "en",
     ns: ["common", "homepage", "home-sidebar"],
     supportedLngs: ["en", "es", "it", "pt"],
     debug: true,

@@ -1,4 +1,4 @@
-import LanguageSelector from "../components/LanguageSelector"
+import LanguageSelector from "../components/generic/LanguageSelector"
 import {
   Box,
   HStack,

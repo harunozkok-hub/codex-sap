@@ -12,6 +12,9 @@
   "last-name": "Cognome",
   "last-name-0": "es. Bianchi",
   "manage-personal-profile": "Gestisci Profilo Personale",
+  "manager": "Responsabile",
+  "member": "Membro",
+  "owner": "Proprietario",
   "phone-number": "Numero di telefono",
   "profile-informations-updated-s": "Profilo aggiornato con successo",
   "profile-update-success": "Aggiornamento del profilo riuscito",
@@ -22,5 +25,6 @@
   "subscribe-to-our-newsletter-fo": "Insriviti alla nostra newsletter per ricevere notizie e aggiornamenti",
   "updating-profile-failed-please": "L’aggiornamento del profilo non è riuscito. Riprova tra qualche minuto.",
   "user": "Utente",
+  "viewer": "Visualizzatore",
   "you-can-modify-the-personal-in": "Modifica le informazioni personali fornite da te"
 }

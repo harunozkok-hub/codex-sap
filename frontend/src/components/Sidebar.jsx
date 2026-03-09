@@ -1,4 +1,5 @@
 import { Suspense, useMemo, useState } from "react"
+import { useSuspenseQuery } from "@tanstack/react-query"
 import {
   Box,
   Flex,
@@ -11,27 +12,38 @@ import {
   For,
 } from "@chakra-ui/react"
 import { sidebarMask } from "../utils/css-chakra"
-import { NavLink, useRouteLoaderData, Form } from "react-router"
+import { NavLink, Form, useParams } from "react-router"
 import { FiChevronDown, FiChevronUp } from "react-icons/fi"
 import { menuItems } from "./menuItems"
 import { useTranslation } from "react-i18next"
-import FullpageSpinner from "./FullpageSpinner"
+import FullpageSpinner from "./generic/FullpageSpinner"
+import { sessionQuery } from "../queries/profile-queries"
+import { filterMenuByPermissions } from "../utils/menu-permissions"
 
 function Sidebar({ onNavigate }) {
-  const { profile } = useRouteLoaderData("dashboard")
-  const { t, i18n } = useTranslation("dashboard-sidebar")
+  const { data: profile } = useSuspenseQuery(sessionQuery())
+  const { t } = useTranslation("dashboard-sidebar")
+  const params = useParams()
 
-  const resolvedLang = i18n.resolvedLanguage
+  const resolvedLang = params.lang
   const avatarName = profile.first_name + " " + profile.last_name
-  //const userRole = profile.role.charAt(0).toUpperCase() + profile.role.slice(1)
+
+  const rawMenu = useMemo(() => menuItems(t), [t])
+
+  const menu = useMemo(
+    () => filterMenuByPermissions(rawMenu, profile),
+    [rawMenu, profile],
+  )
+
   const initialOpenState = useMemo(
     () =>
-      menuItems(t).reduce((acc, item) => {
+      menu.reduce((acc, item) => {
         acc[item.id] = false
         return acc
       }, {}),
-    [t],
+    [menu],
   )
+
   const [openSections, setOpenSections] = useState(initialOpenState)
 
   const handleToggle = (id) => {
@@ -89,7 +101,7 @@ function Sidebar({ onNavigate }) {
           <ScrollArea.Viewport css={sidebarMask}>
             <ScrollArea.Content paddingEnd="3" py="4" textStyle="sm">
               <VStack alignItems="flex-start">
-                <For each={menuItems(t)}>
+                <For each={menu}>
                   {(item) => {
                     return (
                       <Box key={item.id} width="100%">

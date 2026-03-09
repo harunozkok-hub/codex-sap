@@ -28,9 +28,53 @@ function isAuthUrl(url = "") {
   )
 }
 
+/* ================================
+   NEW: pydantic -> string message
+   ================================ */
+function formatFastApiError(data) {
+  if (!data) return null
+
+  const { detail } = data
+
+  // Case 1: already a string
+  if (typeof detail === "string") return detail
+
+  // Case 2: Pydantic validation error (array)
+  if (Array.isArray(detail)) {
+    return detail
+      .map((err) => {
+        if (!err || !err.msg) return null
+
+        const field = Array.isArray(err.loc)
+          ? err.loc.filter((x) => x !== "body").join(".")
+          : null
+
+        return field ? `${field}: ${err.msg}` : err.msg
+      })
+      .filter(Boolean)
+      .join(" · ")
+  }
+
+  return null
+}
+
+/* ================================
+   Response interceptor
+   ================================ */
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
+    // Always normalize the message
+    const data = error?.response?.data
+    const formattedMessage = formatFastApiError(data)
+
+    if (formattedMessage) {
+      error.message = formattedMessage
+    } else if (!error.response) {
+      error.message = "Network error"
+    } else if (!error.message) {
+      error.message = "Request failed"
+    }
     // Network/CORS/etc
     if (!error || !error.config) return Promise.reject(error)
 
@@ -67,5 +111,5 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false
     }
-  }
+  },
 )

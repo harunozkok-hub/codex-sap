@@ -6,21 +6,54 @@ import {
   IconButton,
   Portal,
   Text,
-  useDisclosure,
   useMediaQuery,
   Image,
 } from "@chakra-ui/react"
 import { FiMenu, FiX } from "react-icons/fi"
-import { Outlet, NavLink, useRouteLoaderData } from "react-router"
+import { Outlet, NavLink, useBlocker } from "react-router"
 import { useTranslation } from "react-i18next"
+import { useSuspenseQuery } from "@tanstack/react-query"
+import { sessionQuery } from "../queries/profile-queries"
+import { useState, useMemo, useCallback } from "react"
 import Sidebar from "./Sidebar"
+import CustomDialog from "./generic/CustomDialog"
 import logo from "../assets/hoops-icon-trans.png"
 
+const locKey = (loc) => `${loc.pathname}${loc.search}`
+
 function Layout() {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { profile } = useRouteLoaderData("dashboard")
+  // dirty state shared to all pages inside this layout
+  const [isDirty, setIsDirty] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const { data: profile } = useSuspenseQuery(sessionQuery())
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
   const { t } = useTranslation("common")
+
+  const shouldBlock = useCallback(
+    ({ currentLocation, nextLocation }) => {
+      return isDirty && locKey(currentLocation) !== locKey(nextLocation)
+    },
+    [isDirty],
+  )
+
+  const blocker = useBlocker(shouldBlock)
+
+  // 2. Navigation Handlers
+  const confirmNavigation = () => {
+    if (blocker.state === "blocked") {
+      setIsDirty(false) // Clear dirty state first so the next nav isn't blocked
+      setTimeout(() => blocker.proceed(), 0) // Defer to ensure state update propagates
+    }
+  }
+
+  const cancelNavigation = () => {
+    if (blocker.state === "blocked") {
+      blocker.reset()
+    }
+  }
+
+  // Outlet context value (stable)
+  const outletCtx = useMemo(() => ({ setIsDirty, isDirty }), [isDirty])
 
   const title = profile.company
     ? t("profile-company-dashboard", { company: profile.company.name })
@@ -48,7 +81,7 @@ function Layout() {
         <Drawer.Root
           size="sm"
           open={!isDesktop && isOpen}
-          onOpenChange={(open) => (open ? onOpen() : onClose())}
+          onOpenChange={(e) => setIsOpen(e.open)}
           placement="start"
         >
           <HStack
@@ -74,7 +107,6 @@ function Layout() {
                   _hover={{ bg: "gray.100" }}
                   bg="white"
                   mx={3}
-                  onClick={onOpen}
                 >
                   <FiMenu />
                 </IconButton>
@@ -107,7 +139,6 @@ function Layout() {
                       bg="gray.50"
                       mx={2}
                       my={2}
-                      onClick={onOpen}
                     >
                       <FiX />
                     </IconButton>
@@ -124,7 +155,7 @@ function Layout() {
                     </Box>
                   </Drawer.Header>
                   <Drawer.Body p={0}>
-                    <Sidebar onNavigate={onClose} />
+                    <Sidebar onNavigate={() => setIsOpen(false)} />
                   </Drawer.Body>
                 </Drawer.Content>
               </Drawer.Positioner>
@@ -133,7 +164,16 @@ function Layout() {
         </Drawer.Root>
 
         <Box as="main" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
-          <Outlet />
+          <CustomDialog
+            type="discard"
+            dialogTitle="Unsaved Changes!"
+            dialogText="Are you sure you want to discard unsaved changes?"
+            onConfirm={confirmNavigation}
+            onCancel={cancelNavigation}
+            isOpen={blocker.state === "blocked"}
+            setIsOpen={cancelNavigation}
+          />
+          <Outlet context={outletCtx} />
         </Box>
       </Box>
     </Flex>
