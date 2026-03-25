@@ -32,14 +32,15 @@ const PhoneInput = ({
   return (
     <Box rounded="sm" display="flex">
       <Field.Root
-        justifyContent="flex-end"
+        justifyContent="flex-start"
         invalid={!!error}
         readOnly={readOnly}
         disabled={readOnly}
         required={required}
       >
         <HStack>
-          <Field.Label>{label || t("phone-number")}</Field.Label>
+          <Field.Label my="1.5">{label || t("phone-number")}</Field.Label>
+          {required && <Field.RequiredIndicator />}
           {tooltipInfo ? <GenericToggleTip content={tooltipInfo} /> : null}
         </HStack>
 

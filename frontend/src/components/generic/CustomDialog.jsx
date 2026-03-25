@@ -9,8 +9,9 @@ const CustomDialog = ({
   dialogText,
   onConfirm,
   onCancel = () => {},
+  confirmLoading = false,
   isOpen,
-  setIsOpen,
+  onOpenChange,
 }) => {
   const { t } = useTranslation("common")
   const role =
@@ -31,8 +32,10 @@ const CustomDialog = ({
       motionPreset="slide-in-bottom"
       role={role}
       size={size}
-      onOpenChange={(e) => setIsOpen(e.open)}
+      onOpenChange={(e) => onOpenChange?.(e.open)}
       placement="center"
+      closeOnInteractOutside={!confirmLoading}
+      closeOnEscape={!confirmLoading}
     >
       {triggerButton && (
         <Dialog.Trigger asChild>{triggerButton}</Dialog.Trigger>
@@ -50,17 +53,26 @@ const CustomDialog = ({
                 variant="subtle"
                 colorPalette={actionButtonColor}
                 onClick={onConfirm}
+                loading={confirmLoading}
               >
                 {actionButtonText}
               </Button>
               <Dialog.ActionTrigger asChild>
-                <Button variant="outline" onClick={onCancel}>
+                <Button
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={confirmLoading}
+                >
                   {t("cancel")}
                 </Button>
               </Dialog.ActionTrigger>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
-              <CloseButton size="sm" onClick={onCancel} />
+              <CloseButton
+                size="sm"
+                onClick={onCancel}
+                disabled={confirmLoading}
+              />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>

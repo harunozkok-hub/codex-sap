@@ -23,11 +23,11 @@ export const splitPhone = (phone) => {
 // used to cancel error, when user starts typing to field
 // setErrors((prev) => clearFieldErrorFromErrors(prev, name))
 export const clearFieldErrorFromErrors = (errors, fieldName) => {
-  if (!errors?.[fieldName]) return errors
+  if (!errors?.[fieldName] && !errors?.["form"]) return errors
 
   const next = { ...errors }
   delete next[fieldName]
-
+  delete next["form"]
   return Object.keys(next).length ? next : null
 }
 // check if forms key value pairs are the same
@@ -40,6 +40,56 @@ export const isFormDifferent = (checkingForm, refForm) => {
 export const normalizeOptional = (v) => {
   const s = v == null ? "" : String(v).trim()
   return s.length === 0 ? null : s
+}
+
+export const mapBackendFieldErrors = (
+  message,
+  fieldMap = {},
+  fallbackFormMessage = t("something-went-wrong", { ns: "common" }),
+) => {
+  const normalizedMessage =
+    typeof message === "string" ? message.trim() : String(message ?? "").trim()
+
+  if (!normalizedMessage) {
+    return { form: fallbackFormMessage }
+  }
+
+  const errors = {}
+  const formFragments = []
+  const fragments = normalizedMessage
+    .split("·")
+    .map((fragment) => fragment.trim())
+    .filter(Boolean)
+
+  for (const fragment of fragments) {
+    const separatorIndex = fragment.indexOf(":")
+
+    if (separatorIndex === -1) {
+      formFragments.push(fragment)
+      continue
+    }
+
+    const backendField = fragment.slice(0, separatorIndex).trim()
+    const fieldMessage = fragment.slice(separatorIndex + 1).trim()
+    const frontendField = fieldMap[backendField]
+
+    if (!frontendField || !fieldMessage) {
+      formFragments.push(fragment)
+      continue
+    }
+
+    errors[frontendField] = fieldMessage
+  }
+
+  if (formFragments.length > 0) {
+    errors.form = formFragments.join(" · ")
+  }
+
+  if (Object.keys(errors).length === 0) {
+    return { form: fallbackFormMessage }
+  }
+
+  return errors
 }
 
 export const isEmpty = (value) =>

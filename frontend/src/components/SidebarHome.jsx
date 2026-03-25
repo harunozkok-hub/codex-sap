@@ -7,17 +7,17 @@ function homeMenuItems(t) {
   return [
     {
       id: "my-dashboard",
-      label: t("go-to-dashboard", { ns: "home-sidebar" }),
+      label: t("home-sidebar:go-to-dashboard"),
       path: "dashboard",
     },
     {
       id: "manage-profile",
-      label: t("my-profile", { ns: "home-sidebar" }),
+      label: t("home-sidebar:my-profile"),
       path: "dashboard/profile/profile-settings",
     },
     {
       id: "invite-users",
-      label: t("invite-users-to-dashboard", { ns: "home-sidebar" }),
+      label: t("home-sidebar:invite-users-to-dashboard"),
       path: "dashboard/profile/invitations",
     },
     {

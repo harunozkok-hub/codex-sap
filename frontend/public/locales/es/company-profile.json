@@ -1,5 +1,6 @@
 {
   "add-address": "Agregar Dirección",
+  "address-deleted-successfully": "La dirección se eliminó correctamente.",
   "adresses": "Direcciones",
   "are-you-sure-you-want-to-delet": "¿Estás seguro de que deseas eliminar esta dirección?\nEsta acción no se puede deshacer!",
   "biling-email-tooltip": "Dirección de correo utilizada para facturas, notificaciones de pago y comunicaciones financieras.",
@@ -14,7 +15,8 @@
   "company-profile-update-failed": "La actualización del perfil de la empresa ha fallado. Por favor, inténtalo de nuevo en unos minutos.",
   "company-profile-update-success": "Perfil de Empresa Actualizado ",
   "company-profile-updated-succes": "El perfil de la empresa se ha actualizado correctamente.",
-  "delete-address": "Eliminar Dirección",
+  "delete-address": "Eliminar Dirección!",
+  "deleting-address-failed-please": "Error al eliminar la dirección. Por favor, inténtalo de nuevo.",
   "display-name": "Nombre visible",
   "display-name-placeholder": "Nombre mostrado en el panel",
   "display-name-tooltip": "El nombre que se mostrará en el panel y en los informes. Puede ser diferente de la razón social.",

@@ -9,7 +9,7 @@ import {
   Flex,
   Alert,
 } from "@chakra-ui/react"
-import { autofillInput } from "../utils/css-chakra"
+
 import {
   Form,
   useNavigation,
@@ -20,6 +20,9 @@ import {
 import { useTranslation } from "react-i18next"
 
 import PageTitle from "../components/generic/PageTitle"
+import FormInput from "../components/form/FormInput"
+import FormCheckbox from "../components/form/FormCheckbox"
+import { resM } from "../utils/css-chakra"
 
 function Login() {
   const { t } = useTranslation("common")
@@ -55,36 +58,30 @@ function Login() {
         <Heading>{t("login").toUpperCase()}</Heading>
         <Form method="POST" style={{ width: "100%" }}>
           <Stack>
-            <Field.Root invalid={!!emailError}>
-              <Field.Label>Email:</Field.Label>
-              <Input
-                name="email"
-                _autofill={autofillInput}
-                placeholder={t("e-g-example-example-com")}
-              />
-              {emailError && <Field.ErrorText>{emailError}</Field.ErrorText>}
-            </Field.Root>
-            <Field.Root invalid={passwordError}>
-              <Field.Label>{t("password")}</Field.Label>
-              <Input
-                type="password"
-                name="password"
-                _autofill={autofillInput}
-                placeholder={t("e-g-mystrongpass_95")}
-              />
-              {passwordError && (
-                <Field.ErrorText>{passwordError}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Checkbox.Root mt="2" value="remember me" name="rememberme">
-              <Checkbox.HiddenInput />
-              <Checkbox.Control />
-              <Checkbox.Label>{t("remember-me")}</Checkbox.Label>
-            </Checkbox.Root>
+            <FormInput
+              inputName="email"
+              error={emailError}
+              label="Email:"
+              placeholder={t("e-g-example-example-com")}
+              required
+            />
+            <FormInput
+              inputName="password"
+              error={passwordError}
+              label={t("password")}
+              type="password"
+              placeholder={t("e-g-mystrongpass_95")}
+              required
+            />
+            <FormCheckbox
+              rightControlled
+              mt={2}
+              inputName="rememberme"
+              text={t("remember-me")}
+            />
 
             {formSubmitError && (
-              <Alert.Root status="error" title={formSubmitError}>
+              <Alert.Root mt={resM} status="error" title={formSubmitError}>
                 <Alert.Indicator />
                 <Alert.Title>{formSubmitError}</Alert.Title>
               </Alert.Root>
@@ -94,6 +91,7 @@ function Login() {
               variant="surface"
               colorPalette="green"
               mt={10}
+              disabled={showResend}
               loading={pending}
             >
               {t("submit")}
@@ -106,8 +104,9 @@ function Login() {
               {t("didnt-receive-the-email")}
             </Text>
             <Button
+              type="button"
               as={NavLink}
-              to={`${params.lang}/resend-email${email ? `?email=${encodeURIComponent(email)}` : ""}`}
+              to={`/${params.lang}/resend-email${email ? `?email=${encodeURIComponent(email)}` : ""}`}
               variant="outline"
               colorPalette="blackAlpha"
               color="green.500"

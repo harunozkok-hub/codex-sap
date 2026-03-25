@@ -12,22 +12,25 @@ import {
   Alert,
 } from "@chakra-ui/react"
 import { Tooltip } from "../../components/ui/tooltip"
+import { toaster } from "../../components/ui/toaster"
 import { useTranslation } from "react-i18next"
 import { PiFactory } from "react-icons/pi"
 import { FiPlusSquare, FiTrash2 } from "react-icons/fi"
+import { Form, useActionData, useNavigation } from "react-router"
 import {
-  Form,
-  useActionData,
-  useNavigation,
-  useOutletContext,
-} from "react-router"
-import { useSuspenseQuery } from "@tanstack/react-query"
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query"
 import { useState, useMemo, useEffect } from "react"
 import { resGap, resP, resM } from "../../utils/css-chakra"
 import ErrorMessage from "../../components/generic/ErrorMessage"
 import {
+  companyAddressesQueryKey,
   companyProfileQuery,
   companyAddressesQuery,
+  deleteCompanyAddress,
+  removeCompanyAddressFromCache,
 } from "../../queries/profile-queries"
 import { mapCompanyDetailsToForm } from "./util/profile"
 import {
@@ -42,9 +45,11 @@ import CustomCard from "../../components/generic/CustomCard"
 import CustomDialog from "../../components/generic/CustomDialog"
 import PageTitle from "../../components/generic/PageTitle"
 import FullpageSpinner from "../../components/generic/FullpageSpinner"
+import UnsavedChangesBlocker from "../../components/generic/UnsavedChangesBlocker"
 
 function ManageCompanyProfile() {
   const { t } = useTranslation(["company-profile", "profile", "common"])
+  const queryClient = useQueryClient()
 
   const { data: companyDetails } = useSuspenseQuery(companyProfileQuery())
   const { data: companyAddresses } = useSuspenseQuery(companyAddressesQuery())
@@ -63,8 +68,38 @@ function ManageCompanyProfile() {
   // ✅ baseline = "last saved snapshot" (starts from prefetched query)
   const [formData, setFormData] = useState(initialProfile)
   const [errors, setErrors] = useState(null)
-  const { isDirty, setIsDirty } = useOutletContext()
+  const formDirty = isFormDifferent(initialProfile, formData)
+
   const [openDialog, setOpenDialog] = useState(null) // "hq" | "billing" | null
+
+  const deleteAddressMutation = useMutation({
+    mutationFn: deleteCompanyAddress,
+    onSuccess: (_, type) => {
+      setOpenDialog(null)
+      queryClient.setQueryData(companyAddressesQueryKey, (oldData) =>
+        removeCompanyAddressFromCache(oldData, type),
+      )
+      toaster.create({
+        title: t("delete-address"),
+        type: "success",
+        duration: 6000,
+        description: t("address-deleted-successfully"),
+      })
+    },
+    onError: (err) => {
+      toaster.create({
+        title: t("delete-address"),
+        type: "error",
+        duration: 6000,
+        description: err?.message || t("deleting-address-failed-please"),
+      })
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: companyAddressesQueryKey,
+      })
+    },
+  })
 
   const legalNameError = errors?.legalName
   const displayNameError = errors?.displayName
@@ -81,16 +116,6 @@ function ManageCompanyProfile() {
     }
   }, [actionData, navigation.state])
 
-  // Report dirty state upward (and clean up on unmount)
-  useEffect(() => {
-    const formDirty = isFormDifferent(initialProfile, formData)
-    setIsDirty(formDirty)
-
-    return () => {
-      setIsDirty(false)
-    }
-  }, [initialProfile, formData, setIsDirty])
-
   const handleFormData = (e) => {
     setFormData((prev) => ({ ...prev, [e.target?.name]: e.target?.value }))
     setErrors((prev) => clearFieldErrorFromErrors(prev, e.target?.name))
@@ -104,24 +129,13 @@ function ManageCompanyProfile() {
     console.log(`Adding ${type} address`)
   }
   const deleteAddressHandler = (type) => {
-    setOpenDialog(null)
-    console.log(`Removing ${type} address`)
+    deleteAddressMutation.mutate(type)
   }
 
   const addressesList = [
     { type: "hq", label: t("hq-address") },
     { type: "billing", label: t("billing-address") },
   ]
-
-  let dialogIcon = (
-    <IconButton
-      aria-label={t("delete-address")}
-      colorPalette="red"
-      variant="ghost"
-    >
-      <FiTrash2 size={20} color="#f87171" />
-    </IconButton>
-  )
 
   return (
     <Box
@@ -162,7 +176,7 @@ function ManageCompanyProfile() {
       </Stack>
       {companyDetails.ok ? (
         <>
-          <CustomDialog type="discard" />
+          <UnsavedChangesBlocker when={formDirty} />
           <Form method="post" action=".">
             <SimpleGrid minChildWidth="xs" gap={resGap}>
               <FormInput
@@ -218,7 +232,7 @@ function ManageCompanyProfile() {
               />
             </SimpleGrid>
             {formSubmitError && (
-              <Alert.Root status="error" title={formSubmitError}>
+              <Alert.Root mt={resM} status="error" title={formSubmitError}>
                 <Alert.Indicator />
                 <Alert.Title>{formSubmitError}</Alert.Title>
               </Alert.Root>
@@ -235,13 +249,13 @@ function ManageCompanyProfile() {
               <Button
                 type="submit"
                 variant="surface"
-                disabled={!isDirty || pending}
+                disabled={!formDirty || pending}
                 colorPalette="teal"
               >
                 {t("save", { ns: "profile" })}
               </Button>
               <Tooltip
-                disabled={!isDirty || pending}
+                disabled={!formDirty || pending}
                 showArrow
                 content={t("restore-the-last-saved-values", { ns: "profile" })}
               >
@@ -250,7 +264,7 @@ function ManageCompanyProfile() {
                   variant="outline"
                   color="red.600"
                   onClick={resetFormHandler}
-                  disabled={!isDirty || pending}
+                  disabled={!formDirty || pending}
                 >
                   {t("reset-changes", { ns: "profile" })}
                 </Button>
@@ -284,8 +298,12 @@ function ManageCompanyProfile() {
           maxW="3xl"
         >
           <For each={addressesList}>
-            {(item) =>
-              compAddressesData[item.type] ? (
+            {(item) => {
+              const deletePending =
+                deleteAddressMutation.isPending &&
+                deleteAddressMutation.variables === item.type
+
+              return compAddressesData[item.type] ? (
                 <AddressCard
                   key={item.type}
                   address={compAddressesData[item.type]}
@@ -294,13 +312,24 @@ function ManageCompanyProfile() {
                   deleteDialog={
                     <CustomDialog
                       type="delete"
-                      triggerButton={dialogIcon}
+                      triggerButton={
+                        <IconButton
+                          aria-label={t("delete-address")}
+                          colorPalette="red"
+                          variant="ghost"
+                          loading={deletePending}
+                          disabled={deletePending}
+                        >
+                          <FiTrash2 size={20} color="#f87171" />
+                        </IconButton>
+                      }
                       dialogTitle={t("delete-address")}
                       dialogText={t("are-you-sure-you-want-to-delet")}
                       onConfirm={() => deleteAddressHandler(item.type)}
+                      confirmLoading={deletePending}
                       isOpen={openDialog === item.type}
-                      setIsOpen={(next) =>
-                        setOpenDialog(next ? item.type : null)
+                      onOpenChange={(open) =>
+                        setOpenDialog(open && !deletePending ? item.type : null)
                       }
                     />
                   }
@@ -321,7 +350,7 @@ function ManageCompanyProfile() {
                   </VStack>
                 </CustomCard>
               )
-            }
+            }}
           </For>
         </SimpleGrid>
       ) : (

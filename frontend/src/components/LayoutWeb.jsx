@@ -34,8 +34,9 @@ function LayoutWeb() {
 
   let avatarShort, avatarFull
   if (profile) {
+    avatarFull = profile.first_name + " " + profile.last_name
     avatarShort = profile.first_name + " " + profile.last_name
-    if (avatarShort.length > 15) {
+    if (avatarFull.length > 15) {
       avatarFull = profile.first_name
     }
   }

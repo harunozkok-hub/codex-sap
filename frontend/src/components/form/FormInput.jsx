@@ -8,7 +8,8 @@ const FormInput = ({
   inputName,
   value,
   placeholder,
-  label,
+  label = null,
+  type = null,
   tooltipInfo = null,
   readOnly = false,
   required = false,
@@ -22,16 +23,19 @@ const FormInput = ({
         disabled={readOnly}
         required={required}
       >
-        <HStack>
-          <Field.Label my="1.5">{label}</Field.Label>
-          {required && <Field.RequiredIndicator />}
-          {tooltipInfo && <GenericToggleTip content={tooltipInfo} />}
-        </HStack>
+        {label && (
+          <HStack>
+            <Field.Label my="1.5">{label}</Field.Label>
+            {required && <Field.RequiredIndicator />}
+            {tooltipInfo && <GenericToggleTip content={tooltipInfo} />}
+          </HStack>
+        )}
         <Input
           name={inputName}
           _autofill={autofillInput}
           placeholder={placeholder}
           value={value}
+          type={type}
           {...(!readOnly && { onChange })}
         />
         {error && <Field.ErrorText>{error}</Field.ErrorText>}

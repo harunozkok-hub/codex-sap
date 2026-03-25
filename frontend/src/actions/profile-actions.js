@@ -1,18 +1,81 @@
 import { toaster } from "../components/ui/toaster"
+import { api } from "../utils/api"
 import {
   validateFields,
   validateEmail,
   validateName,
   validatePhone,
   normalizeOptional,
+  mapBackendFieldErrors,
+  validatePassword,
+  validatePasswordPair,
 } from "../utils/validators"
 import { t, loadNamespaces } from "../utils/helper-i18n"
 import {
   companyProfileQuery,
+  companyDetailsQueryKey,
   sessionQuery,
   updateCompanyProfile,
   updateProfile,
 } from "../queries/profile-queries"
+import {
+  userProfileFieldMap,
+  companyProfileFieldMap,
+  changePasswordFieldMap,
+} from "../dashboard-pages/profile/util/profile"
+import { redirect } from "react-router"
+
+export const changePasswordAction =
+  (queryClient) =>
+  async ({ request, params }) => {
+    const formData = await request.formData()
+    await loadNamespaces(["profile", "validators"])
+    const currentPassword = formData.get("currentPassword")
+    const newPassword = formData.get("newPassword")
+    const repeatNewPassword = formData.get("repeatNewPassword")
+
+    const errors = validateFields({
+      currentPassword: () =>
+        validatePassword(currentPassword, {
+          minLength: 8,
+          maxLength: 128,
+        }),
+      newPassword: () => validatePasswordPair(newPassword, repeatNewPassword),
+    })
+    if (errors) {
+      return {
+        errors,
+      }
+    }
+
+    try {
+      await api.put("/api-user/password-change", {
+        password: currentPassword,
+        new_password: newPassword,
+      })
+
+      await queryClient.invalidateQueries({ queryKey: ["session"] })
+
+      toaster.create({
+        title: t("profile:password-updated"),
+        type: "success",
+        duration: 6000,
+        description: t("profile:your-password-has-been-updated"),
+      })
+
+      return redirect(`/${params.lang}/login`)
+    } catch (err) {
+      const msg = err?.message || t("profile:password-change-failed-please-")
+
+      return {
+        errors: mapBackendFieldErrors(
+          msg,
+          changePasswordFieldMap,
+          t("profile:password-change-failed-please-"),
+        ),
+      }
+    }
+  }
 
 export const editUserProfileAction =
   (queryClient) =>
@@ -80,11 +143,15 @@ export const editUserProfileAction =
 
       return null
     } catch (err) {
-      // Map backend error -> field errors (simple version)
       const msg =
         err?.message || t("updating-profile-failed-please", { ns: "profile" })
-
-      return { errors: { form: msg } }
+      return {
+        errors: mapBackendFieldErrors(
+          msg,
+          userProfileFieldMap,
+          t("updating-profile-failed-please", { ns: "profile" }),
+        ),
+      }
     }
   }
 
@@ -143,10 +210,7 @@ export const editCompanyProfileAction =
     try {
       const response = await updateCompanyProfile(payload)
 
-      queryClient.setQueryData(
-        ["profile", "company-details"],
-        (oldData) => response,
-      )
+      queryClient.setQueryData(companyDetailsQueryKey, (oldData) => response)
       await queryClient.ensureQueryData(companyProfileQuery())
 
       toaster.create({
@@ -158,10 +222,14 @@ export const editCompanyProfileAction =
 
       return null
     } catch (err) {
-      // Map backend error -> field errors (simple version)
       const msg =
         err?.message || t("company-profile:company-profile-update-failed")
-
-      return { errors: { form: msg } }
+      return {
+        errors: mapBackendFieldErrors(
+          msg,
+          companyProfileFieldMap,
+          t("company-profile:company-profile-update-failed"),
+        ),
+      }
     }
   }

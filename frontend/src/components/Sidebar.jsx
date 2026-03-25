@@ -26,7 +26,9 @@ function Sidebar({ onNavigate }) {
   const params = useParams()
 
   const resolvedLang = params.lang
-  const avatarName = profile.first_name + " " + profile.last_name
+  const avatarName = profile
+    ? profile.first_name + " " + profile.last_name
+    : null
 
   const rawMenu = useMemo(() => menuItems(t), [t])
 

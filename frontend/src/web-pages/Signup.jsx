@@ -1,21 +1,21 @@
-import { autofillInput } from "../utils/css-chakra"
-import {
-  Alert,
-  Field,
-  Input,
-  Checkbox,
-  Button,
-  Stack,
-  Heading,
-  Flex,
-} from "@chakra-ui/react"
+import { Alert, Button, Stack, Heading, Flex } from "@chakra-ui/react"
 import { useEffect } from "react"
-import { Form, useActionData, useNavigation, useNavigate } from "react-router"
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useNavigate,
+  useParams,
+} from "react-router"
 import { useTranslation } from "react-i18next"
 import PageTitle from "../components/generic/PageTitle"
+import FormInput from "../components/form/FormInput"
+import FormCheckbox from "../components/form/FormCheckbox"
+import { resM } from "../utils/css-chakra"
 
 const Register = () => {
   const { t } = useTranslation(["common", "profile"])
+  const params = useParams()
   const actionData = useActionData()
   const navigation = useNavigation()
   const navigate = useNavigate()
@@ -24,9 +24,9 @@ const Register = () => {
   useEffect(() => {
     if (actionData?.ok && actionData?.email) {
       sessionStorage.setItem("pending_signup_email", actionData.email)
-      navigate("/signup-success", { replace: true })
+      navigate(`/${params.lang}/signup-success`, { replace: true })
     }
-  }, [actionData, navigate])
+  }, [actionData, navigate, params])
 
   const formSubmitError = actionData?.errors?.form
   const companyNameError = actionData?.errors?.companyName
@@ -67,118 +67,68 @@ const Register = () => {
               <Alert.Title>{t("please-note-that-you-can-regis")}</Alert.Title>
             </Alert.Root>
 
-            <Field.Root required invalid={!!companyNameError}>
-              <Field.Label>
-                {t("company-name", { ns: "profile" })}
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                name="companyName"
-                _autofill={autofillInput}
-                placeholder={t("company-name-0", { ns: "profile" })}
-              />
-              {companyNameError && (
-                <Field.ErrorText>{companyNameError}</Field.ErrorText>
-              )}
-            </Field.Root>
-            <Field.Root required invalid={!!firstNameError}>
-              <Field.Label>
-                {t("first-name", { ns: "profile" })}
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                name="firstName"
-                _autofill={autofillInput}
-                placeholder={t("first-name-0", { ns: "profile" })}
-              />
-              {firstNameError && (
-                <Field.ErrorText>{firstNameError}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Field.Root required invalid={!!lastNameError}>
-              <Field.Label>
-                {t("last-name", { ns: "profile" })}
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                name="lastName"
-                _autofill={autofillInput}
-                placeholder={t("last-name-0", { ns: "profile" })}
-              />
-              {lastNameError && (
-                <Field.ErrorText>{lastNameError}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Field.Root required invalid={!!emailError}>
-              <Field.Label>
-                Email <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                name="email"
-                placeholder={t("e-g-example-example-com")}
-                _autofill={autofillInput}
-              />
-              {emailError && <Field.ErrorText>{emailError}</Field.ErrorText>}
-            </Field.Root>
-
-            <Field.Root required invalid={!!passwordError}>
-              <Field.Label>
-                {t("password")}
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                type="password"
-                name="password"
-                _autofill={autofillInput}
-                placeholder={t("e-g-mystrongpass_95")}
-              />
-              {passwordError && (
-                <Field.ErrorText>{passwordError}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Field.Root required invalid={!!confirmPasswordError}>
-              <Field.Label>
-                {t("confirm-password")}
-                <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                type="password"
-                name="confirmPassword"
-                _autofill={autofillInput}
-                placeholder={t("e-g-mystrongpass_95")}
-              />
-              {confirmPasswordError && (
-                <Field.ErrorText>{confirmPasswordError}</Field.ErrorText>
-              )}
-            </Field.Root>
-            <Field.Root required invalid={!!acceptTermsError}>
-              <Field.Label>
-                {t("accept-terms")} <Field.RequiredIndicator />
-              </Field.Label>
-              <Checkbox.Root mt="2" name="acceptTerms" value="acceptTerms">
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>
-                  {t("i-have-read-and-agree-to-the-t")}
-                </Checkbox.Label>
-              </Checkbox.Root>
-              {acceptTermsError && (
-                <Field.ErrorText>{acceptTermsError}</Field.ErrorText>
-              )}
-            </Field.Root>
-
-            <Checkbox.Root mt="2" name="newsletter" value="newsletter">
-              <Checkbox.HiddenInput />
-              <Checkbox.Control />
-              <Checkbox.Label>
-                {t("subscribe-to-our-newsletter-fo", { ns: "profile" })}
-              </Checkbox.Label>
-            </Checkbox.Root>
+            <FormInput
+              inputName="companyName"
+              placeholder={t("company-name-0", { ns: "profile" })}
+              label={t("company-name", { ns: "profile" })}
+              error={companyNameError}
+              required
+            />
+            <FormInput
+              inputName="firstName"
+              placeholder={t("first-name-0", { ns: "profile" })}
+              label={t("first-name", { ns: "profile" })}
+              error={firstNameError}
+              required
+            />
+            <FormInput
+              inputName="lastName"
+              placeholder={t("last-name-0", { ns: "profile" })}
+              label={t("last-name", { ns: "profile" })}
+              error={lastNameError}
+              required
+            />
+            <FormInput
+              inputName="email"
+              placeholder={t("e-g-example-example-com")}
+              label="Email"
+              error={emailError}
+              required
+            />
+            <FormInput
+              type="password"
+              inputName="password"
+              placeholder={t("e-g-mystrongpass_95")}
+              label={t("password")}
+              error={passwordError}
+              required
+            />
+            <FormInput
+              type="password"
+              inputName="confirmPassword"
+              placeholder={t("e-g-mystrongpass_95")}
+              label={t("confirm-password")}
+              error={confirmPasswordError}
+              required
+            />
+            <FormCheckbox
+              mt="2"
+              inputName="acceptTerms"
+              value="acceptTerms"
+              text={t("i-have-read-and-agree-to-the-t")}
+              error={acceptTermsError}
+              required
+              rightControlled
+            />
+            <FormCheckbox
+              mt="2"
+              inputName="newsletter"
+              value="newsletter"
+              text={t("subscribe-to-our-newsletter-fo", { ns: "profile" })}
+              rightControlled
+            />
             {formSubmitError && (
-              <Alert.Root status="error" title={formSubmitError}>
+              <Alert.Root mt={resM} status="error" title={formSubmitError}>
                 <Alert.Indicator />
                 <Alert.Title>{formSubmitError}</Alert.Title>
               </Alert.Root>

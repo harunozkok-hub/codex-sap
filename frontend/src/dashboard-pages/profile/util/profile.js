@@ -29,6 +29,43 @@ export const mapCompanyDetailsToForm = (detailItem) => {
   }
 }
 
+export const userProfileFieldMap = {
+  first_name: "firstName",
+  last_name: "lastName",
+  job_title: "jobTitle",
+  phone: "phoneNumber",
+}
+
+export const companyProfileFieldMap = {
+  display_name: "displayName",
+  legal_name: "legalName",
+  vat_number: "vatNumber",
+  billing_email: "billingEmail",
+  phone: "phoneNumber",
+}
+
+export const signupFieldMap = {
+  company_name: "companyName",
+  first_name: "firstName",
+  last_name: "lastName",
+  email: "email",
+  password: "password",
+  confirm_password: "confirmPassword",
+  accept_terms: "acceptTerms",
+}
+
+export const loginFieldMap = {
+  email: "email",
+  username: "email",
+  password: "password",
+}
+
+export const changePasswordFieldMap = {
+  password: "currentPassword",
+  current_password: "currentPassword",
+  new_password: "newPassword",
+}
+
 export const rolesList = (t) => {
   //const {} = useTranslation("profile")
   return [

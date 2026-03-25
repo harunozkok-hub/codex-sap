@@ -5,10 +5,14 @@ import {
   validateFields,
   validateName,
   validatePasswordPair,
+  mapBackendFieldErrors,
 } from "../utils/validators"
 import { api } from "../utils/api"
 import { loadNamespaces, t } from "../utils/helper-i18n"
-import { sessionQuery } from "../queries/profile-queries"
+import {
+  loginFieldMap,
+  signupFieldMap,
+} from "../dashboard-pages/profile/util/profile"
 
 export const signupAction = async ({ request }) => {
   const formData = await request.formData()
@@ -57,11 +61,14 @@ export const signupAction = async ({ request }) => {
 
     return { ok: true, email }
   } catch (err) {
-    // Map backend error -> field errors (simple version)
     const msg = err?.message || t("signup-failed", { ns: "common" })
 
     return {
-      errors: { form: msg },
+      errors: mapBackendFieldErrors(
+        msg,
+        signupFieldMap,
+        t("signup-failed", { ns: "common" }),
+      ),
     }
   }
 }
@@ -77,7 +84,7 @@ export const loginAction =
 
     const errors = validateFields({
       email: () => validateEmail(email),
-      password: () => validateName(password, t("password", { ns: "common" })),
+      password: () => validateName(password, t("common:password"), 8, 128),
     })
 
     if (errors) {
@@ -97,22 +104,25 @@ export const loginAction =
       await queryClient.invalidateQueries({ queryKey: ["session"] })
 
       toaster.create({
-        title: t("login-success", { ns: "common" }),
+        title: t("common:login-success"),
         type: "success",
         duration: 6000,
-        description: t("logged-in-successfully", { ns: "common" }),
+        description: t("common:logged-in-successfully"),
       })
 
       return redirect(`/${params.lang}/dashboard`)
     } catch (err) {
       const status = err?.response?.status
-      const msg = err?.message || t("login-failed", { ns: "common" })
+      const msg = err?.message || t("common:login-failed")
 
-      const needsVerification =
-        status === 403 && msg.toLowerCase().includes("verify")
+      const needsVerification = status === 403
 
       return {
-        errors: { form: msg },
+        errors: mapBackendFieldErrors(
+          msg,
+          loginFieldMap,
+          t("common:login-failed"),
+        ),
         needsVerification,
         email,
       }

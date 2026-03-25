@@ -1,5 +1,6 @@
 {
   "add-address": "Aggiungi Indirizzo",
+  "address-deleted-successfully": "L'indirizzo è stato eliminato con successo.",
   "adresses": "Indirizzi",
   "are-you-sure-you-want-to-delet": "Sei sicuro di voler eliminare questo indirizzo?\nQuesta azione non può essere annullata!",
   "biling-email-tooltip": "Indirizzo email utilizzato per fatture, notifiche di pagamento e comunicazioni finanziarie.",
@@ -14,7 +15,8 @@
   "company-profile-update-failed": "L’aggiornamento del profilo aziendale non è riuscito. Riprova tra qualche minuto.",
   "company-profile-update-success": "Profilo Aziendale Aggiornato",
   "company-profile-updated-succes": "Il profilo aziendale è stato aggiornato con successo.",
-  "delete-address": "Elimina indirizzo",
+  "delete-address": "Elimina indirizzo!",
+  "deleting-address-failed-please": "Errore durante l'eliminazione dell'indirizzo. Riprova.",
   "display-name": "Nome visualizzato",
   "display-name-placeholder": "Nome visualizzato nel dashboard",
   "display-name-tooltip": "Il nome mostrato nel dashboard e nei report. Può essere diverso dalla ragione sociale.",

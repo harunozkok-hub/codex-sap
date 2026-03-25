@@ -51,11 +51,13 @@ import { langLoader } from "./loaders/langLoader"
 import {
   editCompanyProfileAction,
   editUserProfileAction,
+  changePasswordAction,
 } from "./actions/profile-actions"
 import { getResolvedLanguage } from "./utils/helper-i18n"
 import RedirectPage from "./web-pages/RedirectPage"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import { companyProfileLoader } from "./loaders/profile-loaders"
+import ChangePassword from "./dashboard-pages/profile/ChangePassword"
 
 const resolveLanguageLoader = async () => {
   const lang = await getResolvedLanguage()
@@ -145,6 +147,12 @@ const router = createBrowserRouter([
                 action: editUserProfileAction(queryClient),
                 element: <ManageProfile />,
               },
+              {
+                path: "change-user-password",
+                action: changePasswordAction(queryClient),
+                element: <ChangePassword />,
+              },
+
               {
                 path: "company-profile-settings",
                 loader: companyProfileLoader(queryClient),

@@ -4,10 +4,11 @@ import { useTranslation } from "react-i18next"
 import PageTitle from "../components/generic/PageTitle"
 
 function SignupSuccess() {
-  const { t } = useTranslation("common")
+  const { t, i18n } = useTranslation("common")
   const email = sessionStorage.getItem("pending_signup_email")
+  const lang = i18n.resolvedLanguage || "en"
 
-  if (!email) return <Navigate to="/register" replace />
+  if (!email) return <Navigate to={`/${lang}/register`} replace />
   return (
     <VStack padding={5} m={5} shadow="xs" rounded="md">
       <PageTitle ns="common" titleKey="thanks-for-signing-up-to-hoops" />
@@ -22,7 +23,7 @@ function SignupSuccess() {
       <Button
         type="submit"
         as={NavLink}
-        to="/resend-email"
+        to={`/${lang}/resend-email`}
         colorPalette="green"
         variant="surface"
         w={{ base: "100%", md: "50%" }}

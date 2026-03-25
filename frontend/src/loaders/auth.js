@@ -1,6 +1,7 @@
 import { redirect } from "react-router"
 import { sessionQuery } from "../queries/profile-queries"
 import { api } from "../utils/api"
+import { loadNamespaces, t } from "../utils/helper-i18n"
 
 export const homeLoader = (queryClient) => async () => {
   await queryClient.ensureQueryData(sessionQuery())
@@ -20,24 +21,28 @@ export const requireAuthLoader =
     return null
   }
 export async function confirmEmailLoader({ request }) {
+  await loadNamespaces("common")
   const url = new URL(request.url)
   const token = url.searchParams.get("token")
 
   if (!token) {
-    return { ok: false, message: "Missing token" }
+    return { ok: false, message: t("missing-token", { ns: "common" }) }
   }
 
   try {
     const res = await api.get("/auth/confirm-email", { params: { token } })
-    return { ok: true, message: res.data?.message || "Email confirmed" }
+    return {
+      ok: true,
+      message: res.data?.message || t("email-confirmed", { ns: "common" }),
+    }
   } catch (err) {
     const status = err?.response?.status
     const msg =
       status === 401
-        ? "Invalid or expired link - Email verification link may be expired!"
+        ? t("invalid-or-expired-link-email-", { ns: "common" })
         : status === 409
-          ? "Email already verified"
-          : "Confirmation failed"
+          ? t("email-already-verified", { ns: "common" })
+          : t("confirmation-failed", { ns: "common" })
     return { ok: false, message: msg, status }
   }
 }

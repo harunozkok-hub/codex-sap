@@ -2,6 +2,9 @@ import { queryOptions } from "@tanstack/react-query"
 import { api } from "../utils/api"
 import { ok, fail } from "../utils/query-error-handler"
 
+export const companyAddressesQueryKey = ["profile", "company-addresses"]
+export const companyDetailsQueryKey = ["profile", "company-details"]
+
 //query profile
 export const sessionQuery = () =>
   queryOptions({
@@ -27,7 +30,7 @@ export async function updateProfile(payload) {
 // query for company profile
 export const companyProfileQuery = () =>
   queryOptions({
-    queryKey: ["profile", "company-details"],
+    queryKey: companyDetailsQueryKey,
     retry: false,
     queryFn: async () => {
       try {
@@ -45,10 +48,27 @@ export async function updateCompanyProfile(payload) {
   return ok(res.data)
 }
 
+export async function deleteCompanyAddress(type) {
+  const res = await api.delete(`/api-user/company-address/${type}`)
+  return res.data
+}
+
+export function removeCompanyAddressFromCache(oldData, type) {
+  if (!oldData?.ok || !oldData?.data) return oldData
+
+  return {
+    ...oldData,
+    data: {
+      ...oldData.data,
+      [type]: null,
+    },
+  }
+}
+
 // query for company addresses
 export const companyAddressesQuery = () =>
   queryOptions({
-    queryKey: ["profile", "company-addresses"],
+    queryKey: companyAddressesQueryKey,
     retry: false,
     queryFn: async () => {
       try {

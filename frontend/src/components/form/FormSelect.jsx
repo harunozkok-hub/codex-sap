@@ -17,6 +17,7 @@ const FormSelect = ({
   return (
     <Box rounded="sm" display="flex">
       <Field.Root
+        justifyContent="flex-start"
         invalid={!!error}
         readOnly={readOnly}
         disabled={readOnly}

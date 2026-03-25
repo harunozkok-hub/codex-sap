@@ -1,9 +1,12 @@
 import axios from "axios"
+import { getCurrentLanguage } from "./helper-i18n"
 
 export const api = axios.create({
   baseURL: "http://localhost:8000",
   withCredentials: true,
-  headers: { "Content-Type": "application/json" },
+  headers: {
+    "Content-Type": "application/json",
+  },
 })
 
 let isRefreshing = false
@@ -57,6 +60,12 @@ function formatFastApiError(data) {
 
   return null
 }
+
+api.interceptors.request.use((config) => {
+  const language = getCurrentLanguage()
+  config.headers.set("accept-language", language)
+  return config
+})
 
 /* ================================
    Response interceptor

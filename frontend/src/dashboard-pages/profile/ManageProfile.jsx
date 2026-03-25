@@ -5,7 +5,6 @@ import {
   Stack,
   Text,
   SimpleGrid,
-  Checkbox,
   ButtonGroup,
   Button,
   Alert,
@@ -14,12 +13,7 @@ import {
 import { Tooltip } from "../../components/ui/tooltip"
 import { FiUser } from "react-icons/fi"
 import { useState, useMemo, useEffect } from "react"
-import {
-  useActionData,
-  useNavigation,
-  Form,
-  useOutletContext,
-} from "react-router"
+import { useActionData, useNavigation, Form, NavLink } from "react-router"
 import { useTranslation } from "react-i18next"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { mapProfileToForm } from "./util/profile"
@@ -35,31 +29,24 @@ import FullpageSpinner from "../../components/generic/FullpageSpinner"
 import PageTitle from "../../components/generic/PageTitle"
 import FormInput from "../../components/form/FormInput"
 import FormSelect from "../../components/form/FormSelect"
+import FormCheckbox from "../../components/form/FormCheckbox"
 import PhoneInput from "../../components/form/PhoneInput"
+import UnsavedChangesBlocker from "../../components/generic/UnsavedChangesBlocker"
 
 function ManageProfile() {
-  const { t } = useTranslation("profile")
+  const { t } = useTranslation(["profile", "common"])
   const { data: profile } = useSuspenseQuery(sessionQuery())
   const actionData = useActionData()
   const navigation = useNavigation()
-  const { isDirty, setIsDirty } = useOutletContext()
 
   const pending = navigation.state === "submitting"
 
   const initialProfile = useMemo(() => mapProfileToForm(profile), [profile])
+
   // ✅ baseline = "last saved snapshot" (starts from prefetched query)
   const [formData, setFormData] = useState(initialProfile)
   const [errors, setErrors] = useState(null)
-
-  // Report dirty state upward (and clean up on unmount)
-  useEffect(() => {
-    const formDirty = isFormDifferent(initialProfile, formData)
-    setIsDirty(formDirty)
-
-    return () => {
-      setIsDirty(false)
-    }
-  }, [initialProfile, formData, setIsDirty])
+  const formDirty = isFormDifferent(initialProfile, formData)
 
   const firstNameError = errors?.firstName
   const lastNameError = errors?.lastName
@@ -100,6 +87,7 @@ function ManageProfile() {
       boxShadow="sm"
     >
       <PageTitle ns="profile" titleKey="manage-personal-profile" />
+      <UnsavedChangesBlocker when={formDirty} />
       <HStack spacing={3} m={1} align="center">
         <FiUser size={24} color="#2b6cb0" />
         <Stack>
@@ -172,23 +160,18 @@ function ManageProfile() {
             phoneNumberValue={formData?.phoneNumber}
             onChange={handleFormData}
           />
-
-          <Box alignSelf="center">
-            <Checkbox.Root
-              name="newsletter"
+          <Box alignSelf="center" justifySelf="center">
+            <FormCheckbox
+              inputName="newsletter"
               checked={formData?.newsletter}
               onCheckedChange={(e) => handleFormData(e, "newsletter")}
-            >
-              <Checkbox.HiddenInput />
-              <Checkbox.Label>
-                {t("subscribe-to-our-newsletter-fo")}
-              </Checkbox.Label>
-              <Checkbox.Control />
-            </Checkbox.Root>
+              text={t("subscribe-to-our-newsletter-fo")}
+            />
           </Box>
         </SimpleGrid>
+
         {formSubmitError && (
-          <Alert.Root status="error" title={formSubmitError}>
+          <Alert.Root mt={resM} status="error" title={formSubmitError}>
             <Alert.Indicator />
             <Alert.Title>{formSubmitError}</Alert.Title>
           </Alert.Root>
@@ -205,13 +188,13 @@ function ManageProfile() {
           <Button
             type="submit"
             variant="surface"
-            disabled={!isDirty || pending}
+            disabled={!formDirty || pending}
             colorPalette="teal"
           >
             {t("save")}
           </Button>
           <Tooltip
-            disabled={!isDirty || pending}
+            disabled={!formDirty || pending}
             showArrow
             content={t("restore-the-last-saved-values")}
           >
@@ -220,13 +203,57 @@ function ManageProfile() {
               variant="outline"
               color="red.600"
               onClick={resetFormHandler}
-              disabled={!isDirty || pending}
+              disabled={!formDirty || pending}
             >
               {t("reset-changes")}
             </Button>
           </Tooltip>
         </ButtonGroup>
       </Form>
+      <Stack
+        align="center"
+        p={1}
+        my={2}
+        borderBottomWidth="1px"
+        borderTopWidth="1px"
+        color="blue.900"
+        borderColor="blue.800"
+      >
+        <Text fontWeight="bold">{t("common:password")}</Text>
+      </Stack>
+      <SimpleGrid
+        minChildWidth="48"
+        gap={resGap}
+        mx={{ base: "0.5rem", md: "1rem" }}
+        my={resM}
+        maxW="2xl"
+      >
+        <FormInput
+          inputName="password"
+          type="password"
+          value={t("common:e-g-mystrongpass_95")}
+          readOnly
+        />
+        <Stack justifyContent="center">
+          <Tooltip
+            disabled={pending}
+            showArrow
+            content={t("click-to-change-your-password")}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              colorPalette="teal"
+              onClick={resetFormHandler}
+              disabled={pending}
+              as={NavLink}
+              to="../change-user-password"
+            >
+              {t("change-password")}
+            </Button>
+          </Tooltip>
+        </Stack>
+      </SimpleGrid>
       {pending && <FullpageSpinner />}
     </Box>
   )
