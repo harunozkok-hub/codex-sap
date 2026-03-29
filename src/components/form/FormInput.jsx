@@ -8,14 +8,32 @@ const FormInput = ({
   inputName,
   value,
   placeholder,
+
   label = null,
   type = null,
   tooltipInfo = null,
   readOnly = false,
   required = false,
+  ...props
 }) => {
+  const inputProps = {
+    name: inputName,
+    _autofill: autofillInput,
+    placeholder,
+    type,
+    ...(!readOnly && { onChange }),
+  }
+
+  if (value !== undefined) {
+    if (onChange || readOnly) {
+      inputProps.value = value
+    } else {
+      inputProps.defaultValue = value
+    }
+  }
+
   return (
-    <Box rounded="sm" display="flex">
+    <Box rounded="sm" display="flex" {...props}>
       <Field.Root
         justifyContent="flex-start"
         invalid={!!error}
@@ -31,12 +49,7 @@ const FormInput = ({
           </HStack>
         )}
         <Input
-          name={inputName}
-          _autofill={autofillInput}
-          placeholder={placeholder}
-          value={value}
-          type={type}
-          {...(!readOnly && { onChange })}
+          {...inputProps}
         />
         {error && <Field.ErrorText>{error}</Field.ErrorText>}
       </Field.Root>

@@ -1,14 +1,14 @@
 import { VStack, Heading, Text, Button } from "@chakra-ui/react"
-import { Navigate, NavLink } from "react-router"
+import { Navigate, NavLink, useParams } from "react-router"
 import { useTranslation } from "react-i18next"
 import PageTitle from "../components/generic/PageTitle"
 
 function SignupSuccess() {
-  const { t, i18n } = useTranslation("common")
+  const { t } = useTranslation("common")
   const email = sessionStorage.getItem("pending_signup_email")
-  const lang = i18n.resolvedLanguage || "en"
+  const params = useParams()
 
-  if (!email) return <Navigate to={`/${lang}/register`} replace />
+  if (!email) return <Navigate to={`/${params.lang}/register`} replace />
   return (
     <VStack padding={5} m={5} shadow="xs" rounded="md">
       <PageTitle ns="common" titleKey="thanks-for-signing-up-to-hoops" />
@@ -23,7 +23,7 @@ function SignupSuccess() {
       <Button
         type="submit"
         as={NavLink}
-        to={`/${lang}/resend-email`}
+        to={`/${params.lang}/resend-email`}
         colorPalette="green"
         variant="surface"
         w={{ base: "100%", md: "50%" }}

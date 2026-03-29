@@ -29,6 +29,38 @@ export const mapCompanyDetailsToForm = (detailItem) => {
   }
 }
 
+const EMPTY_ADDRESS_FORM = {
+  name: "",
+  streetName: "",
+  houseNumber: "",
+  addressExtra: "",
+  city: "",
+  region: "",
+  postalCode: "",
+  country: "",
+  countryCodeAddress: "",
+  phoneNumberAddress: "",
+  copyToOtherAddress: false,
+}
+
+export const mapAddressToForm = (address) => {
+  if (!address) return EMPTY_ADDRESS_FORM
+  const phoneParts = splitPhone(address?.phone ?? "")
+  return {
+    name: address.name ?? "",
+    streetName: address.street ?? "",
+    houseNumber: address.house_number ?? "",
+    addressExtra: address.address_extra ?? "",
+    city: address.city ?? "",
+    region: address.region ?? "",
+    postalCode: address.postal_code ?? "",
+    country: address.country_code ?? "",
+    countryCodeAddress: phoneParts.country_code,
+    phoneNumberAddress: phoneParts.phone_number,
+    copyToOtherAddress: false,
+  }
+}
+
 export const userProfileFieldMap = {
   first_name: "firstName",
   last_name: "lastName",
@@ -42,6 +74,17 @@ export const companyProfileFieldMap = {
   vat_number: "vatNumber",
   billing_email: "billingEmail",
   phone: "phoneNumber",
+}
+export const companyAddressesFieldMap = {
+  name: "name",
+  phone: "phoneNumber",
+  street: "streetName",
+  house_number: "houseNumber",
+  address_extra: "addressExtra",
+  postal_code: "postalCode",
+  city: "city",
+  region: "region",
+  country_code: "country",
 }
 
 export const signupFieldMap = {

@@ -10,27 +10,29 @@ import {
   IconButton,
   For,
   Alert,
+  useMediaQuery,
 } from "@chakra-ui/react"
 import { Tooltip } from "../../components/ui/tooltip"
 import { toaster } from "../../components/ui/toaster"
 import { useTranslation } from "react-i18next"
 import { PiFactory } from "react-icons/pi"
 import { FiPlusSquare, FiTrash2 } from "react-icons/fi"
-import { Form, useActionData, useNavigation } from "react-router"
+import { Form, useActionData, useNavigation, useNavigate } from "react-router"
 import {
   useMutation,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query"
 import { useState, useMemo, useEffect } from "react"
-import { resGap, resP, resM } from "../../utils/css-chakra"
+import { resGap, resPY, resM } from "../../utils/css-chakra"
 import ErrorMessage from "../../components/generic/ErrorMessage"
 import {
-  companyAddressesQueryKey,
+  companyBillingAddressQueryKey,
+  companyHQAddressQueryKey,
+  companyAddressQuery,
   companyProfileQuery,
-  companyAddressesQuery,
+  companyAddressQueryKey,
   deleteCompanyAddress,
-  removeCompanyAddressFromCache,
 } from "../../queries/profile-queries"
 import { mapCompanyDetailsToForm } from "./util/profile"
 import {
@@ -46,15 +48,25 @@ import CustomDialog from "../../components/generic/CustomDialog"
 import PageTitle from "../../components/generic/PageTitle"
 import FullpageSpinner from "../../components/generic/FullpageSpinner"
 import UnsavedChangesBlocker from "../../components/generic/UnsavedChangesBlocker"
+import PageContainer from "../../components/containers/PageContainer"
+import FormContainer from "../../components/containers/FormContainer"
+import StickyTitleWithBackButton from "../../components/navigation/StickyTitleWithBackButton"
 
 function ManageCompanyProfile() {
   const { t } = useTranslation(["company-profile", "profile", "common"])
+  const [isDesktop] = useMediaQuery("(min-width: 768px)")
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
-  const { data: companyDetails } = useSuspenseQuery(companyProfileQuery())
-  const { data: companyAddresses } = useSuspenseQuery(companyAddressesQuery())
-  const { data: compDetailsData } = companyDetails
-  const { data: compAddressesData } = companyAddresses
+  const { data: compDetailsData } = useSuspenseQuery(companyProfileQuery())
+  const { data: hqAddress } = useSuspenseQuery(companyAddressQuery("hq"))
+  const { data: billingAddress } = useSuspenseQuery(
+    companyAddressQuery("billing"),
+  )
+  const compAddressesData = {
+    hq: hqAddress,
+    billing: billingAddress,
+  }
 
   const actionData = useActionData()
   const navigation = useNavigation()
@@ -76,9 +88,9 @@ function ManageCompanyProfile() {
     mutationFn: deleteCompanyAddress,
     onSuccess: (_, type) => {
       setOpenDialog(null)
-      queryClient.setQueryData(companyAddressesQueryKey, (oldData) =>
-        removeCompanyAddressFromCache(oldData, type),
-      )
+      const queryKey = companyAddressQueryKey(type)
+
+      queryClient.setQueryData(queryKey, null)
       toaster.create({
         title: t("delete-address"),
         type: "success",
@@ -96,7 +108,10 @@ function ManageCompanyProfile() {
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({
-        queryKey: companyAddressesQueryKey,
+        queryKey: companyHQAddressQueryKey,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: companyBillingAddressQueryKey,
       })
     },
   })
@@ -126,8 +141,9 @@ function ManageCompanyProfile() {
     setErrors(null)
   }
   const addAddressHandler = (type) => {
-    console.log(`Adding ${type} address`)
+    navigate(`address/${type}`)
   }
+  const editAddressHandler = (type) => navigate(`address/${type}`)
   const deleteAddressHandler = (type) => {
     deleteAddressMutation.mutate(type)
   }
@@ -138,164 +154,167 @@ function ManageCompanyProfile() {
   ]
 
   return (
-    <Box
-      bg="white"
-      position="relative"
-      borderWidth="1px"
-      borderColor="gray.100"
-      borderRadius="lg"
-      p={resP}
-      boxShadow="sm"
-    >
+    <PageContainer>
       {pending && <FullpageSpinner />}
       <PageTitle ns="company-profile" titleKey="manage-company-profile" />
-      <HStack spacing={3} m={1} align="center">
-        <PiFactory size={24} color="#2b6cb0" />
-        <Stack>
-          <Text fontWeight="bold" fontSize="lg">
-            {t("manage-company-profile")}
+      <FormContainer>
+        {isDesktop ? (
+          <HStack spacing={3} m={1} align="center">
+            <PiFactory size={24} color="#2b6cb0" />
+            <Stack>
+              <Text fontWeight="bold" fontSize="lg">
+                {t("manage-company-profile")}
+              </Text>
+            </Stack>
+          </HStack>
+        ) : (
+          <StickyTitleWithBackButton
+            pageTitle={t("manage-company-profile")}
+            backButton={false}
+            icon={<PiFactory size={24} color="#2b6cb0" />}
+          />
+        )}
+        <Stack px={1}>
+          <Text fontSize="sm" color="gray.600">
+            {t("modify-your-companys-profile-i")}
           </Text>
         </Stack>
-      </HStack>
-      <Stack px={1}>
-        <Text fontSize="sm" color="gray.600">
-          {t("modify-your-companys-profile-i")}
-        </Text>
-      </Stack>
 
-      <Stack
-        align="center"
-        p={1}
-        my={2}
-        borderBottomWidth="1px"
-        borderTopWidth="1px"
-        color="blue.900"
-        borderColor="blue.800"
-      >
-        <Text fontWeight="bold">{t("company-details")}</Text>
-      </Stack>
-      {companyDetails.ok ? (
-        <>
-          <UnsavedChangesBlocker when={formDirty} />
-          <Form method="post" action=".">
-            <SimpleGrid minChildWidth="xs" gap={resGap}>
-              <FormInput
-                readOnly={true}
-                value={formData?.companyName}
-                inputName="companyName"
-                placeholder={t("company-name-0", { ns: "profile" })}
-                label={t("company-name", { ns: "profile" })}
-              />
-              <FormInput
-                value={formData?.legalName}
-                inputName="legalName"
-                placeholder={t("legal-name-placeholder")}
-                label={t("legal-name")}
-                error={legalNameError}
-                onChange={handleFormData}
-                tooltipInfo={t("legal-name-tooltip")}
-              />
-              <FormInput
-                inputName="displayName"
-                placeholder={t("display-name-placeholder")}
-                value={formData?.displayName}
-                onChange={handleFormData}
-                label={t("display-name")}
-                error={displayNameError}
-                tooltipInfo={t("display-name-tooltip")}
-              />
-              <FormInput
-                inputName="billingEmail"
-                placeholder={t("billing-email-placeholder")}
-                value={formData?.billingEmail}
-                onChange={handleFormData}
-                label={t("billing-email")}
-                error={billingEmailError}
-                tooltipInfo={t("biling-email-tooltip")}
-              />
-              <FormInput
-                inputName="vatNumber"
-                placeholder={t("vat-number-placeholder")}
-                value={formData?.vatNumber}
-                onChange={handleFormData}
-                label={t("vat-number")}
-                error={vatNumberError}
-                tooltipInfo={t("vat-number-tooltip")}
-              />
-              <PhoneInput
-                error={companyPhoneError}
-                label={t("company-phone")}
-                tooltipInfo={t("company-phone-tooltip")}
-                countryCodeValue={formData?.countryCodeCompany}
-                phoneNumberValue={formData?.phoneNumberCompany}
-                onChange={handleFormData}
-              />
-            </SimpleGrid>
-            {formSubmitError && (
-              <Alert.Root mt={resM} status="error" title={formSubmitError}>
-                <Alert.Indicator />
-                <Alert.Title>{formSubmitError}</Alert.Title>
-              </Alert.Root>
-            )}
+        <Stack
+          align="center"
+          p={1}
+          my={2}
+          borderBottomWidth="1px"
+          borderTopWidth="1px"
+          color="blue.900"
+          borderColor="blue.800"
+        >
+          <Text fontWeight="bold">{t("company-details")}</Text>
+        </Stack>
+        {compDetailsData ? (
+          <>
+            <UnsavedChangesBlocker when={formDirty} />
+            <Form method="post" action=".">
+              <SimpleGrid minChildWidth="xs" gap={resGap}>
+                <FormInput
+                  readOnly={true}
+                  value={formData?.companyName}
+                  inputName="companyName"
+                  placeholder={t("company-name-0", { ns: "profile" })}
+                  label={t("company-name", { ns: "profile" })}
+                />
+                <FormInput
+                  value={formData?.legalName}
+                  inputName="legalName"
+                  placeholder={t("legal-name-placeholder")}
+                  label={t("legal-name")}
+                  error={legalNameError}
+                  onChange={handleFormData}
+                  tooltipInfo={t("legal-name-tooltip")}
+                />
+                <FormInput
+                  inputName="displayName"
+                  placeholder={t("display-name-placeholder")}
+                  value={formData?.displayName}
+                  onChange={handleFormData}
+                  label={t("display-name")}
+                  error={displayNameError}
+                  tooltipInfo={t("display-name-tooltip")}
+                />
+                <FormInput
+                  inputName="billingEmail"
+                  placeholder={t("billing-email-placeholder")}
+                  value={formData?.billingEmail}
+                  onChange={handleFormData}
+                  label={t("billing-email")}
+                  error={billingEmailError}
+                  tooltipInfo={t("biling-email-tooltip")}
+                />
+                <FormInput
+                  inputName="vatNumber"
+                  placeholder={t("vat-number-placeholder")}
+                  value={formData?.vatNumber}
+                  onChange={handleFormData}
+                  label={t("vat-number")}
+                  error={vatNumberError}
+                  tooltipInfo={t("vat-number-tooltip")}
+                />
+                <PhoneInput
+                  error={companyPhoneError}
+                  label={t("company-phone")}
+                  tooltipInfo={t("company-phone-tooltip")}
+                  countryCodeValue={formData?.countryCodeCompany}
+                  phoneNumberValue={formData?.phoneNumberCompany}
+                  onChange={handleFormData}
+                />
+              </SimpleGrid>
+              {formSubmitError && (
+                <Alert.Root mt={resM} status="error" title={formSubmitError}>
+                  <Alert.Indicator />
+                  <Alert.Title>{formSubmitError}</Alert.Title>
+                </Alert.Root>
+              )}
 
-            <ButtonGroup
-              size="md"
-              variant="solid"
-              justifyContent="center"
-              align="center"
-              display="flex"
-              my={resM}
-            >
-              <Button
-                type="submit"
-                variant="surface"
-                disabled={!formDirty || pending}
-                colorPalette="teal"
-              >
-                {t("save", { ns: "profile" })}
-              </Button>
-              <Tooltip
-                disabled={!formDirty || pending}
-                showArrow
-                content={t("restore-the-last-saved-values", { ns: "profile" })}
+              <ButtonGroup
+                size="md"
+                variant="solid"
+                justifyContent="center"
+                align="center"
+                display="flex"
+                my={resM}
               >
                 <Button
-                  type="button"
-                  variant="outline"
-                  color="red.600"
-                  onClick={resetFormHandler}
+                  type="submit"
+                  variant="surface"
                   disabled={!formDirty || pending}
+                  colorPalette="teal"
                 >
-                  {t("reset-changes", { ns: "profile" })}
+                  {t("save", { ns: "profile" })}
                 </Button>
-              </Tooltip>
-            </ButtonGroup>
-          </Form>
-        </>
-      ) : (
-        <ErrorMessage
-          title={t("company-details-could-not-fetc")}
-          description={`${companyDetails.errorStatus} - ${companyDetails.errorMessage}`}
-        />
-      )}
-      <Stack
-        align="center"
-        borderBottomWidth="1px"
-        borderTopWidth="1px"
-        color="blue.900"
-        borderColor="blue.800"
-        p={1}
-        my={2}
-      >
-        <Text fontWeight="bold">{t("adresses")}</Text>
-      </Stack>
-      {companyAddresses.ok ? (
+                <Tooltip
+                  disabled={!formDirty || pending}
+                  showArrow
+                  content={t("restore-the-last-saved-values", {
+                    ns: "profile",
+                  })}
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    color="red.600"
+                    onClick={resetFormHandler}
+                    disabled={!formDirty || pending}
+                  >
+                    {t("reset-changes", { ns: "profile" })}
+                  </Button>
+                </Tooltip>
+              </ButtonGroup>
+            </Form>
+          </>
+        ) : (
+          <ErrorMessage
+            title={t("company-details-could-not-fetc")}
+            description={t("common:please-refresh-or-try-again-later")}
+          />
+        )}
+        <Stack
+          align="center"
+          borderBottomWidth="1px"
+          borderTopWidth="1px"
+          color="blue.900"
+          borderColor="blue.800"
+          p={1}
+          my={2}
+        >
+          <Text fontWeight="bold">{t("adresses")}</Text>
+        </Stack>
         <SimpleGrid
-          minChildWidth="72"
+          minChildWidth="xs"
           gap={resGap}
-          mx={{ base: "0.5rem", md: "1rem" }}
+          mx="auto"
           my={resM}
           maxW="3xl"
+          justifyItems="center"
         >
           <For each={addressesList}>
             {(item) => {
@@ -307,6 +326,7 @@ function ManageCompanyProfile() {
                 <AddressCard
                   key={item.type}
                   address={compAddressesData[item.type]}
+                  editHandler={() => editAddressHandler(item.type)}
                   deletable
                   label={item.label}
                   deleteDialog={
@@ -336,7 +356,7 @@ function ManageCompanyProfile() {
                 />
               ) : (
                 <CustomCard key={item.type}>
-                  <VStack justifyContent="center" p={resP} mb={2}>
+                  <VStack justifyContent="center" p={resPY} mb={2}>
                     <Text fontWeight="bold">{item.label}</Text>
                     <Text>{t("no-address-information-was-fou")}</Text>
                     <Button
@@ -353,13 +373,8 @@ function ManageCompanyProfile() {
             }}
           </For>
         </SimpleGrid>
-      ) : (
-        <ErrorMessage
-          title={t("company-addresses-could-not-fe")}
-          description={`${companyAddresses.errorStatus} - ${companyAddresses.errorMessage}`}
-        />
-      )}
-    </Box>
+      </FormContainer>
+    </PageContainer>
   )
 }
 

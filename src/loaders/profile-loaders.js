@@ -1,13 +1,16 @@
-import { checkAdmin } from "./auth"
+import { requirePermissions } from "./auth"
 import {
-  companyAddressesQuery,
   companyProfileQuery,
+  prefetchCompanyAddresses,
 } from "../queries/profile-queries"
 
 export const companyProfileLoader = (queryClient) => async (args) => {
-  await checkAdmin(queryClient)(args)
+  await requirePermissions(
+    queryClient,
+    ["company.read", "company.write", "company.manage"],
+  )(args)
   await queryClient.ensureQueryData(companyProfileQuery())
-  await queryClient.ensureQueryData(companyAddressesQuery())
+  await prefetchCompanyAddresses(queryClient)
 
   return null
 }

@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next"
 import PageTitle from "../components/generic/PageTitle"
 import FormInput from "../components/form/FormInput"
 import FormCheckbox from "../components/form/FormCheckbox"
-import { resM } from "../utils/css-chakra"
+import { resM, resPX, resPY } from "../utils/css-chakra"
 
 const Register = () => {
   const { t } = useTranslation(["common", "profile"])
@@ -52,8 +52,8 @@ const Register = () => {
         align="center"
         rounded="md"
         shadow="xs"
-        py={{ base: 3, md: 5 }}
-        px={{ base: 3, md: 6 }}
+        py={resPY}
+        px={resPX}
       >
         <Heading>{t("signup").toUpperCase()}</Heading>
 

@@ -46,7 +46,7 @@ const PhoneInput = ({
 
         <Grid templateColumns="repeat(4, 1fr)" width="100%">
           <GridItem colSpan={1}>
-            <NativeSelect.Root width="8rem">
+            <NativeSelect.Root minWidth="6rem">
               <NativeSelect.Field
                 name={countryCodeName}
                 fontSize="xs"

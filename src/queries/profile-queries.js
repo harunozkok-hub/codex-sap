@@ -1,8 +1,11 @@
 import { queryOptions } from "@tanstack/react-query"
 import { api } from "../utils/api"
-import { ok, fail } from "../utils/query-error-handler"
-
-export const companyAddressesQueryKey = ["profile", "company-addresses"]
+export const companyHQAddressQueryKey = ["profile", "company-addresses", "hq"]
+export const companyBillingAddressQueryKey = [
+  "profile",
+  "company-addresses",
+  "billing",
+]
 export const companyDetailsQueryKey = ["profile", "company-details"]
 
 //query profile
@@ -35,9 +38,9 @@ export const companyProfileQuery = () =>
     queryFn: async () => {
       try {
         const res = await api.get("/api-user/company")
-        return ok(res.data)
-      } catch (err) {
-        return fail(err)
+        return res.data
+      } catch {
+        return null
       }
     },
   })
@@ -45,7 +48,12 @@ export const companyProfileQuery = () =>
 // updates + patches company profile info
 export async function updateCompanyProfile(payload) {
   const res = await api.patch("/api-user/company", payload)
-  return ok(res.data)
+  return res.data
+}
+// updates + patches company address info
+export async function updateCompanyAddress(payload, type) {
+  const res = await api.put(`/api-user/company-address/${type}`, payload)
+  return res.data
 }
 
 export async function deleteCompanyAddress(type) {
@@ -53,29 +61,33 @@ export async function deleteCompanyAddress(type) {
   return res.data
 }
 
-export function removeCompanyAddressFromCache(oldData, type) {
-  if (!oldData?.ok || !oldData?.data) return oldData
-
-  return {
-    ...oldData,
-    data: {
-      ...oldData.data,
-      [type]: null,
-    },
-  }
+const fetchCompanyAddresses = async () => {
+  const res = await api.get("/api-user/company-addresses")
+  return res.data
 }
 
-// query for company addresses
-export const companyAddressesQuery = () =>
+export const companyAddressQueryKey = (type) =>
+  type === "billing" ? companyBillingAddressQueryKey : companyHQAddressQueryKey
+
+export async function prefetchCompanyAddresses(queryClient) {
+  const data = await fetchCompanyAddresses()
+
+  queryClient.setQueryData(companyHQAddressQueryKey, data?.hq ?? null)
+  queryClient.setQueryData(companyBillingAddressQueryKey, data?.billing ?? null)
+
+  return data
+}
+
+export const companyAddressQuery = (type) =>
   queryOptions({
-    queryKey: companyAddressesQueryKey,
+    queryKey: companyAddressQueryKey(type),
     retry: false,
     queryFn: async () => {
       try {
-        const res = await api.get("/api-user/company-addresses")
-        return ok(res.data)
-      } catch (err) {
-        return fail(err)
+        const data = await fetchCompanyAddresses()
+        return data?.[type] ?? null
+      } catch {
+        return null
       }
     },
   })

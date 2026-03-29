@@ -1,10 +1,4 @@
-import {
-  VStack,
-  Heading,
-  Text,
-  Button,
-  Alert,
-} from "@chakra-ui/react"
+import { VStack, Heading, Text, Button, Alert } from "@chakra-ui/react"
 import {
   Form,
   useActionData,
@@ -14,6 +8,7 @@ import {
 import { useTranslation } from "react-i18next"
 import PageTitle from "../components/generic/PageTitle"
 import FormInput from "../components/form/FormInput"
+import { resM } from "../utils/css-chakra"
 
 function ResendEmail() {
   const { t } = useTranslation("common")
@@ -36,7 +31,7 @@ function ResendEmail() {
         <Heading size="md" mb={3}>
           {t("resend-verification-email").toUpperCase()}:
         </Heading>
-        <Text>{t("please-enter-your-email-that-y")}</Text>
+        <Text mb={resM}>{t("please-enter-your-email-that-y")}</Text>
         <FormInput
           inputName="email"
           label="Email"
@@ -57,6 +52,7 @@ function ResendEmail() {
           variant="surface"
           w="100%"
           loading={pending}
+          my={resM}
         >
           {t("resend-verification-email")}
         </Button>

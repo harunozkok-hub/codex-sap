@@ -1,3 +1,4 @@
+import { resPX, resPY } from "../utils/css-chakra"
 import { Container, Heading, Box, Flex } from "@chakra-ui/react"
 import { useTranslation } from "react-i18next"
 
@@ -9,8 +10,8 @@ function Home() {
       <Flex
         rounded="md"
         shadow="xs"
-        py={{ base: 3, md: 5 }}
-        px={{ base: 3, md: 6 }}
+        py={resPY}
+        px={resPX}
         direction="column" // ✅ ensures Heading + Box stack nicely
         align="center"
       >

@@ -21,6 +21,8 @@ const AddressCard = ({
     (item) => item.iso2 === address.country_code,
   ).country
 
+  const line1 = address.street + " " + address.house_number
+
   return (
     <Box
       bg="white"
@@ -43,8 +45,8 @@ const AddressCard = ({
               {address.name}
             </Text>
           )}
-          <Text>{address.line1}</Text>
-          <Text>{address.line2}</Text>
+          <Text>{line1}</Text>
+          <Text>{address.address_extra}</Text>
           <Text>
             {address.city}, {address.postal_code}
           </Text>

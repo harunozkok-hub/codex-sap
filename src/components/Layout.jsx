@@ -16,21 +16,21 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { sessionQuery } from "../queries/profile-queries"
 import { useState } from "react"
 import Sidebar from "./Sidebar"
-import CustomDialog from "./generic/CustomDialog"
 import logo from "../assets/hoops-icon-trans.png"
 
 function Layout() {
   const [isOpen, setIsOpen] = useState(false)
   const { data: profile } = useSuspenseQuery(sessionQuery())
   const [isDesktop] = useMediaQuery("(min-width: 1024px)")
+  const [isMediumSize] = useMediaQuery("(min-width: 768px)")
   const { t } = useTranslation("common")
 
   const title = profile
-    ? profile.company
-      ? t("profile-company-dashboard", { company: profile.company.name })
-      : profile.role === "admin"
-        ? t("admin-dashboard")
-        : t("user-dashboard")
+    ? isMediumSize
+      ? t("profile-company-dashboard", {
+          company: profile.company.display_name ?? profile.company.name,
+        })
+      : (profile.company.display_name ?? profile.company.name)
     : null
 
   return (
@@ -59,7 +59,7 @@ function Layout() {
           <HStack
             as="header"
             align="center"
-            justify="space-between"
+            justify={isMediumSize ? "space-between" : "flex-start"}
             spacing={3}
             px={4}
             py={3}
@@ -135,7 +135,7 @@ function Layout() {
           ) : null}
         </Drawer.Root>
 
-        <Box as="main" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
+        <Box as="main" w="full" px={{ base: 2, md: 3 }} py={{ base: 2, md: 3 }}>
           <Outlet />
         </Box>
       </Box>

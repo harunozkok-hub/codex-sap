@@ -2,6 +2,7 @@ import { redirect } from "react-router"
 import { sessionQuery } from "../queries/profile-queries"
 import { api } from "../utils/api"
 import { loadNamespaces, t } from "../utils/helper-i18n"
+import { hasAnyPermission, hasModuleAccess } from "../utils/menu-permissions"
 
 export const homeLoader = (queryClient) => async () => {
   await queryClient.ensureQueryData(sessionQuery())
@@ -47,17 +48,6 @@ export async function confirmEmailLoader({ request }) {
   }
 }
 
-export const checkAdmin =
-  (queryClient) =>
-  async ({ params }) => {
-    const profile = await queryClient.ensureQueryData(sessionQuery())
-
-    if (profile.role !== "admin") {
-      throw redirect(`/${params.lang}/dashboard`)
-    }
-    return null
-  }
-
 // Small helper: redirects to /:lang/dashboard (or /:lang if you prefer)
 function denyRedirect(params, to = "dashboard") {
   const lang = params?.lang || "en"
@@ -77,15 +67,34 @@ export function requireModulePerm(queryClient, moduleKey, options = {}) {
       throw redirect(`/${lang}/login`)
     }
 
-    // Admin bypass if you want:
-    if (session.role === "admin") return null
-
     const perms = session.permissions || []
 
-    // Optional: wildcard support
-    if (perms.includes("*")) return null
+    if (!hasModuleAccess(perms, moduleKey)) {
+      throw denyRedirect(params, redirectTo)
+    }
 
-    if (!perms.includes(moduleKey)) {
+    return null
+  }
+}
+
+export function requirePermissions(
+  queryClient,
+  requiredPermissions,
+  options = {},
+) {
+  const { redirectTo = "dashboard" } = options
+
+  return async ({ params }) => {
+    const session = await queryClient.ensureQueryData(sessionQuery())
+
+    if (!session) {
+      const lang = params?.lang || "en"
+      throw redirect(`/${lang}/login`)
+    }
+
+    const permissions = session.permissions || []
+
+    if (!hasAnyPermission(permissions, requiredPermissions)) {
       throw denyRedirect(params, redirectTo)
     }
 

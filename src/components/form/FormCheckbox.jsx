@@ -14,6 +14,7 @@ const FormCheckbox = ({
   value,
   rightControlled = false,
   mt = 0,
+  disabled = false,
 }) => {
   return (
     <Field.Root
@@ -21,7 +22,7 @@ const FormCheckbox = ({
       justifyContent="flex-start"
       invalid={!!error}
       readOnly={readOnly}
-      disabled={readOnly}
+      disabled={readOnly || disabled}
       required={required}
     >
       <HStack>
@@ -34,6 +35,7 @@ const FormCheckbox = ({
         name={inputName}
         checked={checked}
         value={value}
+        disabled={readOnly || disabled}
         {...(!readOnly && { onCheckedChange })}
       >
         <Checkbox.HiddenInput />

@@ -1,14 +1,4 @@
-import {
-  Field,
-  Input,
-  Checkbox,
-  Button,
-  Text,
-  Stack,
-  Heading,
-  Flex,
-  Alert,
-} from "@chakra-ui/react"
+import { Button, Text, Stack, Heading, Flex, Alert } from "@chakra-ui/react"
 
 import {
   Form,
@@ -22,7 +12,7 @@ import { useTranslation } from "react-i18next"
 import PageTitle from "../components/generic/PageTitle"
 import FormInput from "../components/form/FormInput"
 import FormCheckbox from "../components/form/FormCheckbox"
-import { resM } from "../utils/css-chakra"
+import { resM, resPX, resPY } from "../utils/css-chakra"
 
 function Login() {
   const { t } = useTranslation("common")
@@ -51,8 +41,8 @@ function Login() {
         align="center"
         rounded="md"
         shadow="xs"
-        py={{ base: 3, md: 5 }}
-        px={{ base: 3, md: 6 }}
+        py={resPY}
+        px={resPX}
       >
         <PageTitle ns="common" titleKey="login" />
         <Heading>{t("login").toUpperCase()}</Heading>

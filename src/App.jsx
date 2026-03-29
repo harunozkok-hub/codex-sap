@@ -10,6 +10,7 @@ import Invitations from "./dashboard-pages/profile/Invitations"
 import ManageDashboardUsers from "./dashboard-pages/profile/ManageDashboardUsers"
 import ManageProfile from "./dashboard-pages/profile/ManageProfile"
 import ManageCompanyProfile from "./dashboard-pages/profile/ManageCompanyProfile"
+import EditCompanyAddress from "./dashboard-pages/profile/EditCompanyAddress"
 
 import Dashboard from "./dashboard-pages/Dashboard"
 import Products from "./dashboard-pages/catalog/Products"
@@ -44,14 +45,15 @@ import {
   requireAuthLoader,
   homeLoader,
   confirmEmailLoader,
-  checkAdmin,
   requireModulePerm,
+  requirePermissions,
 } from "./loaders/auth"
 import { langLoader } from "./loaders/langLoader"
 import {
   editCompanyProfileAction,
   editUserProfileAction,
   changePasswordAction,
+  editCompanyAddressAction,
 } from "./actions/profile-actions"
 import { getResolvedLanguage } from "./utils/helper-i18n"
 import RedirectPage from "./web-pages/RedirectPage"
@@ -156,17 +158,39 @@ const router = createBrowserRouter([
               {
                 path: "company-profile-settings",
                 loader: companyProfileLoader(queryClient),
-                action: editCompanyProfileAction(queryClient),
-                element: <ManageCompanyProfile />,
+                children: [
+                  {
+                    index: true,
+                    action: editCompanyProfileAction(queryClient),
+                    element: <ManageCompanyProfile />,
+                  },
+                  {
+                    path: "address/:type",
+                    element: <EditCompanyAddress />,
+                    action: editCompanyAddressAction(queryClient),
+                  },
+                ],
               },
               {
                 path: "manage-users",
-                loader: checkAdmin(queryClient),
+                loader: requirePermissions(queryClient, [
+                  "users.read",
+                  "users.manage",
+                ]),
                 element: <ManageDashboardUsers />,
               },
-              { path: "invitations", element: <Invitations /> },
+              {
+                path: "invitations",
+                loader: requirePermissions(queryClient, [
+                  "invitations.manage",
+                ]),
+                element: <Invitations />,
+              },
               {
                 path: "dashboard-permissions",
+                loader: requirePermissions(queryClient, [
+                  "user_permissions.manage",
+                ]),
                 element: <DashboardPermissions />,
               },
             ],

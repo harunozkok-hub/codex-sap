@@ -2,6 +2,7 @@ import { NavLink, useLoaderData } from "react-router"
 import { Flex, Stack, Heading, Alert, Text, Button } from "@chakra-ui/react"
 import { useTranslation } from "react-i18next"
 import PageTitle from "../components/generic/PageTitle"
+import { resPX, resPY } from "../utils/css-chakra"
 
 function ConfirmEmail() {
   const { t, i18n } = useTranslation("common")
@@ -30,8 +31,8 @@ function ConfirmEmail() {
         align="center"
         rounded="md"
         shadow="xs"
-        py={{ base: 3, md: 5 }}
-        px={{ base: 3, md: 6 }}
+        py={resPY}
+        px={resPX}
       >
         <Heading>{t("email-confirmation")}</Heading>
         <Alert.Root status={alertStatus} title={alertTitle}>
