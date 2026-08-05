@@ -1,0 +1,20 @@
+{
+  "title": "Invitaciones",
+  "description": "Invita a nuevos usuarios a tu panel y gestiona el acceso por correo electronico.",
+  "table-email": "Correo",
+  "table-role": "Rol",
+  "table-status": "Estado",
+  "table-invited-by": "Invitado por",
+  "table-invited-at": "Invitado el",
+  "table-accepted-or-expires": "Aceptado / Expira",
+  "table-actions": "Acciones",
+  "accepted-at": "Aceptado el",
+  "expires-at": "Expira el",
+  "hidden-columns": "Columnas ocultas",
+  "no-hidden-columns": "Ninguna columna oculta",
+  "hide-column": "Ocultar {{column}}",
+  "delete-invitation": "Eliminar invitacion",
+  "status-green": "Aceptado",
+  "status-yellow": "Pendiente",
+  "status-red": "Fallido"
+}

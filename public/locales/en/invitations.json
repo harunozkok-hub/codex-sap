@@ -1,0 +1,20 @@
+{
+  "title": "Invitations",
+  "description": "Invite new users to your dashboard and manage access by email.",
+  "table-email": "Email",
+  "table-role": "Role",
+  "table-status": "Status",
+  "table-invited-by": "Invited by",
+  "table-invited-at": "Invited at",
+  "table-accepted-or-expires": "Accepted / Expires",
+  "table-actions": "Actions",
+  "accepted-at": "Accepted at",
+  "expires-at": "Expires at",
+  "hidden-columns": "Hidden columns",
+  "no-hidden-columns": "No hidden columns",
+  "hide-column": "Hide {{column}}",
+  "delete-invitation": "Delete invitation",
+  "status-green": "Accepted",
+  "status-yellow": "Pending",
+  "status-red": "Failed"
+}

@@ -1,6 +1,7 @@
 import { redirect } from "react-router"
-import i18n from "../utils/i18n"
-import { getResolvedLanguage } from "../utils/helper-i18n"
+
+import { getResolvedLanguage } from "@/utils/helper-i18n"
+import i18n from "@/utils/i18n"
 
 const SUPPORTED = ["en", "it", "pt", "es"]
 

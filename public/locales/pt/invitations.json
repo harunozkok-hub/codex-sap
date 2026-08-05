@@ -1,0 +1,20 @@
+{
+  "title": "Convites",
+  "description": "Convide novos usuarios para o seu painel e gerencie o acesso por e-mail.",
+  "table-email": "Email",
+  "table-role": "Funcao",
+  "table-status": "Estado",
+  "table-invited-by": "Convidado por",
+  "table-invited-at": "Convidado em",
+  "table-accepted-or-expires": "Aceito / Expira",
+  "table-actions": "Acoes",
+  "accepted-at": "Aceito em",
+  "expires-at": "Expira em",
+  "hidden-columns": "Colunas ocultas",
+  "no-hidden-columns": "Nenhuma coluna oculta",
+  "hide-column": "Ocultar {{column}}",
+  "delete-invitation": "Excluir convite",
+  "status-green": "Aceito",
+  "status-yellow": "Pendente",
+  "status-red": "Falhou"
+}

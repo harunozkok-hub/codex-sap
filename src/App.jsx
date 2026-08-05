@@ -1,65 +1,83 @@
 import { RouterProvider } from "react-router/dom"
 import { createBrowserRouter, Navigate, redirect } from "react-router"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 
-import Layout from "./components/Layout"
-import LayoutWeb from "./components/LayoutWeb"
-
-import DashboardPermissions from "./dashboard-pages/profile/DashboardPermissions"
-import Invitations from "./dashboard-pages/profile/Invitations"
-import ManageDashboardUsers from "./dashboard-pages/profile/ManageDashboardUsers"
-import ManageProfile from "./dashboard-pages/profile/ManageProfile"
-import ManageCompanyProfile from "./dashboard-pages/profile/ManageCompanyProfile"
-import EditCompanyAddress from "./dashboard-pages/profile/EditCompanyAddress"
-
-import Dashboard from "./dashboard-pages/Dashboard"
-import Products from "./dashboard-pages/catalog/Products"
-import Categories from "./dashboard-pages/catalog/Categories"
-import Bundles from "./dashboard-pages/catalog/Bundles"
-
-import Warehouses from "./dashboard-pages/inventory/Warehouses"
-import Stock from "./dashboard-pages/inventory/Stock"
-import Packaging from "./dashboard-pages/inventory/Packaging"
-import Samples from "./dashboard-pages/inventory/Samples"
-import RawMaterials from "./dashboard-pages/inventory/RawMaterials"
-
-import ProductionOrders from "./dashboard-pages/production/ProductionOrders"
-import ProductionTimeline from "./dashboard-pages/production/ProductionTimeline"
-
-import Finance from "./dashboard-pages/Finance"
-import Orders from "./dashboard-pages/Orders"
-import SalesStats from "./dashboard-pages/SalesStats"
-import UISettings from "./dashboard-pages/UISettings"
-
-import Home from "./web-pages/Home"
-import PricePlans from "./web-pages/PricePlans"
-import Login from "./web-pages/Login"
-import Signup from "./web-pages/Signup"
-import ConfirmEmail from "./web-pages/ConfirmEmail"
-import ResendEmail from "./web-pages/ResendEmail"
-import SignupSuccess from "./web-pages/SignupSuccess"
-
-import { loginAction, signupAction, logoutAction } from "./actions/login-signup"
-import { resendEmailVerificationAction } from "./actions/resend-email-verification"
 import {
-  requireAuthLoader,
-  homeLoader,
-  confirmEmailLoader,
-  requireModulePerm,
-  requirePermissions,
-} from "./loaders/auth"
-import { langLoader } from "./loaders/langLoader"
+  forgotPasswordAction,
+  resetPasswordAction,
+} from "@/actions/forgot-password"
+import { loginAction, signupAction, logoutAction } from "@/actions/login-signup"
 import {
   editCompanyProfileAction,
   editUserProfileAction,
   changePasswordAction,
   editCompanyAddressAction,
-} from "./actions/profile-actions"
-import { getResolvedLanguage } from "./utils/helper-i18n"
-import RedirectPage from "./web-pages/RedirectPage"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { companyProfileLoader } from "./loaders/profile-loaders"
-import ChangePassword from "./dashboard-pages/profile/ChangePassword"
+} from "@/actions/profile-actions"
+
+import {
+  companyAddressesAction,
+  companyLegalInfoAction,
+  completeOnboardingAction,
+  companyPreferencesAction,
+  countryContextAction,
+} from "@/actions/dashboard-onboarding"
+import { resendEmailVerificationAction } from "@/actions/resend-email-verification"
+import { companyProfileLoader } from "@/loaders/profile-loaders"
+import {
+  homeLoader,
+  confirmEmailLoader,
+  requireModulePerm,
+  requirePermissions,
+  resetPasswordLoader,
+} from "@/loaders/auth"
+import { dashboardOnboardingLoader } from "@/loaders/dashboard-loaders"
+import { langLoader } from "@/loaders/langLoader"
+import { dashboardLoader } from "@/loaders/dashboard-loaders"
+import { getResolvedLanguage } from "@/utils/helper-i18n"
+
+import Layout from "@/pages/dashboard-pages/Layout"
+import LayoutWeb from "@/pages/web-pages/LayoutWeb"
+import Dashboard from "@/pages/dashboard-pages/Dashboard"
+import Finance from "@/pages/dashboard-pages/Finance"
+import Orders from "@/pages/dashboard-pages/Orders"
+import SalesStats from "@/pages/dashboard-pages/SalesStats"
+import UISettings from "@/pages/dashboard-pages/UISettings"
+import Bundles from "@/pages/dashboard-pages/catalog/Bundles"
+import Categories from "@/pages/dashboard-pages/catalog/Categories"
+import Products from "@/pages/dashboard-pages/catalog/Products"
+import Packaging from "@/pages/dashboard-pages/inventory/Packaging"
+import RawMaterials from "@/pages/dashboard-pages/inventory/RawMaterials"
+import Samples from "@/pages/dashboard-pages/inventory/Samples"
+import Stock from "@/pages/dashboard-pages/inventory/Stock"
+import Warehouses from "@/pages/dashboard-pages/inventory/Warehouses"
+import ProductionOrders from "@/pages/dashboard-pages/production/ProductionOrders"
+import ProductionTimeline from "@/pages/dashboard-pages/production/ProductionTimeline"
+import ChangePassword from "@/pages/dashboard-pages/profile/ChangePassword"
+import DashboardPermissions from "@/pages/dashboard-pages/profile/DashboardPermissions"
+import EditCompanyAddress from "@/pages/dashboard-pages/profile/EditCompanyAddress"
+import Invitations from "@/pages/dashboard-pages/profile/Invitations"
+import ManageCompanyProfile from "@/pages/dashboard-pages/profile/ManageCompanyProfile"
+import ManageDashboardUsers from "@/pages/dashboard-pages/profile/ManageDashboardUsers"
+import ManageProfile from "@/pages/dashboard-pages/profile/ManageProfile"
+import ConfirmEmail from "@/pages/web-pages/ConfirmEmail"
+import ForgotPassword from "@/pages/web-pages/ForgotPassword"
+import Home from "@/pages/web-pages/Home"
+import Login from "@/pages/web-pages/Login"
+import PricePlans from "@/pages/web-pages/PricePlans"
+import RedirectPage from "@/pages/web-pages/RedirectPage"
+import ResendEmail from "@/pages/web-pages/ResendEmail"
+import ResetPassword from "@/pages/web-pages/ResetPassword"
+import Signup from "@/pages/web-pages/Signup"
+import SignupSuccess from "@/pages/web-pages/SignupSuccess"
+import LayoutDashboardOnboarding from "@/pages/dashboard-onboarding/LayoutDashboardOnboarding"
+import Welcome from "@/pages/dashboard-onboarding/Welcome"
+import CompanyContext from "@/pages/dashboard-onboarding/CompanyContext"
+import CompanyLegalInfo from "@/pages/dashboard-onboarding/CompanyLegalInfo"
+import CompanyAddress from "@/pages/dashboard-onboarding/CompanyAddress"
+import Preferences from "@/pages/dashboard-onboarding/Preferences"
+import Done from "@/pages/dashboard-onboarding/Done"
+import AccessRequired from "@/pages/dashboard-onboarding/AccessRequired"
 
 const resolveLanguageLoader = async () => {
   const lang = await getResolvedLanguage()
@@ -119,6 +137,17 @@ const router = createBrowserRouter([
             action: resendEmailVerificationAction,
           },
           {
+            path: "forgot-password",
+            element: <ForgotPassword />,
+            action: forgotPasswordAction,
+          },
+          {
+            path: "reset-password",
+            element: <ResetPassword />,
+            action: resetPasswordAction,
+            loader: resetPasswordLoader,
+          },
+          {
             path: "register",
             element: <Signup />,
             action: signupAction,
@@ -128,15 +157,58 @@ const router = createBrowserRouter([
       },
 
       { path: "logout", action: logoutAction(queryClient) },
-
+      {
+        path: "dashboard-onboarding",
+        id: "dashboard-onboarding",
+        element: <LayoutDashboardOnboarding />,
+        loader: dashboardOnboardingLoader(queryClient),
+        children: [
+          {
+            index: true,
+            element: <Navigate to="welcome" replace />,
+          },
+          {
+            path: "welcome",
+            element: <Welcome />,
+          },
+          {
+            path: "company-country",
+            element: <CompanyContext />,
+            action: countryContextAction(queryClient),
+          },
+          {
+            path: "company-legal-info",
+            element: <CompanyLegalInfo />,
+            action: companyLegalInfoAction(queryClient),
+          },
+          {
+            path: "company-address",
+            element: <CompanyAddress />,
+            action: companyAddressesAction(queryClient),
+          },
+          {
+            path: "preferences",
+            element: <Preferences />,
+            action: companyPreferencesAction(queryClient),
+          },
+          {
+            path: "done",
+            element: <Done />,
+            action: completeOnboardingAction(queryClient),
+          },
+          {
+            path: "access-required",
+            element: <AccessRequired />,
+          },
+        ],
+      },
       {
         path: "dashboard",
         element: <Layout />,
         id: "dashboard",
-        loader: requireAuthLoader(queryClient),
+        loader: dashboardLoader(queryClient),
         children: [
           { index: true, element: <Dashboard /> },
-
           {
             path: "profile",
             children: [
@@ -181,9 +253,7 @@ const router = createBrowserRouter([
               },
               {
                 path: "invitations",
-                loader: requirePermissions(queryClient, [
-                  "invitations.manage",
-                ]),
+                loader: requirePermissions(queryClient, ["invitations.manage"]),
                 element: <Invitations />,
               },
               {

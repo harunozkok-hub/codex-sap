@@ -31,7 +31,7 @@ const initPromise = i18n
     fallbackLng: "en",
     ns: ["common", "homepage", "home-sidebar"],
     supportedLngs: ["en", "es", "it", "pt"],
-    debug: true,
+    debug: false,
     react: {
       useSuspense: true,
     },

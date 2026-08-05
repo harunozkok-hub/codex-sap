@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react"
 import {
   Field,
   Input,
-  Button,
   Group,
   Box,
   HStack,
@@ -10,11 +9,19 @@ import {
   Text,
   Spinner,
 } from "@chakra-ui/react"
-import { FiSearch } from "react-icons/fi"
-import { resM } from "../../utils/css-chakra"
-import { api } from "../../utils/api"
+import { useTranslation } from "react-i18next"
+import { LuSearch } from "react-icons/lu"
+import { api } from "@/utils/api"
+import { glassInputStyles } from "@/utils/css-chakra"
+import SecondaryButton from "@/components/form/SecondaryButton"
 
-const AddressSuggestionInput = ({ onSelect, minEntry = 5 }) => {
+const AddressSuggestionInput = ({
+  onSelect,
+  minEntry = 5,
+  country: restrictedCountry = null,
+  countryLabel = "",
+}) => {
+  const { t } = useTranslation("common")
   const [query, setQuery] = useState("")
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
@@ -75,12 +82,31 @@ const AddressSuggestionInput = ({ onSelect, minEntry = 5 }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const handleSelectSuggestion = (item) => {
+    const suggestionCountry = item?.country_code?.toUpperCase()
+
+    if (restrictedCountry && suggestionCountry !== restrictedCountry) {
+      setOpen(false)
+      setError(
+        t("address-country-restriction", {
+          country: countryLabel || restrictedCountry,
+        }),
+      )
+      return
+    }
+
+    setQuery(item.formatted || "")
+    setError(null)
+    setOpen(false)
+    onSelect?.(item)
+  }
+
   return (
-    <Box ref={containerRef} position="relative" my={resM}>
+    <Box ref={containerRef} position="relative" mb="5">
       <Field.Root invalid={!!error}>
         <HStack mb={1}>
-          <FiSearch color="#00897B" />
-          <Field.Label color="teal.700">Find Address</Field.Label>
+          <LuSearch color="#6B46C1" />
+          <Field.Label color="purple.700">Find Address</Field.Label>
         </HStack>
 
         <Group attached w="full">
@@ -92,23 +118,29 @@ const AddressSuggestionInput = ({ onSelect, minEntry = 5 }) => {
               setOpen(false)
             }}
             onKeyDown={handleKeyDown}
-            color="teal.600"
             autoComplete="empty"
-            borderColor={error ? "red.200" : "green.200"}
             placeholder="Start typing street, number, city..."
-            _placeholder={{ color: "inherit" }}
+            {...glassInputStyles}
           />
-          <Button
-            colorPalette="teal"
-            variant="outline"
+          <SecondaryButton
             onClick={fetchSuggestions}
             loading={loading}
             disabled={query.trim().length < minEntry}
-          >
-            Search
-          </Button>
+            label="Search"
+            h="48px"
+          />
         </Group>
-        {error && <Field.ErrorText>{error}</Field.ErrorText>}
+        {error && (
+          <Field.ErrorText
+            mt="0.5"
+            fontSize="xs"
+            fontWeight="500"
+            color="rgba(220, 38, 38, 0.82)"
+            lineHeight="1.4"
+          >
+            {error}
+          </Field.ErrorText>
+        )}
       </Field.Root>
 
       {open && (results.length > 0 || loading) && (
@@ -139,11 +171,7 @@ const AddressSuggestionInput = ({ onSelect, minEntry = 5 }) => {
                   py={2}
                   cursor="pointer"
                   _hover={{ bg: "gray.100" }}
-                  onClick={() => {
-                    setQuery(item.formatted || "")
-                    setOpen(false)
-                    onSelect?.(item)
-                  }}
+                  onClick={() => handleSelectSuggestion(item)}
                 >
                   <Text fontSize="sm">{item.formatted}</Text>
                 </Box>

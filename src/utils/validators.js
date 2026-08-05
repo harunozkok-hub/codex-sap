@@ -1,4 +1,4 @@
-import { t } from "./helper-i18n"
+import { t } from "@/utils/helper-i18n"
 
 // ==============================
 // Generic helpers
@@ -23,10 +23,35 @@ export const splitPhone = (phone) => {
 // used to cancel error, when user starts typing to field
 // setErrors((prev) => clearFieldErrorFromErrors(prev, name))
 export const clearFieldErrorFromErrors = (errors, fieldName) => {
-  if (!errors?.[fieldName] && !errors?.["form"]) return errors
+  if (!errors) return errors
 
   const next = { ...errors }
-  delete next[fieldName]
+  let changed = false
+
+  if (next[fieldName]) {
+    delete next[fieldName]
+    changed = true
+  }
+
+  // Some validators group related field errors under a parent object,
+  // like errors.password.confirmPassword for signup password validation.
+  for (const [key, value] of Object.entries(next)) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) continue
+    if (!value[fieldName]) continue
+
+    const nested = { ...value }
+    delete nested[fieldName]
+    changed = true
+
+    if (Object.keys(nested).length === 0) {
+      delete next[key]
+    } else {
+      next[key] = nested
+    }
+  }
+
+  if (!next["form"] && !changed) return errors
+
   delete next["form"]
   return Object.keys(next).length ? next : null
 }
@@ -42,43 +67,124 @@ export const normalizeOptional = (v) => {
   return s.length === 0 ? null : s
 }
 
+const resolveFrontendField = (fieldMap, backendField) => {
+  if (!backendField || !fieldMap || typeof fieldMap !== "object") return null
+
+  if (fieldMap[backendField]) {
+    return fieldMap[backendField]
+  }
+
+  const path = String(backendField)
+    .split(".")
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+
+  if (path.length < 2) return null
+
+  let currentMap = fieldMap
+
+  for (let i = 0; i < path.length; i += 1) {
+    const currentSegment = path[i]
+
+    if (typeof currentMap?.[currentSegment] === "string") {
+      return currentMap[currentSegment]
+    }
+
+    if (
+      !currentMap?.[currentSegment] ||
+      typeof currentMap[currentSegment] !== "object" ||
+      Array.isArray(currentMap[currentSegment])
+    ) {
+      return null
+    }
+
+    currentMap = currentMap[currentSegment]
+  }
+
+  return null
+}
+
+const parseBackendErrorFragments = (message) => {
+  if (
+    message &&
+    typeof message === "object" &&
+    Array.isArray(message.detail)
+  ) {
+    return message.detail
+      .map((err) => {
+        const backendField = Array.isArray(err?.loc)
+          ? err.loc.filter((segment) => segment !== "body").join(".")
+          : ""
+        const fieldMessage =
+          typeof err?.msg === "string" ? err.msg.trim() : String(err?.msg ?? "").trim()
+
+        if (!fieldMessage) return null
+
+        return {
+          backendField,
+          fieldMessage,
+          raw: backendField ? `${backendField}: ${fieldMessage}` : fieldMessage,
+        }
+      })
+      .filter(Boolean)
+  }
+
+  const normalizedMessage =
+    typeof message === "string" ? message.trim() : String(message ?? "").trim()
+
+  if (!normalizedMessage) return []
+
+  return normalizedMessage
+    .split("·")
+    .map((fragment) => fragment.trim())
+    .filter(Boolean)
+    .map((fragment) => {
+      const separatorIndex = fragment.indexOf(":")
+
+      if (separatorIndex === -1) {
+        return {
+          backendField: "",
+          fieldMessage: "",
+          raw: fragment,
+        }
+      }
+
+      return {
+        backendField: fragment.slice(0, separatorIndex).trim(),
+        fieldMessage: fragment.slice(separatorIndex + 1).trim(),
+        raw: fragment,
+      }
+    })
+}
+
 export const mapBackendFieldErrors = (
   message,
   fieldMap = {},
   fallbackFormMessage = t("something-went-wrong", { ns: "common" }),
 ) => {
-  const normalizedMessage =
-    typeof message === "string" ? message.trim() : String(message ?? "").trim()
+  const fragments = parseBackendErrorFragments(message)
 
-  if (!normalizedMessage) {
+  if (fragments.length === 0) {
     return { form: fallbackFormMessage }
   }
 
   const errors = {}
   const formFragments = []
-  const fragments = normalizedMessage
-    .split("·")
-    .map((fragment) => fragment.trim())
-    .filter(Boolean)
 
   for (const fragment of fragments) {
-    const separatorIndex = fragment.indexOf(":")
-
-    if (separatorIndex === -1) {
-      formFragments.push(fragment)
+    if (!fragment.backendField || !fragment.fieldMessage) {
+      formFragments.push(fragment.raw)
       continue
     }
 
-    const backendField = fragment.slice(0, separatorIndex).trim()
-    const fieldMessage = fragment.slice(separatorIndex + 1).trim()
-    const frontendField = fieldMap[backendField]
+    const frontendField = resolveFrontendField(fieldMap, fragment.backendField)
 
-    if (!frontendField || !fieldMessage) {
-      formFragments.push(fragment)
+    if (!frontendField) {
+      formFragments.push(fragment.raw)
       continue
     }
 
-    errors[frontendField] = fieldMessage
+    errors[frontendField] = fragment.fieldMessage
   }
 
   if (formFragments.length > 0) {

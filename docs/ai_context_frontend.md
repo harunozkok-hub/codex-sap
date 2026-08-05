@@ -6,6 +6,7 @@
 - Chakra UI is the UI system
 - FastAPI backend with cookie auth
 - Forms use local component state + React Router `<Form>`
+- Local app imports now use the `@/...` alias for `src/*`
 - Prefer raw query data or `null`, not `{ ok, data, errorMessage, errorStatus }` wrappers for normal server-state queries
 
 ---
@@ -21,10 +22,15 @@
 
 ## Routing Pattern
 
+### Import convention
+- Prefer `@/...` imports for local files under `src`
+- Avoid adding new `./` or `../` imports for app code unless there is a specific reason
+
 ### Loaders
 - Use loaders to prefetch query data before rendering
 - Loader should usually call `queryClient.ensureQueryData(...)`
 - If one backend request seeds multiple related query keys, use a prefetch helper in the loader
+- Public token-based flows can return lightweight objects like `{ ok, message, status? }` from loaders when the page needs to branch between a form and an error state
 
 ### Actions
 - Use route `action` handlers for mutations
@@ -38,6 +44,25 @@
 - Do not use manual `fetch` for standard mutations
 - `method="put"` is valid if the matched route has an `action`
 - Nested routes must use `action`, not `actions`
+
+### Current auth-recovery routes
+- `/:lang/resend-email`
+  action: `resendEmailVerificationAction`
+- `/:lang/forgot-password`
+  action: `forgotPasswordAction`
+- `/:lang/reset-password`
+  loader: `resetPasswordLoader`
+  action: `resetPasswordAction`
+- `/:lang/confirm-email`
+  loader: `confirmEmailLoader`
+
+### Current token loader pattern
+- `confirmEmailLoader()` reads `token` from search params and maps backend statuses to user-friendly localized messages
+- `resetPasswordLoader()` reads `token` from search params and returns `{ ok, message }`
+- `ResetPassword.jsx` uses `useLoaderData()` and:
+  - renders the password form only when `ok === true`
+  - renders an error alert instead when the token is missing/invalid/expired
+- For public token-validation endpoints, avoid backend `401` if the request is not an authenticated-session flow, because the shared axios interceptor will try refresh-token logic on `401`
 
 ---
 
@@ -124,6 +149,7 @@ Backend payload mapping currently follows:
   - `useEffect(() => setErrors(actionData.errors), ...)`
 - React 19 ESLint flags this with `react-hooks/set-state-in-effect`
 - This is a known repo pattern/caveat
+- Some auth pages also use `clearFieldErrorFromErrors(...)` on input change to clear field/form errors progressively
 
 ---
 
@@ -138,6 +164,40 @@ Backend payload mapping currently follows:
 - Keep spacing consistent with shared chakra spacing helpers
 - Avoid heavy inline styles unless needed for layout fixes
 
+### Current glass UI system
+- Public/auth pages now use a glassmorphism-oriented shared style layer from `utils/css-chakra.js`
+- Reusable shared style exports include:
+  - `backgroundGradient`
+  - `glassInputStyles`
+  - `glassSelectStyles`
+  - `glassCheckboxControlStyles`
+  - `alertStatusStyles`
+  - `navPrimaryGlassButton`
+  - `navGhostGlassButton`
+  - spacing/layout tokens like `resGap`, `resM`, `resPX`, `resPY`, `logoWidth`, `headerHeight`, `maxPageWidth`
+- Public auth pages commonly wrap content in `GlassEffectContainer`
+- Form components in `components/form` are already styled against this glass system:
+  - `FormInput`
+  - `FormSelect`
+  - `FormCheckbox`
+  - `PhoneInput`
+  - `FormAlert`
+- Shared dashboard/profile/onboarding UI also follows this glass direction:
+  - `StickyTitleWithBackButton`
+  - `CustomDialog`
+  - `CustomAccordion`
+  - `AddressCard`
+  - `toaster`
+
+### Reusable button convention
+- `PrimaryButton` wraps the glass primary button style
+- `SecondaryButton` wraps the glass ghost/outline button style
+- Current migration rule:
+  - `variant="surface"` generally became `PrimaryButton`
+  - `variant="outline"` generally became `SecondaryButton`
+- Destructive actions should use `DangerButton`
+- Neutral non-destructive actions like reset/cancel should prefer `SecondaryButton neutral`
+
 ### Current profile pages
 - Frequently use:
   - `PageContainer`
@@ -146,6 +206,19 @@ Backend payload mapping currently follows:
   - desktop breadcrumb / mobile sticky title pattern
   - `FullpageSpinner` during submitting
   - `ErrorMessage` for missing/failed data
+- Dashboard pages now also use shared shell/hierarchy tokens from `utils/css-chakra.js`
+  - softer `PageContainer` shell
+  - shared section divider/title styling
+  - shared purple title icon color for desktop/mobile page titles
+- Current profile form pages were extracted into keyed child components to avoid stale local form state:
+  - `forms/ProfileForm.jsx`
+  - `forms/CompanyProfileForm.jsx`
+- Parent pages keep shell/query/mutation logic while child forms own local form state and dirty tracking
+
+### Icons
+- Prefer one consistent icon family across dashboard/profile/onboarding
+- Current direction is `react-icons/lu` (Lucide)
+- Avoid introducing new `Fi` / `Pi` icons in these areas unless there is a strong reason
 
 ---
 
@@ -154,6 +227,11 @@ Backend payload mapping currently follows:
 - Routes are language-prefixed: `/:lang/...`
 - Prefer localized toaster titles/descriptions and error fallback messages
 - If adding reusable generic text, prefer `common.json`
+- Current locales in active use include:
+  - `en`
+  - `it`
+  - `es`
+  - `pt` (currently written in PT-BR style)
 
 ---
 
@@ -161,6 +239,11 @@ Backend payload mapping currently follows:
 - Backend returns structured field errors that are mapped in actions
 - Messages should be localized in frontend when used for toasts/fallbacks
 - Cookie-based auth only, no manual token handling
+- Session payload permissions are the source of truth for access control
+- Sidebar visibility and route guards now depend on explicit `permissions` strings, not a coarse admin-role check
+- Use:
+  - `requireModulePerm(...)` for module-prefix access like `catalog.read` / `catalog.write`
+  - `requirePermissions(...)` for exact capability checks like `users.manage` or `user_permissions.manage`
 
 ---
 
@@ -172,12 +255,75 @@ Backend payload mapping currently follows:
 - use local form state
 - patch query cache directly when mutation response already contains the updated entity
 - keep query cache shapes simple
+- reuse `PrimaryButton` / `SecondaryButton` before adding new ad hoc button styling
+- reuse glass form components before styling raw Chakra fields manually
+- prefer alias imports with `@/...`
+- current unsaved-changes blocking pattern is route-owned:
+  - one blocker is mounted in `Layout`
+  - child dashboard pages publish dirty state through `Outlet context`
+  - React `StrictMode` can still produce transient dev-only blocker warnings even when non-Strict behavior is fine
 
 ### Don’t
 - fetch inside components for normal server-state flows
 - mix form state with query state
 - invent custom query wrappers unless truly necessary
 - duplicate route/action/query logic
+- introduce new `401` responses for public token-validation flows unless refresh-token interceptor behavior is explicitly desired
+
+---
+
+## Recent Work
+- Dashboard onboarding flow is built end-to-end:
+  - `welcome`
+  - `company-country`
+  - `company-legal-info`
+  - `company-address`
+  - `preferences`
+  - `done`
+- Onboarding routes use React Router actions wired in `App.jsx`, with query prefetch from `dashboardOnboardingQuery()`
+- Main onboarding action file:
+  - `src/actions/dashboard-onboarding.js`
+  - uses action-side validation, localized fallback errors, `mapBackendFieldErrors(...)`, and cache patching via `queryClient.setQueryData(["dashboardOnboarding"], ...)`
+- Important onboarding dirty-state rule:
+  - `company-country` and `preferences` can start from auto-filled/suggested values
+  - so “not dirty” does not always mean “already saved”
+  - skip submit only when submitted values already match saved backend values
+- Shared onboarding util mappings live in:
+  - `src/pages/dashboard-onboarding/util/dashboard-onboarding.js`
+  - includes form mappers and backend field maps for nested pydantic errors
+- Reusable address layer was extracted and should be preferred for all address forms:
+  - `src/components/form/AddressInput.jsx`
+  - `src/components/form/util/address-input.js`
+  - shared pieces include `mapAddressToForm`, `addressesFieldMap`, `EMPTY_ADDRESS_FORM`, `getAddressPayloadAndErrors`
+- `AddressInput` supports country restriction:
+  - `country` prop locks the country field
+  - a hidden input keeps `country` in submitted `FormData`
+  - `AddressSuggestionInput` rejects suggestions from other countries and shows a localized inline error
+- Error mapping helper in `src/utils/validators.js` now supports nested backend paths recursively
+  - works for flat, 1-level, and deeper nested maps like `addresses.hq.country_code`
+- Onboarding layout now supports unsaved-changes blocking like dashboard pages:
+  - `LayoutDashboardOnboarding.jsx` owns blocker state
+  - child pages publish dirty state through `Outlet` context
+- `CustomDialog.jsx` and `CustomAccordion.jsx` are now part of the shared glass UI layer
+- `Done.jsx` uses the glass summary accordion plus required confirmation checkbox before final completion
+- Company/profile work completed recently:
+  - company profile supports country/document-language reset back into onboarding
+  - company/profile forms were extracted into keyed child components to avoid stale local form state
+  - blocker host was fixed so only one blocker mounts at a time
+  - session/company query caches are patched directly after profile mutations when needed
+- `src/utils/datetime.js` was added as the shared date helper:
+  - `formatDateTime(value, { timezone })`
+  - `formatDateOnly(value, { timezone })`
+  - defaults to browser/user timezone when no timezone is passed
+- Invitations page work:
+  - dedicated locale namespace: `public/locales/*/invitations.json`
+  - desktop version uses a glass table with sticky first/last columns
+  - mobile version uses stacked invitation cards that mirror the desktop hierarchy
+- Icon cleanup:
+  - dashboard/profile/onboarding pages were aligned to Lucide icons
+  - several reusable components were migrated away from `Fi` / `Pi`
+- Locale coverage:
+  - onboarding/company-profile/invitations keys were added or updated across `en`, `it`, `es`, `pt`
 
 ---
 
@@ -187,3 +333,5 @@ Backend payload mapping currently follows:
 - When touching forms, verify frontend field names against action `formData.get(...)`
 - When touching cache logic, prefer simple per-entity/per-slot query keys over complex wrapped cache objects
 - Keep code production-ready and consistent with current app conventions
+- If touching auth pages, preserve the glass visual system unless the user asks for a redesign
+- If replacing buttons, preserve spacing/props and only switch safe non-danger cases to `PrimaryButton` / `SecondaryButton`

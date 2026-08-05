@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { useBlocker } from "react-router"
 import { useTranslation } from "react-i18next"
-import CustomDialog from "./CustomDialog"
+import CustomDialog from "@/components/generic/CustomDialog"
 
 function UnsavedChangesBlocker({ when }) {
   const { t } = useTranslation("common")
@@ -13,7 +13,6 @@ function UnsavedChangesBlocker({ when }) {
     },
     [when],
   )
-
   const blocker = useBlocker(shouldBlock)
 
   return (
@@ -33,7 +32,7 @@ function UnsavedChangesBlocker({ when }) {
       }}
       isOpen={blocker.state === "blocked"}
       onOpenChange={(open) => {
-        if (blocker.state === "blocked") {
+        if (!open && blocker.state === "blocked") {
           blocker.reset?.()
         }
       }}

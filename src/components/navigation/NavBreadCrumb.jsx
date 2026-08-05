@@ -2,15 +2,17 @@ import { Fragment } from "react"
 import { Breadcrumb, Text, HStack } from "@chakra-ui/react"
 import { NavLink } from "react-router"
 import { LiaSlashSolid } from "react-icons/lia"
+import { resM } from "@/utils/css-chakra"
 
 export default function NavBreadCrumb({
   items = [],
   currentPageLabel,
   size = "lg",
   icon = null,
+  mx = resM,
 }) {
   return (
-    <HStack spacing={3} m={1} align="center">
+    <HStack spacing={3} my={1} mx={mx} align="center">
       {icon}
       <Breadcrumb.Root my="1.5px" size={size}>
         <Breadcrumb.List>

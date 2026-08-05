@@ -1,26 +1,15 @@
 import { redirect } from "react-router"
-import { sessionQuery } from "../queries/profile-queries"
-import { api } from "../utils/api"
-import { loadNamespaces, t } from "../utils/helper-i18n"
-import { hasAnyPermission, hasModuleAccess } from "../utils/menu-permissions"
+
+import { sessionQuery } from "@/queries/profile-queries"
+import { api } from "@/utils/api"
+import { loadNamespaces, t } from "@/utils/helper-i18n"
+import { hasAnyPermission, hasModuleAccess } from "@/utils/menu-permissions"
 
 export const homeLoader = (queryClient) => async () => {
   await queryClient.ensureQueryData(sessionQuery())
   return null
 }
 
-export const requireAuthLoader =
-  (queryClient) =>
-  async ({ params }) => {
-    const profile = await queryClient.ensureQueryData(sessionQuery())
-
-    if (!profile) {
-      // ✅ keep language in redirect
-      throw redirect(`/${params.lang}/login`)
-    }
-
-    return null
-  }
 export async function confirmEmailLoader({ request }) {
   await loadNamespaces("common")
   const url = new URL(request.url)
@@ -39,12 +28,29 @@ export async function confirmEmailLoader({ request }) {
   } catch (err) {
     const status = err?.response?.status
     const msg =
-      status === 401
+      status === 410
         ? t("invalid-or-expired-link-email-", { ns: "common" })
         : status === 409
           ? t("email-already-verified", { ns: "common" })
           : t("confirmation-failed", { ns: "common" })
     return { ok: false, message: msg, status }
+  }
+}
+
+export async function resetPasswordLoader({ request }) {
+  await loadNamespaces("common")
+  const url = new URL(request.url)
+  const token = url.searchParams.get("token")
+  if (!token) {
+    return { ok: false, message: t("missing-token", { ns: "common" }) }
+  }
+
+  try {
+    const res = await api.post("/auth/reset-password-token-check", { token })
+    return { ok: true, message: res.data?.message || null }
+  } catch (err) {
+    const msg = err?.message || "Password reset link is either used or invalid"
+    return { ok: false, message: msg }
   }
 }
 

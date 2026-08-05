@@ -1,7 +1,7 @@
-import { validateEmail, validateFields } from "../utils/validators"
-import { api } from "../utils/api"
-import { toaster } from "../components/ui/toaster"
-import { loadNamespaces, t } from "../utils/helper-i18n"
+import { toaster } from "@/components/ui/toaster"
+import { api } from "@/utils/api"
+import { loadNamespaces, t } from "@/utils/helper-i18n"
+import { validateEmail, validateFields } from "@/utils/validators"
 
 export const resendEmailVerificationAction = async ({ request }) => {
   const formData = await request.formData()

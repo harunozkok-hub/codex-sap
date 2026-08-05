@@ -1,18 +1,19 @@
-import { toaster } from "../components/ui/toaster"
 import { redirect } from "react-router"
+
 import {
+  loginFieldMap,
+  signupFieldMap,
+} from "@/pages/dashboard-pages/profile/util/profile"
+import { toaster } from "@/components/ui/toaster"
+import { api } from "@/utils/api"
+import { loadNamespaces, t } from "@/utils/helper-i18n"
+import {
+  mapBackendFieldErrors,
   validateEmail,
   validateFields,
   validateName,
   validatePasswordPair,
-  mapBackendFieldErrors,
-} from "../utils/validators"
-import { api } from "../utils/api"
-import { loadNamespaces, t } from "../utils/helper-i18n"
-import {
-  loginFieldMap,
-  signupFieldMap,
-} from "../dashboard-pages/profile/util/profile"
+} from "@/utils/validators"
 
 export const signupAction = async ({ request }) => {
   const formData = await request.formData()
@@ -109,6 +110,7 @@ export const loginAction =
         duration: 6000,
         description: t("common:logged-in-successfully"),
       })
+      sessionStorage.removeItem("pending_signup_email")
 
       return redirect(`/${params.lang}/dashboard`)
     } catch (err) {

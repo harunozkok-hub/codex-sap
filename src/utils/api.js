@@ -1,5 +1,6 @@
 import axios from "axios"
-import { getCurrentLanguage } from "./helper-i18n"
+
+import { getCurrentLanguage } from "@/utils/helper-i18n"
 
 export const api = axios.create({
   baseURL: "http://localhost:8000",

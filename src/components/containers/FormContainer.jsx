@@ -1,14 +1,21 @@
 import { Box } from "@chakra-ui/react"
+import { dashboardFormContainerStyles } from "@/utils/css-chakra"
 
 function FormContainer({
   children,
   maxW = "1000px",
-  mx,
+  mx = dashboardFormContainerStyles.mx,
   w = "full",
   ...props
 }) {
   return (
-    <Box w={w} maxW={maxW} mx={mx} {...props}>
+    <Box
+      {...dashboardFormContainerStyles}
+      w={w}
+      maxW={maxW}
+      mx={mx}
+      {...props}
+    >
       {children}
     </Box>
   )

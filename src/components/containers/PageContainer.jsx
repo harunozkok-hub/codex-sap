@@ -1,10 +1,14 @@
 import { Box } from "@chakra-ui/react"
-import { resPX, resPY } from "../../utils/css-chakra"
+import {
+  dashboardPageSurfaceStyles,
+  resPX,
+  resPY,
+} from "@/utils/css-chakra"
 
 function PageContainer({
   children,
   maxW = "full",
-  bg = "white",
+  bg,
   px = resPX,
   py = resPY,
   minW = "340px",
@@ -12,14 +16,11 @@ function PageContainer({
 }) {
   return (
     <Box
-      bg={bg}
+      {...dashboardPageSurfaceStyles}
+      bg={bg ?? dashboardPageSurfaceStyles.bg}
       position="relative"
-      borderWidth="1px"
-      borderColor="gray.100"
-      borderRadius="lg"
       px={px}
       py={py}
-      boxShadow="sm"
       maxW={maxW}
       minW={minW}
       mx="auto"

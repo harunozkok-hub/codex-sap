@@ -1,5 +1,7 @@
 import { queryOptions } from "@tanstack/react-query"
-import { api } from "../utils/api"
+
+import { api } from "@/utils/api"
+
 export const companyHQAddressQueryKey = ["profile", "company-addresses", "hq"]
 export const companyBillingAddressQueryKey = [
   "profile",
@@ -7,6 +9,31 @@ export const companyBillingAddressQueryKey = [
   "billing",
 ]
 export const companyDetailsQueryKey = ["profile", "company-details"]
+
+const defaultInvitationsQueryParams = {
+  mine: false,
+  used: null,
+  search: "",
+  page: 1,
+  pageSize: 10,
+}
+
+export const invitationsQueryKey = (params = {}) => {
+  const normalizedSearch =
+    typeof params.search === "string" ? params.search.trim() : ""
+
+  return [
+    "profile",
+    "invitations",
+    {
+      mine: params.mine ?? defaultInvitationsQueryParams.mine,
+      used: params.used ?? defaultInvitationsQueryParams.used,
+      search: normalizedSearch,
+      page: params.page ?? defaultInvitationsQueryParams.page,
+      pageSize: params.pageSize ?? defaultInvitationsQueryParams.pageSize,
+    },
+  ]
+}
 
 //query profile
 export const sessionQuery = () =>
@@ -45,11 +72,42 @@ export const companyProfileQuery = () =>
     },
   })
 
+export const invitationsQuery = (params = {}) =>
+  queryOptions({
+    queryKey: invitationsQueryKey(params),
+    retry: false,
+    queryFn: async () => {
+      try {
+        const normalizedSearch =
+          typeof params.search === "string" ? params.search.trim() : ""
+
+        const res = await api.get("/api-user/invitations", {
+          params: {
+            mine: params.mine ?? defaultInvitationsQueryParams.mine,
+            used: params.used ?? defaultInvitationsQueryParams.used,
+            search: normalizedSearch || undefined,
+            page: params.page ?? defaultInvitationsQueryParams.page,
+            page_size: params.pageSize ?? defaultInvitationsQueryParams.pageSize,
+          },
+        })
+        return res.data
+      } catch {
+        return null
+      }
+    },
+  })
+
 // updates + patches company profile info
 export async function updateCompanyProfile(payload) {
   const res = await api.patch("/api-user/company", payload)
   return res.data
 }
+//resets company country + all information related + to redirect to onboarding page
+export async function resetCompanyCountry() {
+  const res = await api.post("/api-user/company-country-change-request")
+  return res.data
+}
+
 // updates + patches company address info
 export async function updateCompanyAddress(payload, type) {
   const res = await api.put(`/api-user/company-address/${type}`, payload)

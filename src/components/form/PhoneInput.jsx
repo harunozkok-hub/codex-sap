@@ -8,10 +8,16 @@ import {
   For,
   Input,
 } from "@chakra-ui/react"
-import { autofillInput } from "../../utils/css-chakra"
-import { country } from "../../utils/country"
 import { useTranslation } from "react-i18next"
-import GenericToggleTip from "../generic/GenericToggleTip"
+
+import {
+  autofillInput,
+  glassInputStyles,
+  glassSelectStyles,
+} from "@/utils/css-chakra"
+import { country } from "@/utils/country"
+
+import GenericToggleTip from "@/components/generic/GenericToggleTip"
 
 const PhoneInput = ({
   error,
@@ -20,7 +26,7 @@ const PhoneInput = ({
   countryCodeValue,
   phoneNumberValue,
   onChange, // single handler like your handleFormData
-  countryOptions = country, // default to your `country` array
+  countryOptions = null,
   countryCodeName = "countryCode",
   phoneNumberName = "phoneNumber",
   countryPlaceholder,
@@ -29,6 +35,7 @@ const PhoneInput = ({
   required = false,
 }) => {
   const { t } = useTranslation("profile")
+  const resolvedCountryOptions = countryOptions ?? country(t)
   return (
     <Box rounded="sm" display="flex">
       <Field.Root
@@ -38,14 +45,18 @@ const PhoneInput = ({
         disabled={readOnly}
         required={required}
       >
-        <HStack>
-          <Field.Label my="1.5">{label || t("phone-number")}</Field.Label>
-          {required && <Field.RequiredIndicator />}
-          {tooltipInfo ? <GenericToggleTip content={tooltipInfo} /> : null}
-        </HStack>
+        {label && (
+          <HStack mb="0.5" gap="1" minH="24px">
+            <Field.Label m="0" fontSize="sm" fontWeight="600" color="gray.700">
+              {label || t("phone-number")}
+            </Field.Label>
+            {required && <Field.RequiredIndicator />}
+            {tooltipInfo && <GenericToggleTip content={tooltipInfo} />}
+          </HStack>
+        )}
 
-        <Grid templateColumns="repeat(4, 1fr)" width="100%">
-          <GridItem colSpan={1}>
+        <Grid templateColumns="repeat(6, 1fr)" width="100%" gap="3">
+          <GridItem colSpan={2}>
             <NativeSelect.Root minWidth="6rem">
               <NativeSelect.Field
                 name={countryCodeName}
@@ -56,8 +67,9 @@ const PhoneInput = ({
                 readOnly={readOnly}
                 disabled={readOnly}
                 {...(!readOnly && { onChange })}
+                {...glassSelectStyles}
               >
-                <For each={countryOptions}>
+                <For each={resolvedCountryOptions}>
                   {(item) => (
                     <option key={item.iso2} value={item.phone_code}>
                       {item.icon +
@@ -71,11 +83,11 @@ const PhoneInput = ({
                   )}
                 </For>
               </NativeSelect.Field>
-              <NativeSelect.Indicator />
+              <NativeSelect.Indicator color="gray.500" pointerEvents="none" />
             </NativeSelect.Root>
           </GridItem>
 
-          <GridItem colSpan={3}>
+          <GridItem colSpan={4}>
             <Input
               name={phoneNumberName}
               _autofill={autofillInput}
@@ -86,6 +98,7 @@ const PhoneInput = ({
               readOnly={readOnly}
               disabled={readOnly}
               {...(!readOnly && { onChange })}
+              {...glassInputStyles}
             />
           </GridItem>
         </Grid>

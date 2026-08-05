@@ -1,14 +1,13 @@
 import { StrictMode, Suspense } from "react"
-
 import { createRoot } from "react-dom/client"
 
-import { Provider } from "./components/ui/provider"
-import "./index.css"
+import "@/index.css"
+import "@/utils/i18n"
 
-import App from "./App"
-import { Toaster } from "./components/ui/toaster"
-import "./utils/i18n"
-import FullpageSpinner from "./components/generic/FullpageSpinner"
+import App from "@/App"
+import FullpageSpinner from "@/components/generic/FullpageSpinner"
+import { Provider } from "@/components/ui/provider"
+import { Toaster } from "@/components/ui/toaster"
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

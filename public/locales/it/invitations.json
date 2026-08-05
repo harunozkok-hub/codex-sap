@@ -1,0 +1,20 @@
+{
+  "title": "Inviti",
+  "description": "Invita nuovi utenti alla tua dashboard e gestisci l'accesso tramite email.",
+  "table-email": "Email",
+  "table-role": "Ruolo",
+  "table-status": "Stato",
+  "table-invited-by": "Invitato da",
+  "table-invited-at": "Invitato il",
+  "table-accepted-or-expires": "Accettato / Scade",
+  "table-actions": "Azioni",
+  "accepted-at": "Accettato il",
+  "expires-at": "Scade il",
+  "hidden-columns": "Colonne nascoste",
+  "no-hidden-columns": "Nessuna colonna nascosta",
+  "hide-column": "Nascondi {{column}}",
+  "delete-invitation": "Elimina invito",
+  "status-green": "Accettato",
+  "status-yellow": "In attesa",
+  "status-red": "Non riuscito"
+}

@@ -1,32 +1,36 @@
-import { toaster } from "../components/ui/toaster"
-import { api } from "../utils/api"
+import { redirect } from "react-router"
+
 import {
-  validateFields,
-  validateEmail,
-  validateName,
-  validatePhone,
-  normalizeOptional,
-  mapBackendFieldErrors,
-  validatePassword,
-  validatePasswordPair,
-} from "../utils/validators"
-import { t, loadNamespaces } from "../utils/helper-i18n"
+  addressesFieldMap,
+  getAddressPayloadAndErrors,
+} from "@/components/form/util/address-input"
 import {
-  companyProfileQuery,
-  companyDetailsQueryKey,
+  changePasswordFieldMap,
+  companyProfileFieldMap,
+  userProfileFieldMap,
+} from "@/pages/dashboard-pages/profile/util/profile"
+import { toaster } from "@/components/ui/toaster"
+import {
   companyAddressQueryKey,
+  companyDetailsQueryKey,
+  companyProfileQuery,
   sessionQuery,
+  updateCompanyAddress,
   updateCompanyProfile,
   updateProfile,
-  updateCompanyAddress,
-} from "../queries/profile-queries"
+} from "@/queries/profile-queries"
+import { api } from "@/utils/api"
+import { loadNamespaces, t } from "@/utils/helper-i18n"
 import {
-  userProfileFieldMap,
-  companyProfileFieldMap,
-  changePasswordFieldMap,
-  companyAddressesFieldMap,
-} from "../dashboard-pages/profile/util/profile"
-import { redirect } from "react-router"
+  mapBackendFieldErrors,
+  normalizeOptional,
+  validateEmail,
+  validateName,
+  validatePassword,
+  validatePasswordPair,
+  validatePhone,
+  validateFields,
+} from "@/utils/validators"
 
 export const changePasswordAction =
   (queryClient) =>
@@ -162,14 +166,23 @@ export const editCompanyProfileAction =
   (queryClient) =>
   async ({ request }) => {
     const formData = await request.formData()
-    await loadNamespaces(["validators", "company-profile"])
+    await loadNamespaces(["validators", "company-profile", "dashboard"])
 
     const display_name = formData.get("displayName")
     const legal_name = formData.get("legalName")
+    const company_location_code = formData.get("country")
+    const document_language = formData.get("documentLanguage")
     const vat_number = formData.get("vatNumber")
+    const vat_number_label = formData.get("vatNumberLabel")
+    const vat_number_required = formData.get("vatNumberRequired") === "true"
+    const legal_id = formData.get("legalId")
+    const legal_id_label = formData.get("legalIdLabel")
+    const legal_id_required = formData.get("legalIdRequired") === "true"
     const billing_email = formData.get("billingEmail")
     const country_code = formData.get("countryCode")
     const phone_number = formData.get("phoneNumber")
+    const timezone = formData.get("timezone")
+    const currency = formData.get("currency")
 
     const errors = validateFields({
       displayName: () =>
@@ -181,9 +194,37 @@ export const editCompanyProfileAction =
           true,
         ),
       legalName: () =>
-        validateName(legal_name, t("company-profile:legal-name"), 2, 255, true),
+        validateName(legal_name, t("company-profile:legal-name"), 2, 255),
       vatNumber: () =>
-        validateName(vat_number, t("company-profile:vat-number"), 2, 100, true),
+        validateName(
+          vat_number,
+          vat_number_label || t("company-profile:vat-number"),
+          5,
+          100,
+          !vat_number_required,
+        ),
+      legalId: () =>
+        validateName(
+          legal_id,
+          legal_id_label || "Legal ID",
+          2,
+          100,
+          !legal_id_required,
+        ),
+      timezone: () =>
+        validateName(
+          timezone,
+          t("dashboard:onboarding-preferences-timezone-label"),
+          2,
+          100,
+        ),
+      currency: () =>
+        validateName(
+          currency,
+          t("dashboard:onboarding-preferences-currency-label"),
+          2,
+          20,
+        ),
       phoneNumber: () =>
         validatePhone(
           phone_number,
@@ -193,7 +234,7 @@ export const editCompanyProfileAction =
           25,
           true,
         ),
-      billingEmail: () => validateEmail(billing_email, true),
+      billingEmail: () => validateEmail(billing_email),
     })
 
     if (errors) {
@@ -205,15 +246,31 @@ export const editCompanyProfileAction =
 
     const payload = {
       display_name: normalizeOptional(display_name),
-      legal_name: normalizeOptional(legal_name),
+      legal_name,
+      company_location_code,
+      document_language,
       vat_number: normalizeOptional(vat_number),
+      legal_id: normalizeOptional(legal_id),
       phone: newPhoneNumber,
-      billing_email: normalizeOptional(billing_email),
+      billing_email,
+      timezone,
+      currency,
     }
     try {
       const response = await updateCompanyProfile(payload)
 
       queryClient.setQueryData(companyDetailsQueryKey, () => response)
+      queryClient.setQueryData(["session"], (prev) => {
+        if (!prev) return prev
+
+        return {
+          ...prev,
+          company: {
+            ...prev.company,
+            ...response,
+          },
+        }
+      })
       await queryClient.ensureQueryData(companyProfileQuery())
 
       toaster.create({
@@ -241,74 +298,13 @@ export const editCompanyAddressAction =
   (queryClient) =>
   async ({ request, params }) => {
     const formData = await request.formData()
-    await loadNamespaces(["validators", "company-profile"])
+    await loadNamespaces(["validators", "company-profile", "profile"])
 
-    const name = formData.get("name")
-    const country_code = formData.get("countryCodeAddress")
-    const phone_number = formData.get("phoneNumberAddress")
-    const street = formData.get("streetName")
-    const house_number = formData.get("houseNumber")
-    const address_extra = formData.get("addressExtra")
-    const postal_code = formData.get("postalCode")
-    const city = formData.get("city")
-    const region = formData.get("region")
-    const country = formData.get("country")
     const copyToOtherAddress = formData.get("copyToOtherAddress") === "on"
-
-    const errors = validateFields({
-      name: () =>
-        validateName(name, t("company-profile:address-name"), 2, 255, true),
-      phoneNumberAddress: () =>
-        validatePhone(
-          phone_number,
-          country_code,
-          t("profile:phone-number"),
-          5,
-          25,
-          true,
-        ),
-      streetName: () =>
-        validateName(street, t("company-profile:street-name"), 2, 255),
-      houseNumber: () =>
-        validateName(
-          house_number,
-          t("company-profile:house-number"),
-          1,
-          30,
-          true,
-        ),
-      addressExtra: () =>
-        validateName(
-          address_extra,
-          t("company-profile:address-extra"),
-          2,
-          255,
-          true,
-        ),
-      postalCode: () =>
-        validateName(postal_code, t("company-profile:postal-code"), 2, 30),
-      city: () => validateName(city, t("company-profile:city"), 2, 120),
-      region: () =>
-        validateName(region, t("company-profile:region"), 2, 120, true),
-    })
+    const { payload, errors } = getAddressPayloadAndErrors(formData)
 
     if (errors) {
       return { errors }
-    }
-    const newPhoneNumber = normalizeOptional(phone_number)
-      ? `${country_code} ${phone_number}`
-      : null
-
-    const payload = {
-      name: normalizeOptional(name),
-      phone: newPhoneNumber,
-      street,
-      house_number: normalizeOptional(house_number),
-      address_extra: normalizeOptional(address_extra),
-      postal_code,
-      city,
-      region: normalizeOptional(region),
-      country_code: country,
     }
 
     try {
@@ -351,7 +347,7 @@ export const editCompanyAddressAction =
       return {
         errors: mapBackendFieldErrors(
           msg,
-          companyAddressesFieldMap,
+          addressesFieldMap,
           t("company-profile:company-address-update-failed"),
         ),
       }
